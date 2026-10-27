@@ -1,0 +1,6 @@
+{
+  "name": "Garden Expo Africa Maroc - Salon International du Paysage & de la Ville Verte",
+  "description": "Site officiel de Garden Expo Africa au Maroc. Le grand rendez-vous B2B du paysage, de l'aménagement urbain, de l'irrigation durable et de la ville écologique à Casablanca.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
