@@ -49,7 +49,7 @@ export function filterSectors(sectors: Sector[], query: string): Sector[] {
     (s) =>
       s.title.toLowerCase().includes(q) ||
       s.shortDesc.toLowerCase().includes(q) ||
-      s.products.some((p) => p.toLowerCase().includes(q))
+      s.products.some((p: string) => p.toLowerCase().includes(q))
   );
 }
 

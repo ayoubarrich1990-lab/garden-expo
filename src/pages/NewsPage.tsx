@@ -171,7 +171,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({ onNavigate }) => {
             </div>
 
             <div className="flex flex-col gap-4 text-sm text-stone-700 leading-relaxed mb-8">
-              {selectedArticle.content.map((p, idx) => (
+              {selectedArticle.content.map((p: string, idx: number) => (
                 <p key={idx}>{p}</p>
               ))}
             </div>

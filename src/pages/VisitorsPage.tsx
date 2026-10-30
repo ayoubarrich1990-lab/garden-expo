@@ -169,7 +169,7 @@ export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
               {/* Badge Category Ribbon */}
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center mb-4">
                 <span className="text-xs uppercase font-extrabold text-emerald-900 tracking-wider">
-                  CATÉGORIE : {generatedBadge.visitorProfile.toUpperCase()}
+                  CATÉGORIE : {(generatedBadge.visitorProfile || 'Professionnel').toUpperCase()}
                 </span>
               </div>
 

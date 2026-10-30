@@ -61,63 +61,63 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Col 2: Navigation rapide */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
-              Navigation
+              Plateforme & Accès
             </h4>
-            <ul className="flex flex-col gap-2.5 text-sm">
+            <ul className="flex flex-col gap-2.5 text-xs text-stone-300">
               <li>
                 <button
                   onClick={() => { onNavigate('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="hover:text-emerald-400 transition-colors"
+                  className="hover:text-[#A5C96B] transition-colors"
                 >
                   Accueil
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => { onNavigate('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="hover:text-emerald-400 transition-colors"
+                  onClick={() => { onNavigate('salon'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="hover:text-[#A5C96B] transition-colors"
                 >
-                  À Propos du Salon
+                  Le Salon & Vision
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => { onNavigate('sectors'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="hover:text-emerald-400 transition-colors"
+                  onClick={() => { onNavigate('directory'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="hover:text-[#A5C96B] transition-colors"
                 >
-                  Secteurs d'Activité
+                  Annuaire des Exposants & Plan
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => { onNavigate('exhibitors'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="hover:text-emerald-400 transition-colors"
+                  onClick={() => { onNavigate('editions'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="hover:text-[#A5C96B] transition-colors"
                 >
-                  Espace Exposants
+                  Éditions Précédentes (1, 2, 3)
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => { onNavigate('visitors'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="hover:text-emerald-400 transition-colors"
+                  onClick={() => { onNavigate('gallery'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="hover:text-[#A5C96B] transition-colors"
                 >
-                  Espace Visiteurs (Badge)
+                  Galerie & Photothèque
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => { onNavigate('partners'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="hover:text-emerald-400 transition-colors"
+                  onClick={() => { onNavigate('exhibitor_portal'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="hover:text-[#A5C96B] transition-colors"
                 >
-                  Partenaires & Sponsoring
+                  Espace Exposant (Stand & Factures)
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => { onNavigate('news'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="hover:text-emerald-400 transition-colors"
+                  onClick={() => { onNavigate('visitor_portal'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="hover:text-[#A5C96B] transition-colors"
                 >
-                  Actualités & Conférences
+                  Espace Visiteur (E-Badge QR)
                 </button>
               </li>
             </ul>

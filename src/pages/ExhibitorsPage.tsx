@@ -194,7 +194,7 @@ export const ExhibitorsPage: React.FC<ExhibitorsPageProps> = ({ onNavigate }) =>
                 <div>
                   <span className="text-stone-500 block text-xs">Estimation Tarifaire HT</span>
                   <span className="font-bold text-emerald-800 font-mono">
-                    {formatCurrencyMAD(submittedBooking.data.estimatedPriceMAD)}
+                    {formatCurrencyMAD(submittedBooking.data.estimatedPriceMAD || 0)}
                   </span>
                 </div>
               </div>
