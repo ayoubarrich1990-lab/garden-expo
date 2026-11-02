@@ -178,6 +178,22 @@ export const EditionsPage: React.FC<EditionsPageProps> = ({ onNavigate }) => {
                     </div>
                   </div>
                 )}
+
+                {selectedEdition.number === 3 && (
+                  <div className="mt-4 p-5 rounded-2xl bg-white border border-stone-200">
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#123D2B] uppercase tracking-wider mb-3">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                      <span>Mosaïque Officielle des Exposants & Partenaires (3ème Édition)</span>
+                    </div>
+                    <div className="rounded-xl overflow-hidden border border-stone-200 bg-stone-50 p-2">
+                      <img
+                        src="/assets/aistudio/Capture_d_e_cran_2026-11-02_a__10.12.55_bf4c0644.png"
+                        alt="Mosaïque des marques et exposants de la 3ème édition"
+                        className="w-full h-auto object-contain"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Right Column: Moments forts & Partenaires */}

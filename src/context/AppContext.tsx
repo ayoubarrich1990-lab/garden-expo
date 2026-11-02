@@ -75,6 +75,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>(() => {
+    const version = localStorage.getItem('gea_version_exhibitors');
+    const currentVersion = 'v5_3rd_edition_mural';
+    if (version !== currentVersion) {
+      localStorage.setItem('gea_version_exhibitors', currentVersion);
+      localStorage.setItem('gea_exhibitors', JSON.stringify(INITIAL_EXHIBITORS));
+      return INITIAL_EXHIBITORS;
+    }
     const saved = localStorage.getItem('gea_exhibitors');
     return saved ? JSON.parse(saved) : INITIAL_EXHIBITORS;
   });

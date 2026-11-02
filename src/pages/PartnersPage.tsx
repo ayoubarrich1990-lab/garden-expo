@@ -60,6 +60,30 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Banner Mosaïque des Partenaires & Marques */}
+        <div className="mb-12 bg-white p-6 rounded-2xl border border-stone-200 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <span className="text-xs font-bold text-[#367A4D] uppercase tracking-wider block">
+                Mural Officiel des Exposants & Partenaires
+              </span>
+              <h2 className="text-xl font-bold text-stone-900 font-['Outfit',sans-serif]">
+                Les Marques & Institutions Réunies à la 3ème Édition
+              </h2>
+            </div>
+            <span className="text-xs text-stone-500 bg-stone-100 px-3 py-1 rounded-full font-medium self-start">
+              Casablanca · Édition de Référence
+            </span>
+          </div>
+          <div className="p-3 bg-stone-50 rounded-xl border border-stone-200/60 overflow-hidden">
+            <img
+              src="/assets/aistudio/Capture_d_e_cran_2026-11-02_a__10.12.55_bf4c0644.png"
+              alt="Mosaïque des exposants et partenaires de la 3ème édition"
+              className="w-full h-auto object-contain max-h-[220px] mx-auto"
+            />
+          </div>
+        </div>
+
         {/* Section 1: Official Institutional Partners */}
         <div className="mb-16">
           <div className="mb-8">

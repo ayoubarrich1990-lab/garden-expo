@@ -3,6 +3,7 @@ import { PageId } from '../types';
 import { SECTORS_DATA, PARTNERS_DATA, NEWS_ARTICLES } from '../data/expoData';
 import { useApp } from '../context/AppContext';
 import { LogoTicker } from '../components/LogoTicker';
+import { HeroVideoSlider } from '../components/HeroVideoSlider';
 import {
   ArrowRight,
   Calendar,
@@ -19,6 +20,7 @@ import {
   ChevronRight,
   Download,
   ExternalLink,
+  ZoomIn,
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -26,125 +28,18 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
-  const { interviews } = useApp();
+  const { interviews, exhibitors } = useApp();
   const [activeVideoModal, setActiveVideoModal] = useState<string | null>(null);
+  const [muralModalOpen, setMuralModalOpen] = useState(false);
+  const [partnerFilter, setPartnerFilter] = useState<'all' | 'institutional' | 'media' | 'brands'>('all');
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F8F9FA] text-[#1E293B]">
-      {/* 1. HERO SECTION: ULTRA-MODERN ARCHITECTURAL & B2B EXHIBITION HEADER */}
-      <section className="relative bg-[#0D2818] text-white overflow-hidden border-b border-emerald-950/60">
-        {/* Subtle decorative grid background & lighting accent */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <img
-            src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1600&auto=format&fit=crop&q=80"
-            alt="Aménagement paysager contemporain et végétalisation urbaine au Maroc"
-            className="w-full h-full object-cover object-center opacity-25 scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0D2818] via-[#0D2818]/90 to-[#0D2818]/60" />
-          <div className="absolute -top-32 -right-32 w-96 h-96 bg-[#A5C96B]/10 rounded-full blur-3xl pointer-events-none" />
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-28">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Column: Direct Value Proposition & Action CTAs */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* Event Badge Bar */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/80 border border-emerald-700/40 text-emerald-300 text-xs font-semibold tracking-wide uppercase">
-                <span className="w-2 h-2 rounded-full bg-[#A5C96B] animate-pulse" />
-                <span>Casablanca · 4ème Édition Officielle</span>
-                <span className="text-emerald-500">·</span>
-                <span>22 – 25 Octobre 2026</span>
-              </div>
-
-              {/* Main Punchy Title (No Fluff) */}
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] font-['Outfit',sans-serif]">
-                Le Salon B2B du Paysage & de la Ville Verte
-              </h1>
-
-              {/* Crisp Subtitle */}
-              <p className="text-base sm:text-lg text-stone-300 leading-relaxed max-w-2xl font-normal">
-                La plateforme d'affaires réunissant pépiniéristes, concepteurs, fabricants de mobilier urbain,
-                experts en irrigation durable et donneurs d'ordres institutionnels au Maroc et en Afrique.
-              </p>
-
-              {/* Venue & Date Key Card */}
-              <div className="p-4 bg-white/5 border border-white/10 rounded-xl backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs sm:text-sm text-stone-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#367A4D] flex items-center justify-center text-white shrink-0">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-white block">OFEC Casablanca, Maroc</span>
-                    <span className="text-xs text-stone-400">
-                      Office des Foires et Expositions (Face Mosquée Hassan II)
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-xs text-[#A5C96B] font-semibold sm:border-l sm:border-white/15 sm:pl-4 shrink-0">
-                  <Calendar className="w-4 h-4 shrink-0 text-[#A5C96B]" />
-                  <span>4 Jours d'Opportunités B2B</span>
-                </div>
-              </div>
-
-              {/* Direct CTAs: E-Badge + Stand Booking */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-                <button
-                  onClick={() => onNavigate('visitor_portal')}
-                  className="px-6 py-3.5 bg-[#A5C96B] hover:bg-[#A5C96B]/90 text-[#0D2818] rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 shrink-0 group cursor-pointer"
-                >
-                  <QrCode className="w-4 h-4 text-[#0D2818]" />
-                  <span>Demander mon E-Badge Gratuit</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                </button>
-
-                <button
-                  onClick={() => onNavigate('contact')}
-                  className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl font-bold text-xs uppercase tracking-wider transition-all backdrop-blur-xs flex items-center justify-center gap-2 shrink-0 cursor-pointer"
-                >
-                  <Building2 className="w-4 h-4 text-[#A5C96B]" />
-                  <span>Réserver un Stand Exposant</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column: Sleek Exhibition Quick Metrics Bento */}
-            <div className="lg:col-span-5 grid grid-cols-2 gap-3.5">
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col justify-between">
-                <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Surface</span>
-                <span className="text-3xl sm:text-4xl font-black text-[#A5C96B] font-['Outfit',sans-serif] my-2">
-                  10 000 m²
-                </span>
-                <span className="text-xs text-stone-300">Halls d'exposition OFEC</span>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col justify-between">
-                <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Exposants</span>
-                <span className="text-3xl sm:text-4xl font-black text-[#A5C96B] font-['Outfit',sans-serif] my-2">
-                  140+
-                </span>
-                <span className="text-xs text-stone-300">Fabricants & Pépinières</span>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col justify-between">
-                <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Visiteurs</span>
-                <span className="text-3xl sm:text-4xl font-black text-[#A5C96B] font-['Outfit',sans-serif] my-2">
-                  8 500+
-                </span>
-                <span className="text-xs text-stone-300">Professionnels ciblés</span>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col justify-between">
-                <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider">International</span>
-                <span className="text-3xl sm:text-4xl font-black text-[#A5C96B] font-['Outfit',sans-serif] my-2">
-                  12 Pays
-                </span>
-                <span className="text-xs text-stone-300">Délégations & Acheteurs</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 1. HERO SECTION: CINEMATIC B2B VIDEO SLIDER */}
+      <HeroVideoSlider
+        onNavigate={onNavigate}
+        onOpenVideoLightbox={(url) => setActiveVideoModal(url)}
+      />
 
       {/* CONTINUOUS LOGO TICKER */}
       <section className="bg-white border-b border-stone-200">
@@ -284,7 +179,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
               <div className="pt-3 flex flex-wrap gap-3">
                 <button
-                  onClick={() => setActiveVideoModal('https://www.youtube.com/embed/dQw4w9WgXcQ')}
+                  onClick={() => setActiveVideoModal('https://www.youtube.com/embed/QoPzVfK6RSg?autoplay=1')}
                   className="px-5 py-3 bg-[#0D2818] hover:bg-[#367A4D] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                 >
                   <Play className="w-4 h-4 text-[#A5C96B] fill-current" />
@@ -301,27 +196,27 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             </div>
 
             <div className="lg:col-span-7">
-              <div
-                onClick={() => setActiveVideoModal('https://www.youtube.com/embed/dQw4w9WgXcQ')}
-                className="relative rounded-2xl overflow-hidden shadow-xl border border-stone-200 group cursor-pointer aspect-video bg-stone-900"
-              >
-                <img
-                  src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1200&auto=format&fit=crop&q=80"
-                  alt="Rétrospective Garden Expo Africa Casablanca"
-                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500 opacity-85"
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-stone-200 aspect-video bg-black group">
+                <iframe
+                  src="https://www.youtube.com/embed/QoPzVfK6RSg?rel=0&modestbranding=1"
+                  title="Film Rétrospectif Officiel - Garden Expo Africa 3ème Édition"
+                  className="w-full h-full border-0 rounded-2xl"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0D2818]/90 via-black/20 to-transparent flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full bg-[#0D2818]/90 border-2 border-[#A5C96B] text-white flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:bg-[#367A4D] transition-all">
-                    <Play className="w-7 h-7 text-[#A5C96B] fill-current ml-1" />
-                  </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between text-xs text-stone-500 px-1">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="font-semibold text-stone-700">Film Rétrospectif Officiel · Garden Expo Africa 3ème Édition</span>
                 </div>
-                <div className="absolute bottom-4 left-4 right-4 text-white text-xs flex items-center justify-between pointer-events-none">
-                  <div>
-                    <span className="font-bold block text-sm">Garden Expo Africa · Édition 3 (Casablanca)</span>
-                    <span className="text-stone-300">Moments forts & témoignages exposants</span>
-                  </div>
-                  <span className="bg-black/70 px-2 py-1 rounded text-[11px] font-mono font-bold">03:45</span>
-                </div>
+                <button
+                  onClick={() => setActiveVideoModal('https://www.youtube.com/embed/QoPzVfK6RSg?autoplay=1')}
+                  className="text-[#367A4D] hover:text-[#0D2818] font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Agrandir</span>
+                </button>
               </div>
             </div>
           </div>
@@ -446,38 +341,184 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* 6. PARTENAIRES OFFICIELS */}
-      <section className="py-14 bg-[#F8F9FA] border-t border-stone-200">
+      {/* 6. NOS EXPOSANTS & PARTENAIRES OFFICIELS */}
+      <section className="py-16 bg-[#F8F9FA] border-t border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-xl mx-auto mb-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-[#0D2818] font-['Outfit',sans-serif]">
-              Partenaires & Parrainages Officiels
-            </h2>
-            <p className="text-xs text-stone-500 mt-1">
-              Avec l'appui institutionnel des fédérations professionnelles et acteurs de référence au Maroc.
-            </p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
+            <div>
+              <span className="text-xs font-bold text-[#367A4D] uppercase tracking-wider block mb-1">
+                Écosystème B2B & Partenariats
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0D2818] font-['Outfit',sans-serif]">
+                Nos Exposants & Partenaires Officiels
+              </h2>
+              <p className="text-xs sm:text-sm text-stone-500 mt-1 max-w-2xl">
+                Institutions publiques, fédérations scientifiques, fabricants de matériel, leaders de l'irrigation et du mobilier urbain réunis lors de la 3ème édition.
+              </p>
+            </div>
+            <button
+              onClick={() => onNavigate('directory')}
+              className="mt-4 md:mt-0 px-4 py-2.5 bg-[#0D2818] hover:bg-[#367A4D] text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 self-start cursor-pointer shadow-xs"
+            >
+              <span>Consulter l'annuaire complet ({exhibitors.length} exposants)</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {PARTNERS_DATA.map((partner) => (
-              <div
-                key={partner.id}
-                className="p-4 bg-white rounded-xl border border-stone-200 flex flex-col justify-between hover:border-[#367A4D] transition-colors"
-              >
-                <div>
-                  <span className="text-[10px] font-bold text-[#367A4D] uppercase tracking-wider block mb-1">
-                    {partner.badge}
-                  </span>
-                  <h3 className="text-sm font-bold text-stone-900 leading-snug">
-                    {partner.name}
-                  </h3>
-                  <p className="text-xs text-stone-500 mt-1">
-                    {partner.role}
-                  </p>
-                </div>
+          {/* Mosaïque Officielle des Marques & Partenaires (3ème Édition) */}
+          <div className="mb-10 bg-white p-4 sm:p-6 rounded-2xl border border-stone-200 shadow-xs">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                <span className="text-xs font-bold text-[#0D2818] uppercase tracking-wide">
+                  Mosaïque Officielle des Marques & Partenaires · 3ème Édition
+                </span>
               </div>
-            ))}
+              <button
+                onClick={() => setMuralModalOpen(true)}
+                className="text-xs text-[#367A4D] hover:text-[#0D2818] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                title="Agrandir en haute résolution"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+                <span>Plein écran</span>
+              </button>
+            </div>
+
+            <div
+              onClick={() => setMuralModalOpen(true)}
+              className="relative rounded-xl overflow-hidden bg-white border border-stone-100 p-2 sm:p-4 group cursor-zoom-in hover:border-stone-300 transition-all"
+            >
+              <img
+                src="/assets/aistudio/Capture_d_e_cran_2026-11-02_a__10.12.55_bf4c0644.png"
+                alt="Nos Exposants & Partenaires Officiels - Garden Expo Africa 3ème Édition"
+                className="w-full h-auto object-contain max-h-[170px] sm:max-h-[220px] mx-auto group-hover:scale-[1.01] transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 backdrop-blur-xs">
+                  <ZoomIn className="w-3.5 h-3.5" />
+                  Cliquez pour agrandir les logos officiels
+                </span>
+              </div>
+            </div>
           </div>
+
+          {/* Filtres de catégorie */}
+          <div className="flex flex-wrap items-center gap-2 mb-6 border-b border-stone-200 pb-4">
+            <span className="text-xs font-semibold text-stone-500 mr-2">Filtrer par rôle :</span>
+            <button
+              onClick={() => setPartnerFilter('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                partnerFilter === 'all'
+                  ? 'bg-[#0D2818] text-white shadow-xs'
+                  : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
+              }`}
+            >
+              Tous les acteurs ({PARTNERS_DATA.length + 8})
+            </button>
+            <button
+              onClick={() => setPartnerFilter('institutional')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                partnerFilter === 'institutional'
+                  ? 'bg-[#0D2818] text-white shadow-xs'
+                  : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
+              }`}
+            >
+              Institutionnels & Scientifiques
+            </button>
+            <button
+              onClick={() => setPartnerFilter('brands')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                partnerFilter === 'brands'
+                  ? 'bg-[#0D2818] text-white shadow-xs'
+                  : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
+              }`}
+            >
+              Grandes Marques Exposantes
+            </button>
+            <button
+              onClick={() => setPartnerFilter('media')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                partnerFilter === 'media'
+                  ? 'bg-[#0D2818] text-white shadow-xs'
+                  : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
+              }`}
+            >
+              Presse & Médias B2B
+            </button>
+          </div>
+
+          {/* Grille dynamique selon filtre */}
+          {partnerFilter === 'brands' ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {exhibitors.slice(0, 12).map((exh) => (
+                <div
+                  key={exh.id}
+                  onClick={() => onNavigate('directory')}
+                  className="p-4 bg-white rounded-xl border border-stone-200 hover:border-[#367A4D] hover:shadow-sm transition-all cursor-pointer flex flex-col justify-between"
+                >
+                  <div>
+                    <span className="text-[10px] font-bold text-[#367A4D] uppercase tracking-wider block mb-1">
+                      {exh.sector}
+                    </span>
+                    <h3 className="text-sm font-bold text-stone-900 leading-snug">
+                      {exh.name}
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-1 line-clamp-2">
+                      {exh.description}
+                    </p>
+                  </div>
+                  <div className="pt-3 mt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400">
+                    <span>Stand {exh.standNumber}</span>
+                    <span className="text-[#367A4D] font-bold flex items-center gap-0.5">
+                      Fiche <ChevronRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {PARTNERS_DATA.filter((p) => {
+                if (partnerFilter === 'institutional') return p.category === 'institutional' || p.category === 'association' || p.category === 'academic';
+                if (partnerFilter === 'media') return p.category === 'media';
+                return true;
+              }).map((partner) => (
+                <div
+                  key={partner.id}
+                  className="p-4 bg-white rounded-xl border border-stone-200 flex flex-col justify-between hover:border-[#367A4D] hover:shadow-xs transition-all"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-bold text-[#367A4D] uppercase tracking-wider">
+                        {partner.badge}
+                      </span>
+                      {partner.website && (
+                        <a
+                          href={partner.website}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-stone-400 hover:text-[#367A4D]"
+                          title="Visiter le site officiel"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </div>
+                    <h3 className="text-sm font-bold text-stone-900 leading-snug">
+                      {partner.name}
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                      {partner.role}
+                    </p>
+                  </div>
+                  <div className="pt-3 mt-3 border-t border-stone-100 flex items-center gap-1.5 text-[11px] text-stone-400">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Partenaire de l'Édition Officielle</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -540,32 +581,74 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative bg-stone-900 rounded-2xl overflow-hidden w-full max-w-4xl border border-white/20 aspect-video shadow-2xl"
+            className="relative bg-black rounded-2xl overflow-hidden w-full max-w-5xl border border-white/20 aspect-video shadow-2xl"
           >
             <button
               onClick={() => setActiveVideoModal(null)}
-              className="absolute top-4 right-4 z-10 p-2 text-white/80 hover:text-white bg-black/50 rounded-full cursor-pointer"
+              className="absolute top-4 right-4 z-20 p-2 text-white/80 hover:text-white bg-black/70 hover:bg-black rounded-full cursor-pointer transition-colors"
+              title="Fermer"
             >
               <X className="w-6 h-6" />
             </button>
-            <div className="w-full h-full flex items-center justify-center text-center p-8 text-white">
-              <div className="max-w-md space-y-4">
-                <div className="w-16 h-16 rounded-full bg-[#0D2818] border-2 border-[#A5C96B] flex items-center justify-center mx-auto text-[#A5C96B]">
-                  <Play className="w-8 h-8 fill-current ml-1" />
-                </div>
-                <h3 className="text-xl font-bold font-['Outfit',sans-serif]">
-                  Film Rétrospectif Officiel · Garden Expo Africa 3ème Édition
+            <iframe
+              src={activeVideoModal}
+              title="Garden Expo Africa - Vidéo Officielle"
+              className="w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )}
+
+      {/* LIGHTBOX MOSAÏQUE DES LOGOS EXPOSANTS & PARTENAIRES */}
+      {muralModalOpen && (
+        <div
+          onClick={() => setMuralModalOpen(false)}
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative bg-white rounded-2xl overflow-hidden w-full max-w-6xl border border-stone-300 shadow-2xl p-4 sm:p-6 flex flex-col"
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200 mb-4">
+              <div>
+                <span className="text-xs font-bold text-[#367A4D] uppercase tracking-wider block">
+                  Archive Officielle · 3ème Édition
+                </span>
+                <h3 className="text-lg font-bold text-stone-900 font-['Outfit',sans-serif]">
+                  Mosaïque des Marques, Industriels & Partenaires Officiels
                 </h3>
-                <p className="text-xs text-stone-300">
-                  Enregistré au sein des halls d'exposition de l'Office des Foires et Expositions de Casablanca (OFEC).
-                </p>
-                <button
-                  onClick={() => setActiveVideoModal(null)}
-                  className="px-6 py-2.5 bg-[#367A4D] text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-[#367A4D]/80 cursor-pointer"
-                >
-                  Fermer le lecteur vidéo
-                </button>
               </div>
+              <button
+                onClick={() => setMuralModalOpen(false)}
+                className="p-2 text-stone-500 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded-full cursor-pointer transition-colors"
+                title="Fermer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="overflow-auto max-h-[75vh] flex items-center justify-center p-2 bg-stone-50 rounded-xl">
+              <img
+                src="/assets/aistudio/Capture_d_e_cran_2026-11-02_a__10.12.55_bf4c0644.png"
+                alt="Nos Exposants & Partenaires Officiels - Haute Résolution"
+                className="w-full h-auto object-contain select-none"
+              />
+            </div>
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500">
+              <p>
+                Rassemblement des exposants du paysage, du matériel, de l'irrigation et des institutions lors de l'édition Casablanca.
+              </p>
+              <button
+                onClick={() => {
+                  setMuralModalOpen(false);
+                  onNavigate('directory');
+                }}
+                className="px-4 py-2 bg-[#0D2818] hover:bg-[#367A4D] text-white font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
+              >
+                <span>Accéder aux fiches détaillées des exposants</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         </div>
