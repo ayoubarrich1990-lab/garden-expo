@@ -403,8 +403,8 @@ export const VisitorDashboardPage: React.FC<VisitorDashboardPageProps> = ({ onNa
                           }}
                           className="px-3 py-1.5 bg-white border border-stone-300 text-stone-700 hover:text-[#123D2B] hover:border-[#123D2B] rounded-lg text-xs font-semibold transition-colors flex items-center gap-1"
                         >
-                          <MapPin className="w-3.5 h-3.5 text-[#367A4D]" />
-                          <span>Situer stand</span>
+                          <Building2 className="w-3.5 h-3.5 text-[#367A4D]" />
+                          <span>Voir dans l'annuaire</span>
                         </button>
                         <button
                           onClick={() => toggleFavoriteExhibitor(exh.id)}

@@ -22,7 +22,8 @@ interface DirectoryPageProps {
 }
 
 export const DirectoryPage: React.FC<DirectoryPageProps> = ({ onNavigate }) => {
-  const { exhibitors, visitorAccount, toggleFavoriteExhibitor } = useApp();
+  const { exhibitors, visitorAccount, toggleFavoriteExhibitor, currentUser } = useApp();
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSector, setSelectedSector] = useState<string>('all');
   const [selectedEdition, setSelectedEdition] = useState<string>('all');
@@ -71,7 +72,7 @@ export const DirectoryPage: React.FC<DirectoryPageProps> = ({ onNavigate }) => {
             </h1>
             <p className="text-base sm:text-lg text-stone-200 leading-relaxed font-normal">
               Recherchez parmi les fabricants, industriels, distributeurs et pépiniéristes de référence.
-              Consultez leurs fiches détaillées, découvrez leurs innovations et localisez leurs stands sur le plan.
+              Consultez leurs fiches détaillées et découvrez leurs innovations{isAdmin ? ' et localisez leurs stands sur le plan' : ''}.
             </p>
           </div>
         </div>
@@ -93,33 +94,35 @@ export const DirectoryPage: React.FC<DirectoryPageProps> = ({ onNavigate }) => {
               />
             </div>
 
-            {/* View Mode Switcher */}
-            <div className="flex items-center p-1 bg-[#F5F6F3] rounded-xl border border-stone-200 shrink-0">
-              <button
-                type="button"
-                onClick={() => setViewMode('grid')}
-                className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
-                  viewMode === 'grid'
-                    ? 'bg-white text-[#123D2B] shadow-xs'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
-              >
-                <Building2 className="w-3.5 h-3.5 text-[#367A4D]" />
-                <span>Grille des Entreprises ({filteredExhibitors.length})</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('plan')}
-                className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
-                  viewMode === 'plan'
-                    ? 'bg-white text-[#123D2B] shadow-xs'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5 text-[#367A4D]" />
-                <span>Plan Vectoriel du Salon</span>
-              </button>
-            </div>
+            {/* View Mode Switcher - Réservé aux administrateurs */}
+            {isAdmin && (
+              <div className="flex items-center p-1 bg-[#F5F6F3] rounded-xl border border-stone-200 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
+                    viewMode === 'grid'
+                      ? 'bg-white text-[#123D2B] shadow-xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  <Building2 className="w-3.5 h-3.5 text-[#367A4D]" />
+                  <span>Grille des Entreprises ({filteredExhibitors.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('plan')}
+                  className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${
+                    viewMode === 'plan'
+                      ? 'bg-white text-[#123D2B] shadow-xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5 text-[#367A4D]" />
+                  <span>Plan Vectoriel du Salon</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Secondary Filters */}
@@ -172,8 +175,8 @@ export const DirectoryPage: React.FC<DirectoryPageProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Content Render: Either Interactive Hall Plan or Directory Grid */}
-        {viewMode === 'plan' ? (
+        {/* Content Render: Either Interactive Hall Plan (Admin only) or Directory Grid */}
+        {isAdmin && viewMode === 'plan' ? (
           <div>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-[#202620] font-['Outfit',sans-serif]">
@@ -271,14 +274,16 @@ export const DirectoryPage: React.FC<DirectoryPageProps> = ({ onNavigate }) => {
                       <span>Fiche détaillée</span>
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() => handleOpenPlanForStand(exhibitor)}
-                      className="px-3 py-1.5 bg-[#F5F6F3] hover:bg-emerald-50 text-[#367A4D] hover:text-[#123D2B] rounded-lg text-xs font-bold transition-colors border border-stone-200/80 flex items-center gap-1"
-                    >
-                      <MapPin className="w-3.5 h-3.5" />
-                      <span>Situer sur plan</span>
-                    </button>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenPlanForStand(exhibitor)}
+                        className="px-3 py-1.5 bg-[#F5F6F3] hover:bg-emerald-50 text-[#367A4D] hover:text-[#123D2B] rounded-lg text-xs font-bold transition-colors border border-stone-200/80 flex items-center gap-1"
+                      >
+                        <MapPin className="w-3.5 h-3.5" />
+                        <span>Situer sur plan</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -423,14 +428,16 @@ export const DirectoryPage: React.FC<DirectoryPageProps> = ({ onNavigate }) => {
 
             {/* Modal Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-stone-200">
-              <button
-                type="button"
-                onClick={() => handleOpenPlanForStand(selectedExhibitorModal)}
-                className="w-full sm:w-auto px-5 py-2.5 bg-[#367A4D] hover:bg-[#123D2B] text-white rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-xs"
-              >
-                <MapPin className="w-4 h-4" />
-                <span>Localiser ce stand sur le plan</span>
-              </button>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => handleOpenPlanForStand(selectedExhibitorModal)}
+                  className="w-full sm:w-auto px-5 py-2.5 bg-[#367A4D] hover:bg-[#123D2B] text-white rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-xs"
+                >
+                  <MapPin className="w-4 h-4" />
+                  <span>Situer sur plan</span>
+                </button>
+              )}
 
               <button
                 type="button"
