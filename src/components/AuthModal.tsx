@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { UserRole, PageId } from '../types';
-import { X, ShieldCheck, Building2, User, KeyRound, Eye, EyeOff, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
+import { X, Building2, User, KeyRound, Eye, EyeOff, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
 import { GardenExpoLogo } from './GardenExpoLogo';
-import { OFFICIAL_ACCOUNTS } from '../data/authCredentials';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -30,26 +29,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
-
-  // Find official credentials for the currently selected role
-  const currentOfficial = OFFICIAL_ACCOUNTS.find((a) => {
-    if (selectedRole === 'super_admin' || selectedRole === 'admin') return a.role === 'super_admin';
-    return a.role === selectedRole;
-  });
-
-  const handlePreFill = (role: UserRole) => {
-    setSelectedRole(role);
-    setIsRegister(false);
-    setErrorMessage(null);
-    const target = OFFICIAL_ACCOUNTS.find((a) => {
-      if (role === 'super_admin' || role === 'admin') return a.role === 'super_admin';
-      return a.role === role;
-    });
-    if (target) {
-      setEmail(target.email);
-      setPassword(target.password);
-    }
-  };
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
@@ -285,83 +264,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </span>
           </button>
         </form>
-
-        {/* Encadré des identifiants et mots de passe officiels */}
-        <div className="mt-6 p-4 rounded-2xl bg-stone-50 border border-stone-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#123D2B] flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#367A4D]" />
-              Identifiants & Mots de passe configurés
-            </span>
-            {currentOfficial && (
-              <button
-                type="button"
-                onClick={() => handlePreFill(selectedRole)}
-                className="text-[11px] text-[#367A4D] hover:text-[#123D2B] font-bold underline cursor-pointer"
-              >
-                Insérer pour cette console
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-2 text-[11px] text-stone-600">
-            <div
-              onClick={() => handlePreFill('super_admin')}
-              className={`p-2 rounded-xl border cursor-pointer transition-colors ${
-                selectedRole === 'super_admin'
-                  ? 'bg-white border-[#367A4D] shadow-2xs'
-                  : 'bg-white/60 border-stone-200 hover:bg-white'
-              }`}
-            >
-              <div className="flex items-center justify-between font-semibold text-stone-900">
-                <span>🛡️ Back-Office Admin</span>
-                <span className="font-mono text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
-                  AdminGarden2026!
-                </span>
-              </div>
-              <div className="text-[10px] text-stone-500 font-mono mt-0.5">admin@gardenexpo.ma</div>
-            </div>
-
-            <div
-              onClick={() => handlePreFill('exhibitor')}
-              className={`p-2 rounded-xl border cursor-pointer transition-colors ${
-                selectedRole === 'exhibitor'
-                  ? 'bg-white border-[#367A4D] shadow-2xs'
-                  : 'bg-white/60 border-stone-200 hover:bg-white'
-              }`}
-            >
-              <div className="flex items-center justify-between font-semibold text-stone-900">
-                <span>🏛️ Console Exposant</span>
-                <span className="font-mono text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
-                  Exposant2026!
-                </span>
-              </div>
-              <div className="text-[10px] text-stone-500 font-mono mt-0.5">exposant@gardenexpo.ma</div>
-            </div>
-
-            <div
-              onClick={() => handlePreFill('visitor')}
-              className={`p-2 rounded-xl border cursor-pointer transition-colors ${
-                selectedRole === 'visitor'
-                  ? 'bg-white border-[#367A4D] shadow-2xs'
-                  : 'bg-white/60 border-stone-200 hover:bg-white'
-              }`}
-            >
-              <div className="flex items-center justify-between font-semibold text-stone-900">
-                <span>🎫 Console Visiteur</span>
-                <span className="font-mono text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
-                  Visiteur2026!
-                </span>
-              </div>
-              <div className="text-[10px] text-stone-500 font-mono mt-0.5">visiteur@gardenexpo.ma</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 pt-3 border-t border-stone-100 text-center text-[11px] text-stone-400 flex items-center justify-center gap-1.5">
-          <Lock className="w-3.5 h-3.5 text-stone-400" />
-          <span>Plateforme sécurisée Garden Expo Africa · Sessions chiffrées</span>
-        </div>
       </div>
     </div>
   );

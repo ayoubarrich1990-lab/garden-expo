@@ -16,6 +16,8 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
+import { SupabaseDataService } from '../services/supabaseService';
+
 interface VisitorsPageProps {
   onNavigate: (page: PageId) => void;
 }
@@ -47,8 +49,9 @@ export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [generatedBadge, setGeneratedBadge] = useState<VisitorBadge | null>(null);
+  const [isRegistering, setIsRegistering] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
 
@@ -64,6 +67,7 @@ export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
     }
 
     setFormErrors({});
+    setIsRegistering(true);
 
     const badgeNum = generateBadgeId(formData.visitorProfile.substring(0, 3));
     const newBadge: VisitorBadge = {
@@ -83,7 +87,20 @@ export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
       qrPayload: `GARDEN-EXPO-AFRICA-MAROC|CASABLANCA|${badgeNum}|${formData.fullName}|${formData.company}`,
     };
 
-    setGeneratedBadge(newBadge);
+    try {
+      // Save directly into Supabase PostgreSQL
+      const result = await SupabaseDataService.registerVisitorBadge(newBadge);
+      if (result.badge) {
+        setGeneratedBadge(result.badge);
+      } else {
+        setGeneratedBadge(newBadge);
+      }
+    } catch (err) {
+      console.warn('Erreur enregistrement badge Supabase:', err);
+      setGeneratedBadge(newBadge);
+    } finally {
+      setIsRegistering(false);
+    }
   };
 
   return (

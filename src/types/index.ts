@@ -234,3 +234,26 @@ export interface AdminStats {
   pendingRequests: number;
   activeDocuments: number;
 }
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+  status: 'unread' | 'read' | 'archived' | 'replied';
+  createdAt?: string;
+}
+
+export interface SupabaseStatusInfo {
+  isConfigured: boolean;
+  isConnected: boolean;
+  status: 'connected' | 'not_configured' | 'error';
+  networkReachable?: boolean;
+  message: string;
+  latencyMs?: number;
+  tablesFound?: string[];
+  tablesPending?: string[];
+  lastChecked?: string;
+}

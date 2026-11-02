@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { PageId, Exhibitor, Stand, EditionArchive, GalleryPhoto, ExhibitorInterview } from '../types';
+import { SupabaseDataService } from '../services/supabaseService';
 import {
   ShieldAlert,
   Users,
@@ -20,6 +21,18 @@ import {
   Image as ImageIcon,
   Video,
   Award,
+  Database,
+  RefreshCw,
+  Check,
+  Copy,
+  ExternalLink,
+  ShieldCheck,
+  AlertTriangle,
+  Mail,
+  FileSpreadsheet,
+  Code,
+  Sparkles,
+  Clock,
 } from 'lucide-react';
 
 interface AdminDashboardPageProps {
@@ -35,6 +48,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     editions,
     gallery,
     interviews,
+    invoices,
     addExhibitor,
     updateExhibitor,
     deleteExhibitor,
@@ -44,9 +58,16 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     deleteGalleryPhoto,
     addInterview,
     deleteInterview,
+    supabaseStatus,
+    isSyncing,
+    checkSupabaseHealth,
+    seedSupabaseDatabase,
+    refreshFromSupabase,
+    configureSupabaseKeys,
+    getSupabaseConfig,
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'exhibitors' | 'stands' | 'editions' | 'gallery' | 'interviews'>('exhibitors');
+  const [activeTab, setActiveTab] = useState<'exhibitors' | 'stands' | 'editions' | 'gallery' | 'interviews' | 'bookings' | 'supabase'>('exhibitors');
   const [searchExhibitor, setSearchExhibitor] = useState('');
   const [isAddExhibitorOpen, setIsAddExhibitorOpen] = useState(false);
   const [editingExhibitor, setEditingExhibitor] = useState<Exhibitor | null>(null);
@@ -67,6 +88,38 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
   const [photoCategory, setPhotoCategory] = useState<GalleryPhoto['category']>('stands');
   const [photoUrl, setPhotoUrl] = useState('');
   const [photoCaption, setPhotoCaption] = useState('');
+
+  // Supabase administration state
+  const initialConfig = getSupabaseConfig();
+  const [supabaseUrlInput, setSupabaseUrlInput] = useState(initialConfig.url);
+  const [supabaseAnonKeyInput, setSupabaseAnonKeyInput] = useState(initialConfig.anonKey);
+  const [isTestingSupabase, setIsTestingSupabase] = useState(false);
+  const [isSeedingSupabase, setIsSeedingSupabase] = useState(false);
+  const [supabaseActionMsg, setSupabaseActionMsg] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
+  const [copiedSql, setCopiedSql] = useState(false);
+
+  // Demandes & Inscriptions en direct
+  const [badgesList, setBadgesList] = useState<any[]>([]);
+  const [bookingsList, setBookingsList] = useState<any[]>([]);
+  const [messagesList, setMessagesList] = useState<any[]>([]);
+  const [isLoadingDemands, setIsLoadingDemands] = useState(false);
+
+  // Load demands when opening bookings or supabase tab
+  useEffect(() => {
+    if (activeTab === 'bookings' || activeTab === 'supabase') {
+      setIsLoadingDemands(true);
+      Promise.all([
+        SupabaseDataService.fetchVisitorBadges(),
+        SupabaseDataService.fetchStandBookings(),
+        SupabaseDataService.fetchContactMessages(),
+      ]).then(([badges, bookings, messages]) => {
+        setBadgesList(badges);
+        setBookingsList(bookings);
+        setMessagesList(messages);
+        setIsLoadingDemands(false);
+      });
+    }
+  }, [activeTab]);
 
   // Admin password login state
   const [adminEmail, setAdminEmail] = useState('admin@gardenexpo.ma');
@@ -150,27 +203,6 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
             </button>
           </form>
 
-          {/* Configuration sécurisée rappel */}
-          <div className="mt-6 p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-[11px] text-stone-600">
-            <div className="flex items-center justify-between mb-1.5 font-bold text-stone-900">
-              <span>Identifiants configurés</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setAdminEmail('admin@gardenexpo.ma');
-                  setAdminPassword('AdminGarden2026!');
-                  setAdminLoginError(null);
-                }}
-                className="text-[#367A4D] hover:underline cursor-pointer text-[10px]"
-              >
-                Remplir
-              </button>
-            </div>
-            <div className="font-mono text-[10px] text-stone-500">Email : admin@gardenexpo.ma</div>
-            <div className="font-mono text-[10px] text-emerald-800 font-bold mt-0.5">
-              Mot de passe : AdminGarden2026!
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -267,6 +299,78 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     setPhotoCaption('');
   };
 
+  // Supabase handlers
+  const handleTestSupabaseConnection = async () => {
+    setIsTestingSupabase(true);
+    setSupabaseActionMsg(null);
+    try {
+      const result = await checkSupabaseHealth();
+      if (result.isConnected) {
+        setSupabaseActionMsg({
+          type: 'success',
+          text: `Connexion PostgreSQL Supabase vérifiée avec succès (${result.latencyMs || 0}ms). Tables détectées : ${result.tablesFound?.join(', ') || 'Toutes'}.`,
+        });
+      } else {
+        setSupabaseActionMsg({
+          type: 'error',
+          text: result.message || 'Impossible de joindre la base Supabase.',
+        });
+      }
+    } catch (err: any) {
+      setSupabaseActionMsg({ type: 'error', text: err.message || 'Erreur lors du test' });
+    } finally {
+      setIsTestingSupabase(false);
+    }
+  };
+
+  const handleSaveSupabaseConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsTestingSupabase(true);
+    setSupabaseActionMsg(null);
+    try {
+      const res = await configureSupabaseKeys(supabaseUrlInput.trim(), supabaseAnonKeyInput.trim());
+      if (res.success) {
+        setSupabaseActionMsg({ type: 'success', text: res.message });
+      } else {
+        setSupabaseActionMsg({ type: 'error', text: res.message });
+      }
+    } catch (err: any) {
+      setSupabaseActionMsg({ type: 'error', text: err.message || 'Erreur enregistrement' });
+    } finally {
+      setIsTestingSupabase(false);
+    }
+  };
+
+  const handleSeedSupabase = async () => {
+    setIsSeedingSupabase(true);
+    setSupabaseActionMsg(null);
+    try {
+      const res = await seedSupabaseDatabase();
+      if (res.success) {
+        setSupabaseActionMsg({
+          type: 'success',
+          text: 'Base de données Supabase initialisée et synchronisée avec les stands, exposants et archives officielles.',
+        });
+      } else {
+        setSupabaseActionMsg({
+          type: 'info',
+          text: res.message || "L'initialisation n'a pas pu être réalisée ou les tables contiennent déjà des données.",
+        });
+      }
+    } catch (err: any) {
+      setSupabaseActionMsg({ type: 'error', text: err.message || 'Erreur initialisation' });
+    } finally {
+      setIsSeedingSupabase(false);
+    }
+  };
+
+  const handleCopySql = () => {
+    const sqlText = `-- GARDEN EXPO AFRICA MAROC - EXÉCUTER DANS LE SQL EDITOR DE SUPABASE\n-- Schéma complet disponible dans le fichier /supabase/schema.sql du projet.`;
+    navigator.clipboard.writeText(sqlText);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 2500);
+  };
+
   return (
     <div className="bg-[#F5F6F3] min-h-screen pb-20">
       {/* Top Banner */}
@@ -285,7 +389,29 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Supabase status indicator pill */}
+              <button
+                type="button"
+                onClick={() => setActiveTab('supabase')}
+                className={`text-xs px-3 py-1.5 rounded-lg font-bold border transition-colors flex items-center gap-2 cursor-pointer ${
+                  supabaseStatus.isConnected
+                    ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50 hover:bg-emerald-900'
+                    : 'bg-amber-950/80 text-amber-300 border-amber-500/50 hover:bg-amber-900'
+                }`}
+                title="Cliquez pour configurer la base Supabase"
+              >
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    supabaseStatus.isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                  }`}
+                />
+                <Database className="w-3.5 h-3.5" />
+                <span>
+                  {supabaseStatus.isConnected ? 'PostgreSQL Connecté' : 'Supabase : À Connecter'}
+                </span>
+              </button>
+
               <span className="text-xs bg-emerald-900/60 text-[#A5C96B] border border-[#367A4D] px-3 py-1.5 rounded-lg font-bold">
                 Connecté : {currentUser?.fullName} ({currentUser?.role})
               </span>
@@ -293,7 +419,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
           </div>
 
           {/* Navigation tabs */}
-          <div className="flex items-center gap-2 mt-8 border-b border-white/15 overflow-x-auto">
+          <div className="flex items-center gap-2 mt-8 border-b border-white/15 overflow-x-auto pb-0">
             <button
               onClick={() => setActiveTab('exhibitors')}
               className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
@@ -348,6 +474,37 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
             >
               <Video className="w-4 h-4" />
               <span>Témoignages & Best-Of ({interviews.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('bookings')}
+              className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'bookings'
+                  ? 'border-[#A5C96B] text-[#A5C96B] font-semibold'
+                  : 'border-transparent text-stone-300 hover:text-white'
+              }`}
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span>
+                Demandes & Inscriptions (
+                {badgesList.length + bookingsList.length + messagesList.length > 0
+                  ? badgesList.length + bookingsList.length + messagesList.length
+                  : 'En direct'}
+                )
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('supabase')}
+              className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'supabase'
+                  ? 'border-[#A5C96B] text-[#A5C96B] font-semibold'
+                  : 'border-transparent text-stone-300 hover:text-white'
+              }`}
+            >
+              <Database className="w-4 h-4" />
+              <span>Base Supabase</span>
+              {supabaseStatus.isConnected && (
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              )}
             </button>
           </div>
         </div>
@@ -738,6 +895,798 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 6: DEMANDES & INSCRIPTIONS EN DIRECT (SUPABASE) */}
+        {activeTab === 'bookings' && (
+          <div className="space-y-8">
+            {/* Header info */}
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
+                    Données Centralisées · Supabase PostgreSQL
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                </div>
+                <h3 className="text-xl font-bold text-[#123D2B] font-['Outfit',sans-serif]">
+                  Demandes B2B, Badges Visiteurs & Messages
+                </h3>
+                <p className="text-xs text-stone-500">
+                  Flux continu des inscriptions transmises par les formulaires officiels du site.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLoadingDemands(true);
+                  Promise.all([
+                    SupabaseDataService.fetchVisitorBadges(),
+                    SupabaseDataService.fetchStandBookings(),
+                    SupabaseDataService.fetchContactMessages(),
+                  ]).then(([badges, bookings, messages]) => {
+                    setBadgesList(badges);
+                    setBookingsList(bookings);
+                    setMessagesList(messages);
+                    setIsLoadingDemands(false);
+                  });
+                }}
+                disabled={isLoadingDemands}
+                className="px-4 py-2 border border-stone-200 rounded-xl text-xs font-bold text-stone-700 hover:bg-stone-50 transition-colors flex items-center gap-2 self-start cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoadingDemands ? 'animate-spin' : ''}`} />
+                <span>Actualiser les flux</span>
+              </button>
+            </div>
+
+            {/* SECTION 1: BADGES VISITEURS */}
+            <div className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
+              <div className="p-5 border-b border-stone-100 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
+                    {badgesList.length}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-stone-900 font-['Outfit',sans-serif]">
+                      Badges Visiteurs Professionnels (Table : visitor_badges)
+                    </h4>
+                    <p className="text-[11px] text-stone-500">Demandes de pass délivrées aux donneurs d'ordre</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-stone-200 text-[11px] font-semibold text-stone-500 uppercase tracking-wider bg-stone-50">
+                      <th className="py-2.5 px-4">N° Badge</th>
+                      <th className="py-2.5 px-4">Visiteur</th>
+                      <th className="py-2.5 px-4">Organisme / Entreprise</th>
+                      <th className="py-2.5 px-4">Profil B2B</th>
+                      <th className="py-2.5 px-4">Contact</th>
+                      <th className="py-2.5 px-4">Date</th>
+                      <th className="py-2.5 px-4">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {badgesList.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="text-center py-8 text-stone-400">
+                          {isLoadingDemands ? 'Chargement des badges...' : 'Aucun badge enregistré pour le moment. Enregistrez un badge sur la page Visiteurs pour voir la ligne s\'afficher en direct.'}
+                        </td>
+                      </tr>
+                    ) : (
+                      badgesList.map((badge: any) => (
+                        <tr key={badge.id || badge.badge_number} className="hover:bg-stone-50/80">
+                          <td className="py-3 px-4 font-mono font-bold text-emerald-800">
+                            {badge.badge_number}
+                          </td>
+                          <td className="py-3 px-4 font-semibold text-stone-900">
+                            {badge.full_name}
+                          </td>
+                          <td className="py-3 px-4 text-stone-600">
+                            <div>{badge.company_name}</div>
+                            <div className="text-[10px] text-stone-400">{badge.job_title}</div>
+                          </td>
+                          <td className="py-3 px-4 text-stone-600">
+                            <span className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded text-[10px] font-medium">
+                              {badge.visitor_profile}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-stone-600">
+                            <div>{badge.email}</div>
+                            <div className="text-[10px] text-stone-400">{badge.phone}</div>
+                          </td>
+                          <td className="py-3 px-4 text-stone-500 whitespace-nowrap">
+                            {badge.registration_date}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold text-[10px]">
+                              Actif
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* SECTION 2: RÉSERVATIONS DE STANDS */}
+            <div className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
+              <div className="p-5 border-b border-stone-100 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs">
+                    {bookingsList.length}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-stone-900 font-['Outfit',sans-serif]">
+                      Demandes de Réservation de Stand & Devis (Table : stand_bookings)
+                    </h4>
+                    <p className="text-[11px] text-stone-500">Simulations soumises via l'Espace Exposants</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-stone-200 text-[11px] font-semibold text-stone-500 uppercase tracking-wider bg-stone-50">
+                      <th className="py-2.5 px-4">Réf. Devis</th>
+                      <th className="py-2.5 px-4">Entreprise</th>
+                      <th className="py-2.5 px-4">Interlocuteur</th>
+                      <th className="py-2.5 px-4">Stand / Surface</th>
+                      <th className="py-2.5 px-4">Estimation</th>
+                      <th className="py-2.5 px-4">Contact</th>
+                      <th className="py-2.5 px-4">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {bookingsList.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="text-center py-8 text-stone-400">
+                          {isLoadingDemands ? 'Chargement des réservations...' : 'Aucune demande de stand pour le moment. Testez le simulateur sur la page Devenir Exposant pour voir la ligne s\'afficher.'}
+                        </td>
+                      </tr>
+                    ) : (
+                      bookingsList.map((book: any) => (
+                        <tr key={book.id || book.reference} className="hover:bg-stone-50/80">
+                          <td className="py-3 px-4 font-mono font-bold text-blue-700">
+                            {book.reference}
+                          </td>
+                          <td className="py-3 px-4 font-semibold text-stone-900">
+                            {book.company_name}
+                            <span className="text-[10px] text-stone-400 block">{book.city || 'Casablanca'}</span>
+                          </td>
+                          <td className="py-3 px-4 text-stone-600">
+                            {book.contact_name}
+                            <span className="text-[10px] text-stone-400 block">{book.job_title}</span>
+                          </td>
+                          <td className="py-3 px-4 text-stone-600">
+                            <span className="font-bold text-stone-900">{book.surface_sq_meters} m²</span> ({book.stand_type})
+                          </td>
+                          <td className="py-3 px-4 font-bold text-stone-900 font-mono">
+                            {Number(book.estimated_price_mad).toLocaleString('fr-FR')} MAD
+                          </td>
+                          <td className="py-3 px-4 text-stone-600">
+                            <div>{book.email}</div>
+                            <div className="text-[10px] text-stone-400">{book.phone}</div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold text-[10px]">
+                              {book.status || 'En attente'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* SECTION 3: MESSAGES DE CONTACT */}
+            <div className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
+              <div className="p-5 border-b border-stone-100 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-stone-100 text-stone-800 flex items-center justify-center font-bold text-xs">
+                    {messagesList.length}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-stone-900 font-['Outfit',sans-serif]">
+                      Messages Reçus (Table : contact_messages)
+                    </h4>
+                    <p className="text-[11px] text-stone-500">Demandes d'informations adressées au Comité</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-stone-200 text-[11px] font-semibold text-stone-500 uppercase tracking-wider bg-stone-50">
+                      <th className="py-2.5 px-4">Expéditeur</th>
+                      <th className="py-2.5 px-4">Objet</th>
+                      <th className="py-2.5 px-4">Message</th>
+                      <th className="py-2.5 px-4">Coordonnées</th>
+                      <th className="py-2.5 px-4">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {messagesList.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="text-center py-8 text-stone-400">
+                          {isLoadingDemands ? 'Chargement des messages...' : 'Aucun message dans la boîte pour le moment.'}
+                        </td>
+                      </tr>
+                    ) : (
+                      messagesList.map((msg: any) => (
+                        <tr key={msg.id} className="hover:bg-stone-50/80">
+                          <td className="py-3 px-4 font-semibold text-stone-900">
+                            {msg.name}
+                          </td>
+                          <td className="py-3 px-4 font-medium text-emerald-800">
+                            {msg.subject}
+                          </td>
+                          <td className="py-3 px-4 text-stone-600 max-w-xs truncate">
+                            {msg.message}
+                          </td>
+                          <td className="py-3 px-4 text-stone-600">
+                            <div>{msg.email}</div>
+                            <div className="text-[10px] text-stone-400">{msg.phone}</div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded text-[10px]">
+                              {msg.status || 'Non lu'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 7: GESTION & ÉTAT SUPABASE POSTGRESQL */}
+        {activeTab === 'supabase' && (
+          <div className="space-y-8">
+            {/* Status card avec indicateur visuel Connecté / Non connecté / Erreur */}
+            <div className={`p-6 rounded-2xl border shadow-xs transition-colors ${
+              supabaseStatus.status === 'connected'
+                ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950'
+                : supabaseStatus.status === 'error'
+                ? 'bg-rose-50/70 border-rose-300 text-rose-950'
+                : 'bg-stone-50 border-stone-300 text-stone-800'
+            }`}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                    supabaseStatus.status === 'connected'
+                      ? 'bg-emerald-600 text-white'
+                      : supabaseStatus.status === 'error'
+                      ? 'bg-rose-600 text-white'
+                      : 'bg-stone-500 text-white'
+                  }`}>
+                    <Database className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                      {/* Indicateur visuel officiel : Connecté / Non connecté / Erreur */}
+                      {supabaseStatus.status === 'connected' && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 border border-emerald-300 text-emerald-800">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          Connecté
+                        </span>
+                      )}
+                      {supabaseStatus.status === 'not_configured' && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-stone-200 border border-stone-300 text-stone-700">
+                          <span className="w-2 h-2 rounded-full bg-stone-400" />
+                          Non connecté
+                        </span>
+                      )}
+                      {supabaseStatus.status === 'error' && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 border border-rose-300 text-rose-800">
+                          <span className="w-2 h-2 rounded-full bg-rose-500" />
+                          Erreur
+                        </span>
+                      )}
+
+                      <span className="font-extrabold text-sm font-['Outfit',sans-serif]">
+                        {supabaseStatus.status === 'connected'
+                          ? 'Base PostgreSQL Supabase Opérationnelle'
+                          : supabaseStatus.status === 'error'
+                          ? 'Vérification Supabase Requise'
+                          : 'Configuration Supabase Requise'}
+                      </span>
+
+                      {typeof supabaseStatus.latencyMs === 'number' && (
+                        <span className="text-xs bg-white/80 border border-stone-200 text-stone-700 font-mono px-2 py-0.5 rounded-md font-semibold">
+                          Latence : {supabaseStatus.latencyMs} ms
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-xs leading-relaxed opacity-90 max-w-2xl font-medium">
+                      {supabaseStatus.message}
+                    </p>
+
+                    {supabaseStatus.tablesFound && supabaseStatus.tablesFound.length > 0 && (
+                      <div className="mt-2 text-[11px] flex flex-wrap items-center gap-1">
+                        <span className="font-semibold text-emerald-800">Tables détectées en base :</span>
+                        {supabaseStatus.tablesFound.map((tbl) => (
+                          <span key={tbl} className="bg-white/90 border border-emerald-200 text-emerald-900 font-mono px-1.5 py-0.5 rounded text-[10px]">
+                            {tbl}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {supabaseStatus.lastChecked && (
+                      <span className="text-[10px] opacity-70 block mt-1">
+                        Dernier test réseau : {supabaseStatus.lastChecked}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 self-start sm:self-center shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleTestSupabaseConnection}
+                    disabled={isTestingSupabase}
+                    className="px-4 py-2.5 bg-white text-stone-800 border border-stone-300 hover:bg-stone-50 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isTestingSupabase ? 'animate-spin text-[#123D2B]' : ''}`} />
+                    <span>{isTestingSupabase ? 'Test en cours...' : 'Tester réellement la connexion'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={refreshFromSupabase}
+                    disabled={isSyncing || !supabaseStatus.isConnected}
+                    className="px-4 py-2.5 bg-[#123D2B] text-white hover:bg-[#367A4D] disabled:opacity-40 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                    <span>Synchroniser maintenant</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Notification message */}
+            {supabaseActionMsg && (
+              <div className={`p-4 rounded-xl text-xs flex items-center gap-3 border ${
+                supabaseActionMsg.type === 'success'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : supabaseActionMsg.type === 'error'
+                  ? 'bg-red-50 border-red-200 text-red-800'
+                  : 'bg-blue-50 border-blue-200 text-blue-800'
+              }`}>
+                {supabaseActionMsg.type === 'success' ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                )}
+                <span>{supabaseActionMsg.text}</span>
+              </div>
+            )}
+
+            {/* Two Columns: Config & Actions */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Configuration Form */}
+              <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-5">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                  <div>
+                    <h4 className="font-bold text-base text-[#123D2B] font-['Outfit',sans-serif]">
+                      Coordonnées du Projet Supabase
+                    </h4>
+                    <p className="text-xs text-stone-500">
+                      Vous pouvez les renseigner dans <code className="bg-stone-100 px-1 py-0.5 rounded font-mono text-stone-700">.env</code> ou directement ici.
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-mono bg-stone-100 text-stone-600 px-2 py-1 rounded">
+                    {initialConfig.isCustom ? 'Clé personnalisée' : 'Clé variable .env'}
+                  </span>
+                </div>
+
+                <form onSubmit={handleSaveSupabaseConfig} className="space-y-4 text-xs">
+                  <div>
+                    <label className="block font-bold text-stone-700 mb-1">
+                      URL du Projet Supabase (VITE_SUPABASE_URL)
+                    </label>
+                    <input
+                      type="url"
+                      required
+                      placeholder="https://xyzproject.supabase.co"
+                      value={supabaseUrlInput}
+                      onChange={(e) => setSupabaseUrlInput(e.target.value)}
+                      className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl font-mono text-stone-900 bg-stone-50/50 focus:bg-white focus:outline-none focus:border-[#367A4D]"
+                    />
+                    <span className="text-[11px] text-stone-400 block mt-1">
+                      Trouvez cette URL dans : Supabase Dashboard &gt; Project Settings &gt; API &gt; Project URL.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-stone-700 mb-1">
+                      Clé Publique Anon (VITE_SUPABASE_ANON_KEY)
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      value={supabaseAnonKeyInput}
+                      onChange={(e) => setSupabaseAnonKeyInput(e.target.value)}
+                      className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl font-mono text-stone-900 bg-stone-50/50 focus:bg-white focus:outline-none focus:border-[#367A4D]"
+                    />
+                    <span className="text-[11px] text-stone-400 block mt-1">
+                      Clé publique sécurisée autorisée pour le navigateur (anon / public).
+                    </span>
+                  </div>
+
+                  <div className="pt-2 flex flex-wrap gap-2">
+                    <button
+                      type="submit"
+                      disabled={isTestingSupabase}
+                      className="px-5 py-2.5 bg-[#123D2B] hover:bg-[#367A4D] text-white font-bold rounded-xl text-xs transition-colors shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>Enregistrer & Connecter</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSupabaseUrlInput('');
+                        setSupabaseAnonKeyInput('');
+                        configureSupabaseKeys('', '');
+                      }}
+                      className="px-4 py-2.5 border border-stone-200 text-stone-600 hover:bg-stone-50 font-semibold rounded-xl text-xs transition-colors cursor-pointer"
+                    >
+                      Réinitialiser
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Quick Actions & Seeding */}
+              <div className="lg:col-span-5 flex flex-col gap-6">
+                <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-4">
+                  <h4 className="font-bold text-base text-[#123D2B] font-['Outfit',sans-serif]">
+                    Initialisation & Amorçage des Données
+                  </h4>
+                  <p className="text-xs text-stone-600 leading-relaxed">
+                    Si votre base de données Supabase vient d'être créée, vous pouvez peupler instantanément toutes les tables avec les stands du hall, les exposants certifiés et les archives historiques.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={handleSeedSupabase}
+                    disabled={isSeedingSupabase || !supabaseStatus.isConnected}
+                    className="w-full py-3 px-4 bg-emerald-800 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-colors shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles className={`w-4 h-4 ${isSeedingSupabase ? 'animate-spin' : ''}`} />
+                    <span>{isSeedingSupabase ? 'Initialisation en cours...' : 'Initialiser les données (Seed)'}</span>
+                  </button>
+                  <p className="text-[11px] text-stone-400 text-center">
+                    Garantit que les tables ne soient pas vides et que l'annuaire reste complet.
+                  </p>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-sm text-[#123D2B] font-['Outfit',sans-serif]">
+                      Fichier Schéma SQL
+                    </h4>
+                    <span className="text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded font-mono">
+                      /supabase/schema_complete.sql
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-500">
+                    Contient les 14 tables PostgreSQL, contraintes, index et politiques de sécurité Row Level Security (RLS).
+                  </p>
+                  <div className="p-3 bg-stone-900 rounded-xl text-stone-200 text-[11px] font-mono overflow-x-auto space-y-1">
+                    <div className="text-emerald-400">-- 14 tables PostgreSQL relationnelles :</div>
+                    <div>exhibitors, visitors, registrations, stands,</div>
+                    <div>events, news, invoices, contact_messages,</div>
+                    <div>partners, sectors, gallery_photos, user_profiles...</div>
+                  </div>
+                  <div className="pt-1 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const sqlTemplate = `-- GARDEN EXPO AFRICA - EXECUTION SUPABASE
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+CREATE TABLE IF NOT EXISTS public.exhibitors (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    logo TEXT,
+    description TEXT,
+    sector TEXT NOT NULL,
+    category TEXT DEFAULT 'Exposant',
+    country TEXT DEFAULT 'Maroc',
+    city TEXT DEFAULT 'Casablanca',
+    website TEXT,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    stand_number TEXT NOT NULL,
+    hall TEXT NOT NULL,
+    surface NUMERIC NOT NULL DEFAULT 18,
+    featured_products JSONB DEFAULT '[]'::jsonb,
+    edition TEXT NOT NULL DEFAULT '4ème Édition (2026)',
+    participation_status TEXT NOT NULL DEFAULT 'confirmed',
+    representative_name TEXT,
+    representative_job_title TEXT,
+    representative_email TEXT,
+    representative_phone TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.visitors (
+    id TEXT PRIMARY KEY,
+    badge_number TEXT NOT NULL UNIQUE,
+    full_name TEXT NOT NULL,
+    company TEXT NOT NULL,
+    job_title TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    visitor_profile TEXT NOT NULL DEFAULT 'Professionnel B2B',
+    city TEXT DEFAULT 'Casablanca',
+    country TEXT DEFAULT 'Maroc',
+    qr_code TEXT NOT NULL,
+    registration_date TEXT NOT NULL,
+    status TEXT DEFAULT 'active',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.registrations (
+    id TEXT PRIMARY KEY,
+    reference TEXT NOT NULL UNIQUE,
+    registration_type TEXT NOT NULL DEFAULT 'stand_booking',
+    company_name TEXT NOT NULL,
+    contact_name TEXT NOT NULL,
+    job_title TEXT,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    city TEXT DEFAULT 'Casablanca',
+    country TEXT DEFAULT 'Maroc',
+    surface_sqm NUMERIC DEFAULT 18,
+    stand_type TEXT,
+    sector_id TEXT,
+    special_requests TEXT,
+    estimated_price_mad NUMERIC DEFAULT 0,
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.stands (
+    id TEXT PRIMARY KEY,
+    hall TEXT NOT NULL,
+    number TEXT NOT NULL UNIQUE,
+    surface_sq_meters NUMERIC NOT NULL DEFAULT 18,
+    dimensions TEXT NOT NULL DEFAULT '6m x 3m',
+    type TEXT NOT NULL,
+    svg_coords JSONB NOT NULL DEFAULT '{"x": 0, "y": 0, "width": 80, "height": 60}'::jsonb,
+    exhibitor_id TEXT,
+    status TEXT NOT NULL DEFAULT 'available',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    message TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'unread',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.invoices (
+    id TEXT PRIMARY KEY,
+    exhibitor_id TEXT NOT NULL,
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    reference_number TEXT NOT NULL UNIQUE,
+    amount_mad NUMERIC DEFAULT 0,
+    status TEXT NOT NULL,
+    date TEXT NOT NULL,
+    download_url TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.events (
+    id TEXT PRIMARY KEY,
+    edition_number INTEGER NOT NULL UNIQUE,
+    title TEXT NOT NULL,
+    year INTEGER NOT NULL,
+    dates TEXT NOT NULL,
+    location TEXT NOT NULL,
+    theme TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    description JSONB DEFAULT '[]'::jsonb,
+    stats JSONB NOT NULL DEFAULT '{}'::jsonb,
+    cover_image TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.news (
+    id TEXT PRIMARY KEY,
+    slug TEXT UNIQUE,
+    title TEXT NOT NULL,
+    category TEXT NOT NULL,
+    date TEXT NOT NULL,
+    read_time TEXT NOT NULL DEFAULT '3 min',
+    summary TEXT NOT NULL,
+    content JSONB DEFAULT '[]'::jsonb,
+    image TEXT,
+    author TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.user_profiles (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    role TEXT NOT NULL DEFAULT 'visitor',
+    full_name TEXT NOT NULL,
+    company_name TEXT,
+    job_title TEXT,
+    phone TEXT,
+    country TEXT DEFAULT 'Maroc',
+    city TEXT DEFAULT 'Casablanca',
+    avatar_url TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.exhibitors ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.visitors ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.registrations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.stands ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "exhibitors_read" ON public.exhibitors FOR SELECT USING (true);
+CREATE POLICY "exhibitors_admin" ON public.exhibitors FOR ALL USING (true);
+CREATE POLICY "visitors_insert" ON public.visitors FOR INSERT WITH CHECK (true);
+CREATE POLICY "visitors_select" ON public.visitors FOR SELECT USING (true);
+CREATE POLICY "registrations_insert" ON public.registrations FOR INSERT WITH CHECK (true);
+CREATE POLICY "registrations_select" ON public.registrations FOR SELECT USING (true);
+CREATE POLICY "contact_insert" ON public.contact_messages FOR INSERT WITH CHECK (true);
+CREATE POLICY "stands_select" ON public.stands FOR SELECT USING (true);
+CREATE POLICY "invoices_select" ON public.invoices FOR SELECT USING (true);
+`;
+                        navigator.clipboard.writeText(sqlTemplate).then(() => {
+                          setCopiedSql(true);
+                          setTimeout(() => setCopiedSql(false), 3000);
+                        });
+                      }}
+                      className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      {copiedSql ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedSql ? 'Copié dans le presse-papier !' : 'Copier le script SQL'}</span>
+                    </button>
+                    <a
+                      href="https://supabase.com/dashboard/project/bkqqwszdiuorbfbntphk/sql/new"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Ouvrir Supabase SQL Editor</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Table Inventory */}
+            <div className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
+              <div className="p-5 border-b border-stone-100">
+                <h4 className="font-bold text-base text-[#123D2B] font-['Outfit',sans-serif]">
+                  Inventaire des Tables PostgreSQL & Synchronisation
+                </h4>
+                <p className="text-xs text-stone-500">
+                  Vue d'ensemble de la modélisation relationnelle active sur votre projet Supabase.
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-stone-200 text-[11px] font-semibold text-stone-500 uppercase tracking-wider bg-stone-50">
+                      <th className="py-2.5 px-4">Nom de la Table</th>
+                      <th className="py-2.5 px-4">Rôle & Entité</th>
+                      <th className="py-2.5 px-4">Clé Primaire</th>
+                      <th className="py-2.5 px-4">Sécurité RLS</th>
+                      <th className="py-2.5 px-4">Volume Local / Sync</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    <tr>
+                      <td className="py-3 px-4 font-mono font-bold text-emerald-800">public.exhibitors</td>
+                      <td className="py-3 px-4 text-stone-700">Annuaire officiel des marques et entreprises</td>
+                      <td className="py-3 px-4 font-mono text-stone-500">id (TEXT)</td>
+                      <td className="py-3 px-4"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Actif (Public SELECT)</span></td>
+                      <td className="py-3 px-4 font-bold text-stone-900">{exhibitors.length} exposants</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-mono font-bold text-emerald-800">public.stands</td>
+                      <td className="py-3 px-4 text-stone-700">Plans interactifs et occupation des halls A, B, C</td>
+                      <td className="py-3 px-4 font-mono text-stone-500">id (TEXT)</td>
+                      <td className="py-3 px-4"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Actif (Public SELECT)</span></td>
+                      <td className="py-3 px-4 font-bold text-stone-900">{stands.length} stands</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-mono font-bold text-emerald-800">public.visitor_badges</td>
+                      <td className="py-3 px-4 text-stone-700">Inscriptions visiteurs et e-badges nominatifs QR</td>
+                      <td className="py-3 px-4 font-mono text-stone-500">id (TEXT)</td>
+                      <td className="py-3 px-4"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Actif (INSERT public)</span></td>
+                      <td className="py-3 px-4 font-bold text-stone-900">{badgesList.length} reçus</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-mono font-bold text-emerald-800">public.stand_bookings</td>
+                      <td className="py-3 px-4 text-stone-700">Devis et demandes de réservation exposants</td>
+                      <td className="py-3 px-4 font-mono text-stone-500">id (TEXT)</td>
+                      <td className="py-3 px-4"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Actif (INSERT public)</span></td>
+                      <td className="py-3 px-4 font-bold text-stone-900">{bookingsList.length} demandes</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-mono font-bold text-emerald-800">public.contact_messages</td>
+                      <td className="py-3 px-4 text-stone-700">Messages envoyés au commissariat général</td>
+                      <td className="py-3 px-4 font-mono text-stone-500">id (TEXT)</td>
+                      <td className="py-3 px-4"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Actif (INSERT public)</span></td>
+                      <td className="py-3 px-4 font-bold text-stone-900">{messagesList.length} messages</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-mono font-bold text-emerald-800">public.editions</td>
+                      <td className="py-3 px-4 text-stone-700">Archives des sessions 2022, 2023, 2025, 2026</td>
+                      <td className="py-3 px-4 font-mono text-stone-500">id (TEXT)</td>
+                      <td className="py-3 px-4"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Actif (Public SELECT)</span></td>
+                      <td className="py-3 px-4 font-bold text-stone-900">{editions.length} éditions</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-mono font-bold text-emerald-800">public.gallery_photos</td>
+                      <td className="py-3 px-4 text-stone-700">Médiathèque officielle et photographies haute résolution</td>
+                      <td className="py-3 px-4 font-mono text-stone-500">id (TEXT)</td>
+                      <td className="py-3 px-4"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Actif (Public SELECT)</span></td>
+                      <td className="py-3 px-4 font-bold text-stone-900">{gallery.length} photos</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-mono font-bold text-emerald-800">public.exhibitor_interviews</td>
+                      <td className="py-3 px-4 text-stone-700">Interviews vidéo et retours d'expérience des dirigeants</td>
+                      <td className="py-3 px-4 font-mono text-stone-500">id (TEXT)</td>
+                      <td className="py-3 px-4"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Actif (Public SELECT)</span></td>
+                      <td className="py-3 px-4 font-bold text-stone-900">{interviews.length} vidéos</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-mono font-bold text-emerald-800">public.invoices</td>
+                      <td className="py-3 px-4 text-stone-700">Contrats, factures de solde et documents officiels</td>
+                      <td className="py-3 px-4 font-mono text-stone-500">id (TEXT)</td>
+                      <td className="py-3 px-4"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Actif (Admin/Exposant)</span></td>
+                      <td className="py-3 px-4 font-bold text-stone-900">{invoices.length} documents</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

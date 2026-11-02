@@ -1,18 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageId, Sector } from '../types';
 import { SECTORS_DATA } from '../data/expoData';
 import { filterSectors } from '../utils/expoLogic';
 import { Search, CheckCircle2, ArrowRight, Sparkles, Layers } from 'lucide-react';
+import { SupabaseDataService } from '../services/supabaseService';
 
 interface SectorsPageProps {
   onNavigate: (page: PageId) => void;
 }
 
 export const SectorsPage: React.FC<SectorsPageProps> = ({ onNavigate }) => {
+  const [sectorsList, setSectorsList] = useState<Sector[]>(SECTORS_DATA);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
 
-  const displayedSectors = filterSectors(SECTORS_DATA, searchQuery);
+  useEffect(() => {
+    let mounted = true;
+    SupabaseDataService.fetchSectors().then((data) => {
+      if (mounted && data && data.length > 0) {
+        setSectorsList(data);
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const displayedSectors = filterSectors(sectorsList, searchQuery);
 
   return (
     <div className="bg-stone-50 min-h-screen pb-20">

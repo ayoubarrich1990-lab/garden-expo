@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {
   UserProfile,
   UserRole,
@@ -9,6 +9,7 @@ import {
   ExhibitorInterview,
   InvoiceDocument,
   VisitorAccount,
+  SupabaseStatusInfo,
 } from '../types';
 import {
   INITIAL_EDITIONS,
@@ -23,8 +24,16 @@ import {
   getRegisteredAccounts,
   registerAccount,
   AuthAccount,
-  OFFICIAL_ACCOUNTS,
 } from '../data/authCredentials';
+import {
+  isSupabaseConfigured,
+  testSupabaseConnection,
+  getActiveSupabaseCredentials,
+  saveCustomSupabaseCredentials,
+} from '../lib/supabase';
+import {
+  SupabaseDataService,
+} from '../services/supabaseService';
 
 interface AppContextType {
   currentUser: UserProfile | null;
@@ -49,25 +58,33 @@ interface AppContextType {
   }) => { success: boolean; error?: string; user?: UserProfile };
   logout: () => void;
   toggleFavoriteExhibitor: (exhibitorId: string) => void;
-  updateExhibitor: (exhibitor: Exhibitor) => void;
-  addExhibitor: (exhibitor: Exhibitor) => void;
-  deleteExhibitor: (exhibitorId: string) => void;
-  updateEdition: (edition: EditionArchive) => void;
-  addGalleryPhoto: (photo: GalleryPhoto) => void;
-  deleteGalleryPhoto: (photoId: string) => void;
-  updateInterview: (interview: ExhibitorInterview) => void;
-  addInterview: (interview: ExhibitorInterview) => void;
-  deleteInterview: (interviewId: string) => void;
-  assignStand: (standId: string, exhibitorId: string) => void;
+  updateExhibitor: (exhibitor: Exhibitor) => Promise<boolean>;
+  addExhibitor: (exhibitor: Exhibitor) => Promise<boolean>;
+  deleteExhibitor: (exhibitorId: string) => Promise<boolean>;
+  updateEdition: (edition: EditionArchive) => Promise<boolean>;
+  addGalleryPhoto: (photo: GalleryPhoto) => Promise<boolean>;
+  deleteGalleryPhoto: (photoId: string) => Promise<boolean>;
+  updateInterview: (interview: ExhibitorInterview) => Promise<boolean>;
+  addInterview: (interview: ExhibitorInterview) => Promise<boolean>;
+  deleteInterview: (interviewId: string) => Promise<boolean>;
+  assignStand: (standId: string, exhibitorId: string) => Promise<boolean>;
   currentExhibitorData: Exhibitor | null;
   currentExhibitorStand: Stand | null;
   currentExhibitorInvoices: InvoiceDocument[];
+  // Supabase real-time integration
+  supabaseStatus: SupabaseStatusInfo;
+  isSyncing: boolean;
+  checkSupabaseHealth: () => Promise<SupabaseStatusInfo>;
+  seedSupabaseDatabase: () => Promise<{ success: boolean; message: string }>;
+  refreshFromSupabase: () => Promise<void>;
+  configureSupabaseKeys: (url: string, anonKey: string) => Promise<{ success: boolean; message: string }>;
+  getSupabaseConfig: () => { url: string; anonKey: string; isCustom: boolean };
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Load state from localStorage or initial seeds
+  // Local state with seed fallback
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
     const saved = localStorage.getItem('gea_current_user');
     return saved ? JSON.parse(saved) : null;
@@ -91,13 +108,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>(() => {
-    const version = localStorage.getItem('gea_version_exhibitors');
-    const currentVersion = 'v5_3rd_edition_mural';
-    if (version !== currentVersion) {
-      localStorage.setItem('gea_version_exhibitors', currentVersion);
-      localStorage.setItem('gea_exhibitors', JSON.stringify(INITIAL_EXHIBITORS));
-      return INITIAL_EXHIBITORS;
-    }
     const saved = localStorage.getItem('gea_exhibitors');
     return saved ? JSON.parse(saved) : INITIAL_EXHIBITORS;
   });
@@ -127,7 +137,109 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? JSON.parse(saved) : INITIAL_INVOICES;
   });
 
-  // Sync back to localStorage
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [supabaseStatus, setSupabaseStatus] = useState<SupabaseStatusInfo>(() => {
+    const configured = isSupabaseConfigured();
+    return {
+      isConfigured: configured,
+      isConnected: false,
+      status: configured ? 'error' : 'not_configured',
+      message: configured
+        ? 'Vérification de la connexion Supabase...'
+        : 'Supabase en attente de configuration (URL et clé Anon requises).',
+    };
+  });
+
+  // Check Supabase connectivity
+  const checkSupabaseHealth = useCallback(async (): Promise<SupabaseStatusInfo> => {
+    const configured = isSupabaseConfigured();
+    if (!configured) {
+      const status: SupabaseStatusInfo = {
+        isConfigured: false,
+        isConnected: false,
+        status: 'not_configured',
+        networkReachable: false,
+        message: 'Variables Supabase en attente. Configurez votre URL de projet et clé publique Anon.',
+        lastChecked: new Date().toLocaleTimeString('fr-FR'),
+      };
+      setSupabaseStatus(status);
+      return status;
+    }
+
+    const test = await testSupabaseConnection();
+    const status: SupabaseStatusInfo = {
+      isConfigured: true,
+      isConnected: test.success,
+      status: test.status,
+      networkReachable: test.networkReachable,
+      message: test.message,
+      latencyMs: test.latencyMs,
+      tablesFound: test.tablesFound,
+      tablesPending: test.tablesPending,
+      lastChecked: new Date().toLocaleTimeString('fr-FR'),
+    };
+    setSupabaseStatus(status);
+    return status;
+  }, []);
+
+  // Fetch all remote data from Supabase if connected
+  const refreshFromSupabase = useCallback(async () => {
+    if (!isSupabaseConfigured()) return;
+    setIsSyncing(true);
+
+    try {
+      const [remoteExhibitors, remoteStands, remoteEditions, remoteGallery, remoteInterviews, remoteInvoices] =
+        await Promise.all([
+          SupabaseDataService.fetchExhibitors(),
+          SupabaseDataService.fetchStands(),
+          SupabaseDataService.fetchEditions(),
+          SupabaseDataService.fetchGallery(),
+          SupabaseDataService.fetchInterviews(),
+          SupabaseDataService.fetchInvoices(),
+        ]);
+
+      if (remoteExhibitors && remoteExhibitors.length > 0) {
+        setExhibitors(remoteExhibitors);
+      }
+      if (remoteStands && remoteStands.length > 0) {
+        setStands(remoteStands);
+      }
+      if (remoteEditions && remoteEditions.length > 0) {
+        setEditions(remoteEditions);
+      }
+      if (remoteGallery && remoteGallery.length > 0) {
+        setGallery(remoteGallery);
+      }
+      if (remoteInterviews && remoteInterviews.length > 0) {
+        setInterviews(remoteInterviews);
+      }
+      if (remoteInvoices && remoteInvoices.length > 0) {
+        setInvoices(remoteInvoices);
+      }
+
+      setSupabaseStatus((prev) => ({
+        ...prev,
+        isConnected: true,
+        message: 'Données synchronisées en direct avec la base de données Supabase PostgreSQL.',
+        lastChecked: new Date().toLocaleTimeString('fr-FR'),
+      }));
+    } catch (err: any) {
+      console.warn('[Supabase] Erreur de rafraîchissement:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
+
+  // Initial load
+  useEffect(() => {
+    checkSupabaseHealth().then((status) => {
+      if (status.isConnected) {
+        refreshFromSupabase();
+      }
+    });
+  }, [checkSupabaseHealth, refreshFromSupabase]);
+
+  // Sync state to localStorage cache
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem('gea_current_user', JSON.stringify(currentUser));
@@ -183,9 +295,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setCurrentUser(newUser);
 
+    // Save profile to Supabase in background
+    SupabaseDataService.saveUserProfile(newUser);
+
     if (role === 'visitor') {
       const badgeId = 'GEA-VIS-26-' + Math.floor(10000 + Math.random() * 90000);
-      setVisitorAccount({
+      const newAcc: VisitorAccount = {
         id: 'vis-' + Date.now(),
         userId: newUser.id,
         badgeNumber: badgeId,
@@ -193,7 +308,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         favoriteExhibitorIds: [],
         plannedVisits: [],
         qrPayload: `GARDEN-EXPO-AFRICA-2026|${badgeId}|${newUser.fullName}|${newUser.companyName}`,
-      });
+      };
+      setVisitorAccount(newAcc);
+      SupabaseDataService.saveVisitorAccount(newAcc);
     }
   };
 
@@ -205,7 +322,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const cleanPass = password.trim();
 
     if (!cleanEmail) {
-      return { success: false, error: "Veuillez saisir votre adresse email professionnelle." };
+      return { success: false, error: 'Veuillez saisir votre adresse email professionnelle.' };
     }
     if (!cleanPass) {
       return { success: false, error: "Veuillez saisir votre mot de passe d'accès." };
@@ -224,16 +341,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (found.password !== cleanPass) {
       return {
         success: false,
-        error: "Mot de passe incorrect pour cet espace.",
+        error: 'Mot de passe incorrect pour cet espace.',
       };
     }
 
     setCurrentUser(found.profile);
+    SupabaseDataService.saveUserProfile(found.profile);
 
     // Initialize or restore visitor profile state
     if (found.role === 'visitor') {
       const badgeId = 'GEA-VIS-26-' + Math.floor(10000 + Math.random() * 90000);
-      setVisitorAccount((prev) => prev || {
+      const acc = visitorAccount || {
         id: 'vis-' + Date.now(),
         userId: found.profile.id,
         badgeNumber: badgeId,
@@ -241,7 +359,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         favoriteExhibitorIds: [],
         plannedVisits: [],
         qrPayload: `GARDEN-EXPO-AFRICA-2026|${badgeId}|${found.profile.fullName}|${found.profile.companyName || ''}`,
-      });
+      };
+      setVisitorAccount(acc);
+      SupabaseDataService.saveVisitorAccount(acc);
     }
 
     return { success: true, user: found.profile };
@@ -264,12 +384,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     if (cleanPass.length < 6) {
-      return { success: false, error: "Le mot de passe doit comporter au moins 6 caractères." };
+      return { success: false, error: 'Le mot de passe doit comporter au moins 6 caractères.' };
     }
 
     const accounts = getRegisteredAccounts();
     if (accounts.some((a) => a.email.toLowerCase() === cleanEmail)) {
-      return { success: false, error: "Un compte existe déjà avec cette adresse email." };
+      return { success: false, error: 'Un compte existe déjà avec cette adresse email.' };
     }
 
     const newProfile: UserProfile = {
@@ -294,9 +414,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     registerAccount(newAccount);
     setCurrentUser(newProfile);
 
+    // Persist to Supabase
+    SupabaseDataService.saveUserProfile(newProfile);
+
     if (data.role === 'visitor') {
       const badgeId = 'GEA-VIS-26-' + Math.floor(10000 + Math.random() * 90000);
-      setVisitorAccount({
+      const acc: VisitorAccount = {
         id: 'vis-' + Date.now(),
         userId: newProfile.id,
         badgeNumber: badgeId,
@@ -304,7 +427,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         favoriteExhibitorIds: [],
         plannedVisits: [],
         qrPayload: `GARDEN-EXPO-AFRICA-2026|${badgeId}|${newProfile.fullName}|${newProfile.companyName || ''}`,
-      });
+      };
+      setVisitorAccount(acc);
+      SupabaseDataService.saveVisitorAccount(acc);
     }
 
     return { success: true, user: newProfile };
@@ -321,53 +446,75 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ? visitorAccount.favoriteExhibitorIds.filter((id) => id !== exhibitorId)
       : [...visitorAccount.favoriteExhibitorIds, exhibitorId];
 
-    setVisitorAccount({
+    const updatedAccount = {
       ...visitorAccount,
       favoriteExhibitorIds: updatedFavs,
-    });
+    };
+    setVisitorAccount(updatedAccount);
+
+    // Persist to Supabase
+    SupabaseDataService.saveVisitorAccount(updatedAccount);
   };
 
-  const updateExhibitor = (updated: Exhibitor) => {
+  // CRUD with Supabase persistence
+  const updateExhibitor = async (updated: Exhibitor): Promise<boolean> => {
     setExhibitors((prev) => prev.map((ex) => (ex.id === updated.id ? updated : ex)));
+    const ok = await SupabaseDataService.updateExhibitor(updated);
+    return ok;
   };
 
-  const addExhibitor = (newExh: Exhibitor) => {
+  const addExhibitor = async (newExh: Exhibitor): Promise<boolean> => {
     setExhibitors((prev) => [newExh, ...prev]);
+    const ok = await SupabaseDataService.insertExhibitor(newExh);
+    return ok;
   };
 
-  const deleteExhibitor = (exhibitorId: string) => {
+  const deleteExhibitor = async (exhibitorId: string): Promise<boolean> => {
     setExhibitors((prev) => prev.filter((ex) => ex.id !== exhibitorId));
-    // Release stand if assigned
     setStands((prev) =>
       prev.map((s) => (s.exhibitorId === exhibitorId ? { ...s, exhibitorId: undefined, status: 'available' } : s))
     );
+    const ok = await SupabaseDataService.deleteExhibitor(exhibitorId);
+    return ok;
   };
 
-  const updateEdition = (updated: EditionArchive) => {
+  const updateEdition = async (updated: EditionArchive): Promise<boolean> => {
     setEditions((prev) => prev.map((ed) => (ed.id === updated.id ? updated : ed)));
+    const ok = await SupabaseDataService.updateEdition(updated);
+    return ok;
   };
 
-  const addGalleryPhoto = (photo: GalleryPhoto) => {
+  const addGalleryPhoto = async (photo: GalleryPhoto): Promise<boolean> => {
     setGallery((prev) => [photo, ...prev]);
+    const ok = await SupabaseDataService.insertGalleryPhoto(photo);
+    return ok;
   };
 
-  const deleteGalleryPhoto = (photoId: string) => {
+  const deleteGalleryPhoto = async (photoId: string): Promise<boolean> => {
     setGallery((prev) => prev.filter((p) => p.id !== photoId));
+    const ok = await SupabaseDataService.deleteGalleryPhoto(photoId);
+    return ok;
   };
 
-  const updateInterview = (updated: ExhibitorInterview) => {
+  const updateInterview = async (updated: ExhibitorInterview): Promise<boolean> => {
     setInterviews((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+    const ok = await SupabaseDataService.insertInterview(updated);
+    return ok;
   };
 
-  const addInterview = (newItem: ExhibitorInterview) => {
+  const addInterview = async (newItem: ExhibitorInterview): Promise<boolean> => {
     setInterviews((prev) => [newItem, ...prev]);
+    const ok = await SupabaseDataService.insertInterview(newItem);
+    return ok;
   };
 
-  const deleteInterview = (interviewId: string) => {
+  const deleteInterview = async (interviewId: string): Promise<boolean> => {
     setInterviews((prev) => prev.filter((i) => i.id !== interviewId));
+    const ok = await SupabaseDataService.deleteInterview(interviewId);
+    return ok;
   };
 
-  const assignStand = (standId: string, exhibitorId: string) => {
+  const assignStand = async (standId: string, exhibitorId: string): Promise<boolean> => {
     setStands((prev) =>
       prev.map((s) => (s.id === standId ? { ...s, exhibitorId, status: 'confirmed' } : s))
     );
@@ -379,7 +526,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         )
       );
     }
+    const ok = await SupabaseDataService.assignStand(standId, exhibitorId);
+    return ok;
   };
+
+  // Seed remote Supabase database
+  const seedSupabaseDatabase = async (): Promise<{ success: boolean; message: string }> => {
+    const res = await SupabaseDataService.seedSupabaseIfEmpty();
+    if (res.seeded) {
+      await refreshFromSupabase();
+    }
+    return { success: res.seeded, message: res.message };
+  };
+
+  // Configure runtime credentials
+  const configureSupabaseKeys = async (url: string, anonKey: string): Promise<{ success: boolean; message: string }> => {
+    saveCustomSupabaseCredentials(url, anonKey);
+    const health = await checkSupabaseHealth();
+    if (health.isConnected) {
+      await refreshFromSupabase();
+      return { success: true, message: 'Identifiants enregistrés et connexion Supabase établie avec succès.' };
+    }
+    if (health.networkReachable) {
+      return {
+        success: true,
+        message: 'Identifiants enregistrés et projet Supabase authentifié avec succès. Les tables PostgreSQL sont en attente d’exécution dans l’Éditeur SQL.',
+      };
+    }
+    return { success: false, message: health.message };
+  };
+
+  const getSupabaseConfig = () => getActiveSupabaseCredentials();
 
   // Exhibitor portal active bindings
   const currentExhibitorData =
@@ -425,6 +602,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentExhibitorData,
         currentExhibitorStand,
         currentExhibitorInvoices,
+        supabaseStatus,
+        isSyncing,
+        checkSupabaseHealth,
+        seedSupabaseDatabase,
+        refreshFromSupabase,
+        configureSupabaseKeys,
+        getSupabaseConfig,
       }}
     >
       {children}

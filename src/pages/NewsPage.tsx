@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageId, NewsArticle } from '../types';
 import { NEWS_ARTICLES } from '../data/expoData';
 import { Calendar, User, ArrowRight, X, Clock, Share2, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { SupabaseDataService } from '../services/supabaseService';
 
 interface NewsPageProps {
   onNavigate: (page: PageId) => void;
@@ -9,6 +10,19 @@ interface NewsPageProps {
 
 export const NewsPage: React.FC<NewsPageProps> = ({ onNavigate }) => {
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
+  const [articles, setArticles] = useState<NewsArticle[]>(NEWS_ARTICLES);
+
+  useEffect(() => {
+    let mounted = true;
+    SupabaseDataService.fetchNews().then((data) => {
+      if (mounted && data && data.length > 0) {
+        setArticles(data);
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const galleryImages = [
     {
@@ -64,7 +78,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({ onNavigate }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {NEWS_ARTICLES.map((article) => (
+            {articles.map((article) => (
               <article
                 key={article.id}
                 className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between"

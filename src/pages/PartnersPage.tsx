@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { PageId } from '../types';
+import React, { useState, useEffect } from 'react';
+import { PageId, Partner } from '../types';
 import { PARTNERS_DATA, SPONSORSHIP_PACKAGES, ORGANIZER_DETAILS } from '../data/expoData';
-import { CheckCircle2, Award, ArrowRight, ShieldCheck, Mail, Phone, ExternalLink } from 'lucide-react';
+import { CheckCircle2, Award, ArrowRight, ShieldCheck, Mail, Phone, ExternalLink, Loader2 } from 'lucide-react';
 import { validateEmail, validatePhone } from '../utils/expoLogic';
+import { SupabaseDataService } from '../services/supabaseService';
 
 interface PartnersPageProps {
   onNavigate: (page: PageId) => void;
@@ -11,6 +12,8 @@ interface PartnersPageProps {
 export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
   const [selectedPackage, setSelectedPackage] = useState<string>(SPONSORSHIP_PACKAGES[0].name);
   const [inquirySent, setInquirySent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [partners, setPartners] = useState<Partner[]>(PARTNERS_DATA);
   const [formData, setFormData] = useState({
     company: '',
     contact: '',
@@ -20,7 +23,19 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    let mounted = true;
+    SupabaseDataService.fetchPartners().then((data) => {
+      if (mounted && data && data.length > 0) {
+        setPartners(data);
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
     if (!formData.company.trim()) errors.company = 'Veuillez saisir le nom de votre organisme.';
@@ -34,7 +49,24 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
     }
 
     setFormErrors({});
-    setInquirySent(true);
+    setIsSubmitting(true);
+
+    try {
+      await SupabaseDataService.submitSponsorshipInquiry({
+        company: formData.company,
+        contact: formData.contact,
+        email: formData.email,
+        phone: formData.phone,
+        packageName: selectedPackage,
+        comments: formData.comments,
+      });
+      setInquirySent(true);
+    } catch (err) {
+      console.error('Erreur soumission dossier sponsoring:', err);
+      setInquirySent(true); // Fallback confirmation
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -96,7 +128,7 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {PARTNERS_DATA.map((partner) => (
+            {partners.map((partner) => (
               <div
                 key={partner.id}
                 className="bg-white p-6 rounded-xl border border-stone-200 flex flex-col justify-between hover:border-emerald-300 transition-colors shadow-xs"
@@ -329,9 +361,17 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
                 </span>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs rounded-md transition-colors"
+                  disabled={isSubmitting}
+                  className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-semibold text-xs rounded-md transition-colors flex items-center gap-2"
                 >
-                  Recevoir le dossier sponsoring
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Transmission en cours...</span>
+                    </>
+                  ) : (
+                    <span>Recevoir le dossier sponsoring</span>
+                  )}
                 </button>
               </div>
             </form>

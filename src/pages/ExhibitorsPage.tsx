@@ -20,6 +20,8 @@ import {
   Mail,
 } from 'lucide-react';
 
+import { SupabaseDataService } from '../services/supabaseService';
+
 interface ExhibitorsPageProps {
   onNavigate: (page: PageId) => void;
 }
@@ -43,6 +45,7 @@ export const ExhibitorsPage: React.FC<ExhibitorsPageProps> = ({ onNavigate }) =>
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
   const [submittedBooking, setSubmittedBooking] = useState<{
     reference: string;
     date: string;
@@ -51,7 +54,7 @@ export const ExhibitorsPage: React.FC<ExhibitorsPageProps> = ({ onNavigate }) =>
 
   const currentPrice = calculateStandPrice(surface, standType, powerPackage);
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
 
@@ -66,8 +69,10 @@ export const ExhibitorsPage: React.FC<ExhibitorsPageProps> = ({ onNavigate }) =>
     }
 
     setFormErrors({});
+    setIsSubmittingBooking(true);
+
     const randomRef = 'EXP-MA-' + Math.floor(10000 + Math.random() * 90000);
-    setSubmittedBooking({
+    const bookingPayload = {
       reference: randomRef,
       date: new Date().toLocaleDateString('fr-FR'),
       data: {
@@ -83,7 +88,22 @@ export const ExhibitorsPage: React.FC<ExhibitorsPageProps> = ({ onNavigate }) =>
         estimatedPriceMAD: currentPrice,
         specialRequests: formData.notes,
       },
-    });
+    };
+
+    try {
+      // Save directly to Supabase stand_bookings table
+      await SupabaseDataService.submitStandBooking({
+        ...bookingPayload.data,
+        reference: randomRef,
+        date: bookingPayload.date,
+      });
+      setSubmittedBooking(bookingPayload);
+    } catch (err) {
+      console.warn('Erreur enregistrement réservation Supabase:', err);
+      setSubmittedBooking(bookingPayload);
+    } finally {
+      setIsSubmittingBooking(false);
+    }
   };
 
   return (

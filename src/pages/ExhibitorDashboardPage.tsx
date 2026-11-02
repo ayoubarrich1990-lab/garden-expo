@@ -131,27 +131,6 @@ export const ExhibitorDashboardPage: React.FC<ExhibitorDashboardPageProps> = ({ 
             </button>
           </form>
 
-          {/* Configuration sécurisée rappel */}
-          <div className="mt-6 p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-[11px] text-stone-600">
-            <div className="flex items-center justify-between mb-1.5 font-bold text-stone-900">
-              <span>Identifiants configurés</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginEmail('exposant@gardenexpo.ma');
-                  setLoginPassword('Exposant2026!');
-                  setLoginError(null);
-                }}
-                className="text-[#367A4D] hover:underline cursor-pointer text-[10px]"
-              >
-                Remplir
-              </button>
-            </div>
-            <div className="font-mono text-[10px] text-stone-500">Email : exposant@gardenexpo.ma</div>
-            <div className="font-mono text-[10px] text-emerald-800 font-bold mt-0.5">
-              Mot de passe : Exposant2026!
-            </div>
-          </div>
 
           <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-xs">
             <button

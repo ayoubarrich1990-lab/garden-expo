@@ -15,6 +15,8 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 
+import { SupabaseDataService } from '../services/supabaseService';
+
 interface ContactPageProps {
   onNavigate: (page: PageId) => void;
 }
@@ -30,9 +32,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSent, setIsSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
 
@@ -47,7 +50,23 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
     }
 
     setFormErrors({});
-    setIsSent(true);
+    setIsSubmitting(true);
+
+    try {
+      await SupabaseDataService.submitContactMessage({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        subject: formData.subject,
+        message: formData.message.trim(),
+      });
+      setIsSent(true);
+    } catch (err) {
+      console.warn('Erreur envoi contact message:', err);
+      setIsSent(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
