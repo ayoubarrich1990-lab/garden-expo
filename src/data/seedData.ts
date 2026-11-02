@@ -19,17 +19,17 @@ export const INITIAL_EDITIONS: EditionArchive[] = [
     location: 'Office des Foires et Expositions de Casablanca (OFEC), Maroc',
     theme: 'Trames Vertes Urbaines & Résilience Climatique à l’Horizon 2030',
     summary:
-      'Consécration internationale du salon à Casablanca réunissant 110 exposants et 13 500 professionnels avec 96% de satisfaction exposants.',
+      'Consécration internationale du salon à Casablanca réunissant 100 exposants et 5 000 professionnels pour 5 000 m² de surface d’exposition brute avec 96% de satisfaction exposants.',
     description: [
       'La 3ème édition de Garden Expo Africa a marqué un tournant stratégique majeur avec l’accélération des programmes d’aménagements urbains liés aux échéances internationales du Maroc à l’horizon 2030.',
       'Organisée en partenariat scientifique avec l’Association des Architectes Paysagistes du Maroc (AAPM) et l’IFLA Africa, cette session a mis l’accent sur la réutilisation des eaux usées traitées (REUT), la végétalisation xérophile et le mobilier urbain éco-conçu.',
       'Des délégations officielles de plus de 18 pays africains ont participé aux tables rondes ministérielles et aux rencontres B2B, générant des accords de partenariats structurants pour la filière.',
     ],
     stats: {
-      exhibitorsCount: '110',
-      visitorsCount: '13 500',
+      exhibitorsCount: '100',
+      visitorsCount: '5 000',
       countriesCount: '18',
-      surfaceSqm: '4 500 m²',
+      surfaceSqm: '5 000 m²',
     },
     videoHighlightUrl: 'https://www.youtube.com/embed/QoPzVfK6RSg',
     coverImage: '/src/assets/images/expo_convention_b2b_1793033934662.jpg',
@@ -55,16 +55,16 @@ export const INITIAL_EDITIONS: EditionArchive[] = [
     location: 'Casablanca Expo Center, Maroc',
     theme: 'Sobriété Hydrique & Technologies d’Irrigation Intelligente',
     summary:
-      'Une édition axée sur la réponse technologique face au stress hydrique au Maroc, réunissant 85 exposants et 10 000 visiteurs avec 95% de satisfaction.',
+      'Une édition axée sur la réponse technologique face au stress hydrique au Maroc, réunissant 50 exposants et 5 500 visiteurs pour 3 500 m² d’exposition brute avec 95% de satisfaction.',
     description: [
-      'La 2ème édition s’est tenue dans un contexte de prise de conscience aiguë des défis climatiques. Plus de 85 exposants spécialisés dans la micro-irrigation, les capteurs IoT de sol et les pépinières méditerranéennes ont dévoilé leurs innovations.',
+      'La 2ème édition s’est tenue dans un contexte de prise de conscience aiguë des défis climatiques. Plus de 50 exposants spécialisés dans la micro-irrigation, les capteurs IoT de sol et les pépinières méditerranéennes ont dévoilé leurs innovations.',
       'Les conférences ont réuni des ingénieurs hydrauliciens, des exploitants de golfs et des directeurs d’espaces verts municipaux pour définir les nouvelles normes d’arrosage raisonné.',
     ],
     stats: {
-      exhibitorsCount: '85',
-      visitorsCount: '10 000',
+      exhibitorsCount: '50',
+      visitorsCount: '5 500',
       countriesCount: '12',
-      surfaceSqm: '3 200 m²',
+      surfaceSqm: '3 500 m²',
     },
     coverImage: '/src/assets/images/sector_smart_irrigation_1793033934496.jpg',
     highlights: [
@@ -83,16 +83,16 @@ export const INITIAL_EDITIONS: EditionArchive[] = [
     location: 'Office des Foires et Expositions de Casablanca (OFEC), Maroc',
     theme: 'L’Émergence du Paysage Moderne & de la Ville Éco-Conçue au Maroc',
     summary:
-      'Lancement fondateur du tout premier salon professionnel avec 55 marques exposantes et 6 500 visiteurs professionnels pour 2 300 m² d’exposition (94% de satisfaction).',
+      'Lancement fondateur du tout premier salon professionnel à Casablanca réunissant 60 exposants et 5 000 visiteurs professionnels pour 3 500 m² d’exposition brute (94% de satisfaction).',
     description: [
       'Initié par R2H Communication, la première édition de Garden Expo a comblé un vide historique en offrant un espace de rencontre B2B aux professionnels marocains du paysage, de l’horticulture et des parcs de loisirs.',
-      'Avec 55 marques et 6 500 visiteurs dès son baptême, le salon a posé les bases d’un réseau panafricain pérenne.',
+      'Avec 60 exposants et 5 000 visiteurs dès son baptême, le salon a posé les bases d’un réseau panafricain pérenne.',
     ],
     stats: {
-      exhibitorsCount: '55',
-      visitorsCount: '6 500',
+      exhibitorsCount: '60',
+      visitorsCount: '5 000',
       countriesCount: '8',
-      surfaceSqm: '2 300 m²',
+      surfaceSqm: '3 500 m²',
     },
     coverImage: '/src/assets/images/sector_urban_landscape_1793033933666.jpg',
     highlights: [

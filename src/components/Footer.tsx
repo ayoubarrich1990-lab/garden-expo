@@ -85,7 +85,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => { onNavigate('directory'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="hover:text-[#A5C96B] transition-colors"
                 >
-                  Annuaire des Exposants & Plan
+                  Annuaire des Exposants
                 </button>
               </li>
               <li>

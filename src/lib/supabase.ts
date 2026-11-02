@@ -1,16 +1,24 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Récupération des variables d'environnement Vite
-const envSupabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const envSupabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+// Identifiants par défaut du projet Supabase Garden Expo Africa
+const DEFAULT_URL = 'https://bkqqwszdiuorbfbntphk.supabase.co';
+const DEFAULT_ANON_KEY = 'sb_publishable_0F_Cnjz8OMa-qSUJbZ2GkA_N38kDqNv';
+
+// Récupération des variables d'environnement Vite ou Next.js (avec fallback vers le projet configuré)
+const envSupabaseUrl =
+  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
+  (import.meta.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined) ||
+  DEFAULT_URL;
+
+const envSupabaseAnonKey =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
+  (import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined) ||
+  (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined) ||
+  DEFAULT_ANON_KEY;
 
 // Clés de stockage local pour la configuration dynamique
 const STORAGE_KEY_URL = 'gea_custom_supabase_url';
 const STORAGE_KEY_ANON = 'gea_custom_supabase_anon_key';
-
-// Valeurs de secours sûres pour éviter toute exception au chargement initial
-const DEFAULT_URL = 'https://placeholder-project.supabase.co';
-const DEFAULT_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder_anon_key';
 
 // Cache client singleton dynamique
 let cachedClient: SupabaseClient | null = null;
@@ -36,8 +44,8 @@ export function getActiveSupabaseCredentials(): { url: string; anonKey: string; 
   }
 
   return {
-    url: (envSupabaseUrl || '').trim(),
-    anonKey: (envSupabaseAnonKey || '').trim(),
+    url: (envSupabaseUrl || DEFAULT_URL).trim(),
+    anonKey: (envSupabaseAnonKey || DEFAULT_ANON_KEY).trim(),
     isCustom: false,
   };
 }

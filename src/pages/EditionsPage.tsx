@@ -55,7 +55,7 @@ export const EditionsPage: React.FC<EditionsPageProps> = ({ onNavigate }) => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <div className="p-5 rounded-2xl bg-[#F8F9FA] border border-stone-200">
               <span className="text-3xl sm:text-4xl font-black text-[#123D2B] font-['Outfit',sans-serif] block">
-                250
+                210
               </span>
               <span className="text-xs font-bold text-stone-900 block mt-1">Exposants Réunis</span>
               <span className="text-[11px] text-stone-500 block mt-0.5">Sur l'ensemble des 3 sessions</span>
@@ -63,7 +63,7 @@ export const EditionsPage: React.FC<EditionsPageProps> = ({ onNavigate }) => {
 
             <div className="p-5 rounded-2xl bg-[#F8F9FA] border border-stone-200">
               <span className="text-3xl sm:text-4xl font-black text-[#123D2B] font-['Outfit',sans-serif] block">
-                30 000
+                15 500
               </span>
               <span className="text-xs font-bold text-stone-900 block mt-1">Visiteurs Professionnels</span>
               <span className="text-[11px] text-stone-500 block mt-0.5">Architectes, paysagistes et décideurs</span>
@@ -79,10 +79,10 @@ export const EditionsPage: React.FC<EditionsPageProps> = ({ onNavigate }) => {
 
             <div className="p-5 rounded-2xl bg-[#F8F9FA] border border-stone-200">
               <span className="text-3xl sm:text-4xl font-black text-[#123D2B] font-['Outfit',sans-serif] block">
-                10 000 m²
+                12 000 m²
               </span>
               <span className="text-xs font-bold text-stone-900 block mt-1">Surface Déployée</span>
-              <span className="text-[11px] text-stone-500 block mt-0.5">Surfaces d'exposition et stands</span>
+              <span className="text-[11px] text-stone-500 block mt-0.5">Surfaces d'exposition brutes cumulées</span>
             </div>
           </div>
         </div>
@@ -126,8 +126,13 @@ export const EditionsPage: React.FC<EditionsPageProps> = ({ onNavigate }) => {
                 </div>
 
                 <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-[#367A4D]">
-                  <span>Voir le bilan complet</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <span className="text-[11px] text-stone-600 font-medium">
+                    {edition.stats.exhibitorsCount} exposants · {edition.stats.visitorsCount} visiteurs
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span>Bilan</span>
+                    <ChevronRight className="w-4 h-4 text-[#367A4D]" />
+                  </div>
                 </div>
               </div>
             );

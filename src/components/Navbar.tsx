@@ -23,6 +23,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenAuthModal }) => {
   const { currentUser, logout } = useApp();
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [portalDropdownOpen, setPortalDropdownOpen] = useState(false);
@@ -120,16 +121,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenA
                         <div className="text-[11px] text-stone-400">E-Badge & Favoris</div>
                       </div>
                     </button>
-                    <button
-                      onClick={() => handleNavClick('admin_portal')}
-                      className="w-full text-left px-4 py-2.5 hover:bg-stone-50 flex items-center gap-2.5 text-stone-700 hover:text-[#123D2B]"
-                    >
-                      <ShieldCheck className="w-4 h-4 text-[#367A4D]" />
-                      <div>
-                        <div className="font-bold">Back-Office Admin</div>
-                        <div className="text-[11px] text-stone-400">Attribution des stands</div>
-                      </div>
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleNavClick('admin_portal')}
+                        className="w-full text-left px-4 py-2.5 hover:bg-stone-50 flex items-center gap-2.5 text-stone-700 hover:text-[#123D2B]"
+                      >
+                        <ShieldCheck className="w-4 h-4 text-[#367A4D]" />
+                        <div>
+                          <div className="font-bold">Back-Office Admin</div>
+                          <div className="text-[11px] text-stone-400">Attribution des stands</div>
+                        </div>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -144,7 +147,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenA
                       {currentUser.fullName}
                     </span>
                     <span className="text-[10px] text-[#367A4D] font-bold uppercase tracking-wider">
-                      {currentUser.role === 'super_admin' ? 'Super Admin' : currentUser.role === 'exhibitor' ? 'Exposant' : 'Visiteur'}
+                      {isAdmin ? 'Admin' : currentUser.role === 'exhibitor' ? 'Exposant' : 'Visiteur'}
                     </span>
                   </div>
 
@@ -166,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenA
                     </button>
                   )}
 
-                  {currentUser.role === 'super_admin' && (
+                  {isAdmin && (
                     <button
                       onClick={() => handleNavClick('admin_portal')}
                       className="px-2.5 py-1 bg-[#123D2B] text-white rounded-lg text-xs font-semibold hover:bg-[#367A4D] transition-colors"
@@ -272,12 +275,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenA
                 >
                   <QrCode className="w-3.5 h-3.5 text-[#367A4D]" /> Espace Visiteur (E-Badge)
                 </button>
-                <button
-                  onClick={() => handleNavClick('admin_portal')}
-                  className="w-full text-left px-3 py-2 text-xs font-semibold text-stone-700 hover:text-[#123D2B] flex items-center gap-2"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#367A4D]" /> Console Admin
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => handleNavClick('admin_portal')}
+                    className="w-full text-left px-3 py-2 text-xs font-semibold text-stone-700 hover:text-[#123D2B] flex items-center gap-2"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#367A4D]" /> Console Admin
+                  </button>
+                )}
               </div>
             </nav>
 

@@ -132,11 +132,11 @@ export const ExhibitorsPage: React.FC<ExhibitorsPageProps> = ({ onNavigate }) =>
         {/* Bilan 3 Éditions Strip */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-            <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">250</span>
+            <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">210</span>
             <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants (3 éditions)</span>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-            <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">30 000</span>
+            <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">15 500</span>
             <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Visiteurs pros</span>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
@@ -144,7 +144,7 @@ export const ExhibitorsPage: React.FC<ExhibitorsPageProps> = ({ onNavigate }) =>
             <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants satisfaits</span>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-            <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">10 000 m²</span>
+            <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">12 000 m²</span>
             <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Surface exposée</span>
           </div>
         </div>

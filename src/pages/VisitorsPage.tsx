@@ -224,11 +224,11 @@ export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
             {/* Quick Stats Strip */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
               <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-                <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">250</span>
+                <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">210</span>
                 <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants (3 éditions)</span>
               </div>
               <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-                <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">30 000</span>
+                <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">15 500</span>
                 <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Visiteurs pros</span>
               </div>
               <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
@@ -236,7 +236,7 @@ export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
                 <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants satisfaits</span>
               </div>
               <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-                <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">10 000 m²</span>
+                <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">12 000 m²</span>
                 <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Surface exposée</span>
               </div>
             </div>
@@ -255,7 +255,7 @@ export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <div>
-                        <strong className="text-stone-900 block font-semibold">250 Marques Réunies sur 3 Éditions</strong>
+                        <strong className="text-stone-900 block font-semibold">210 Marques Réunies sur 3 Éditions</strong>
                         Découvrez en exclusivité les nouveaux matériels d'espaces verts, systèmes d'irrigation connectés et pépinières spécialisées.
                       </div>
                     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { PageId } from '../types';
+import { useApp } from '../context/AppContext';
 import {
   Play,
   Pause,
@@ -46,7 +47,7 @@ const DEFAULT_SLIDES: VideoSlide[] = [
     videoType: "youtube",
     location: "OFEC Casablanca · 3 Éditions Réunies",
     metricLabel: "Exposants Réunis",
-    metricValue: "250 Exposants",
+    metricValue: "210 Exposants",
   },
   {
     id: 'slide-2',
@@ -58,7 +59,7 @@ const DEFAULT_SLIDES: VideoSlide[] = [
     videoType: "youtube",
     location: "Casablanca · Audience Professionnelle",
     metricLabel: "Visiteurs Professionnels",
-    metricValue: "30 000 Visiteurs",
+    metricValue: "15 500 Visiteurs",
   },
   {
     id: 'slide-3',
@@ -95,6 +96,9 @@ export const HeroVideoSlider: React.FC<HeroVideoSliderProps> = ({
   onNavigate,
   onOpenVideoLightbox,
 }) => {
+  const { currentUser } = useApp();
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
+
   const [slides, setSlides] = useState<VideoSlide[]>(() => {
     try {
       const saved = localStorage.getItem('garden_expo_hero_slides_v3');
@@ -292,15 +296,17 @@ export const HeroVideoSlider: React.FC<HeroVideoSliderProps> = ({
             </button>
           )}
 
-          {/* Video Manager Modal Trigger (User requested: "je veux faire des slide video je te donner les video") */}
-          <button
-            onClick={() => setIsEditorOpen(true)}
-            className="px-2.5 py-1.5 rounded-lg bg-[#367A4D]/80 hover:bg-[#367A4D] border border-emerald-400/30 text-white backdrop-blur-md transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1.5 shadow-sm"
-            title="Ajouter ou remplacer les vidéos du slider"
-          >
-            <Video className="w-3.5 h-3.5 text-[#A5C96B]" />
-            <span className="text-[11px] font-bold">Gérer les Vidéos</span>
-          </button>
+          {/* Video Manager Modal Trigger (Réservé exclusivement aux administrateurs) */}
+          {isAdmin && (
+            <button
+              onClick={() => setIsEditorOpen(true)}
+              className="px-2.5 py-1.5 rounded-lg bg-[#367A4D]/80 hover:bg-[#367A4D] border border-emerald-400/30 text-white backdrop-blur-md transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+              title="Ajouter ou remplacer les vidéos du slider (Admin)"
+            >
+              <Video className="w-3.5 h-3.5 text-[#A5C96B]" />
+              <span className="text-[11px] font-bold">Gérer les Vidéos</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -456,8 +462,8 @@ export const HeroVideoSlider: React.FC<HeroVideoSliderProps> = ({
         </div>
       </div>
 
-      {/* 5. VIDEO MANAGER MODAL (READY FOR USER TO PROVIDE VIDEOS) */}
-      {isEditorOpen && (
+      {/* 5. VIDEO MANAGER MODAL (RÉSERVÉ EXCLUSIVEMENT AUX ADMINISTRATEURS) */}
+      {isAdmin && isEditorOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#123D2B] border border-white/20 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 text-white shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-white/15 mb-6">

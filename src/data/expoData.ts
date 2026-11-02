@@ -16,10 +16,10 @@ export const ORGANIZER_DETAILS = {
 };
 
 export const THREE_EDITIONS_STATS = {
-  exhibitorsCount: '250',
-  visitorsCount: '30 000',
+  exhibitorsCount: '210',
+  visitorsCount: '15 500',
   satisfactionRate: '95 %',
-  surfaceSqm: '10 000 m²',
+  surfaceSqm: '12 000 m²',
   editionsCount: '3 Éditions',
   location: 'Casablanca, Maroc',
   period: '2022 - 2025',
@@ -32,10 +32,10 @@ export const EDITIONS_INFO = {
   theme: 'Végétalisation, Résilience Hydrique & Villes Éco-Conçues à l’horizon 2030',
   nextEditionNotice: 'Prochaine session officielle à Casablanca — Dates et programme technique détaillés en cours de publication par le comité d’organisation.',
   kpis: [
-    { label: 'Exposants (3 éditions)', value: '250' },
-    { label: 'Visiteurs Professionnels', value: '30 000' },
+    { label: 'Exposants (3 éditions)', value: '210' },
+    { label: 'Visiteurs Professionnels', value: '15 500' },
     { label: 'Satisfaction Exposants', value: '95 %' },
-    { label: 'Surface Totale Exposée', value: '10 000 m²' },
+    { label: 'Surface Totale Exposée', value: '12 000 m²' },
   ],
 };
 

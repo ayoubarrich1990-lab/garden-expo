@@ -185,14 +185,14 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               <div className="grid grid-cols-2 gap-3 text-left">
                 <div className="p-3 rounded-xl bg-white/5 border border-white/10">
                   <span className="text-2xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
-                    250
+                    210
                   </span>
                   <span className="text-[11px] font-semibold text-stone-200">Exposants</span>
                 </div>
 
                 <div className="p-3 rounded-xl bg-white/5 border border-white/10">
                   <span className="text-2xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
-                    30 000
+                    15 500
                   </span>
                   <span className="text-[11px] font-semibold text-stone-200">Visiteurs B2B</span>
                 </div>
@@ -206,7 +206,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
 
                 <div className="p-3 rounded-xl bg-white/5 border border-white/10">
                   <span className="text-2xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
-                    10 000 m²
+                    12 000 m²
                   </span>
                   <span className="text-[11px] font-semibold text-stone-200">Surface Totale</span>
                 </div>

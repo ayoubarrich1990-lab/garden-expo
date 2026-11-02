@@ -119,7 +119,59 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [editions, setEditions] = useState<EditionArchive[]>(() => {
     const saved = localStorage.getItem('gea_editions');
-    return saved ? JSON.parse(saved) : INITIAL_EDITIONS;
+    if (saved) {
+      try {
+        const parsed: EditionArchive[] = JSON.parse(saved);
+        return parsed.map((ed) => {
+          if (ed.id === 'edition-3' || ed.year === 2025) {
+            return {
+              ...ed,
+              summary:
+                'Consécration internationale du salon à Casablanca réunissant 100 exposants et 5 000 professionnels pour 5 000 m² de surface d’exposition brute avec 96% de satisfaction exposants.',
+              stats: {
+                ...ed.stats,
+                exhibitorsCount: '100',
+                visitorsCount: '5 000',
+                countriesCount: ed.stats?.countriesCount || '18',
+                surfaceSqm: '5 000 m²',
+              },
+            };
+          }
+          if (ed.id === 'edition-2' || ed.year === 2023) {
+            return {
+              ...ed,
+              summary:
+                'Une édition axée sur la réponse technologique face au stress hydrique au Maroc, réunissant 50 exposants et 5 500 visiteurs pour 3 500 m² d’exposition brute avec 95% de satisfaction.',
+              stats: {
+                ...ed.stats,
+                exhibitorsCount: '50',
+                visitorsCount: '5 500',
+                countriesCount: ed.stats?.countriesCount || '12',
+                surfaceSqm: '3 500 m²',
+              },
+            };
+          }
+          if (ed.id === 'edition-1' || ed.year === 2022) {
+            return {
+              ...ed,
+              summary:
+                'Lancement fondateur du tout premier salon professionnel à Casablanca réunissant 60 exposants et 5 000 visiteurs professionnels pour 3 500 m² d’exposition brute (94% de satisfaction).',
+              stats: {
+                ...ed.stats,
+                exhibitorsCount: '60',
+                visitorsCount: '5 000',
+                countriesCount: ed.stats?.countriesCount || '8',
+                surfaceSqm: '3 500 m²',
+              },
+            };
+          }
+          return ed;
+        });
+      } catch {
+        return INITIAL_EDITIONS;
+      }
+    }
+    return INITIAL_EDITIONS;
   });
 
   const [gallery, setGallery] = useState<GalleryPhoto[]>(() => {
@@ -392,22 +444,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: false, error: 'Un compte existe déjà avec cette adresse email.' };
     }
 
+    // Seuls les rôles visiteur ou exposant peuvent être créés via l'inscription publique
+    const safeRole: UserRole = data.role === 'exhibitor' ? 'exhibitor' : 'visitor';
+
     const newProfile: UserProfile = {
       id: 'usr-' + Date.now(),
       email: cleanEmail,
-      role: data.role,
+      role: safeRole,
       fullName: data.fullName.trim() || cleanEmail.split('@')[0],
       companyName: data.company?.trim() || 'Organisme Professionnel',
       phone: data.phone?.trim() || '+212 600 000 000',
       city: data.city?.trim() || 'Casablanca',
       country: 'Maroc',
-      exhibitorId: data.role === 'exhibitor' ? 'exh-01' : undefined,
+      exhibitorId: safeRole === 'exhibitor' ? 'exh-01' : undefined,
     };
 
     const newAccount: AuthAccount = {
       email: cleanEmail,
       password: cleanPass,
-      role: data.role,
+      role: safeRole,
       profile: newProfile,
     };
 

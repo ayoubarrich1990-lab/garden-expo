@@ -52,7 +52,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center divide-y lg:divide-y-0 lg:divide-x divide-white/10">
             <div className="pt-2 lg:pt-0 lg:px-4">
               <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
-                250
+                210
               </span>
               <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider block mt-1">
                 Exposants
@@ -62,7 +62,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
             <div className="pt-4 lg:pt-0 lg:px-4">
               <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
-                30 000
+                15 500
               </span>
               <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider block mt-1">
                 Visiteurs Pro
@@ -82,7 +82,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
             <div className="pt-4 lg:pt-0 lg:px-4">
               <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
-                10 000 m²
+                12 000 m²
               </span>
               <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider block mt-1">
                 Surface Exposée
@@ -124,10 +124,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   Catalogue Officiel
                 </span>
                 <h3 className="text-lg font-bold text-[#0D2818] font-['Outfit',sans-serif] mb-2">
-                  Annuaire & Plan des Stands
+                  Annuaire Officiel des Exposants
                 </h3>
                 <p className="text-xs text-stone-600 leading-relaxed mb-4">
-                  Recherchez les entreprises par filière et localisez instantanément chaque emplacement sur le plan vectoriel SVG (Halls A & B).
+                  Recherchez les entreprises par filière, découvrez leurs innovations et consultez leurs coordonnées professionnelles.
                 </p>
               </div>
               <div className="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-[#0D2818]">
@@ -152,11 +152,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   Espace Exposant Dédié
                 </h3>
                 <p className="text-xs text-stone-600 leading-relaxed mb-4">
-                  Visualisez votre stand réservé, téléchargez vos factures en MAD, gérez vos badges équipe et mettez à jour votre fiche catalogue.
+                  Visualisez votre stand réservé, téléchargez vos factures en MAD, vos badges équipe et les informations de participation.
                 </p>
               </div>
               <div className="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-[#0D2818]">
-                <span>Gérer mon stand</span>
+                <span>Accéder à mon espace</span>
                 <ArrowRight className="w-4 h-4 text-[#367A4D] group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -202,7 +202,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 Best Of de la 3ème Édition à Casablanca
               </h2>
               <p className="text-stone-600 text-sm leading-relaxed">
-                Avec 250 exposants réunis sur les 3 éditions, 30 000 visiteurs professionnels accueillis, 95 % de satisfaction exposants et plus de 10 000 m² d'exposition, Garden Expo Africa s'affirme comme le carrefour de référence du paysage et des espaces verts.
+                Avec 210 exposants réunis sur les 3 éditions (dont 100 lors de la 3ème édition), 15 500 visiteurs professionnels accueillis (5 000 en 2025), 96 % de satisfaction exposants et une surface d'exposition brute de 5 000 m² à Casablanca (12 000 m² cumulés), Garden Expo Africa s'affirme comme le carrefour de référence du paysage et des espaces verts.
               </p>
 
               <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
