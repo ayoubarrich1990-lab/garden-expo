@@ -15,6 +15,9 @@ import {
   Globe2,
   Calendar,
   MapPin,
+  Info,
+  ShieldCheck,
+  Briefcase,
 } from 'lucide-react';
 
 interface SalonPageProps {
@@ -72,6 +75,67 @@ export const SalonPage: React.FC<SalonPageProps> = ({ onNavigate }) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+        {/* SECTION : QUI SOMMES-NOUS ? */}
+        <section className="bg-white rounded-3xl p-8 sm:p-12 border border-stone-200 shadow-sm relative overflow-hidden">
+          <div className="max-w-4xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[#367A4D] text-xs font-bold uppercase tracking-wider mb-4">
+              <Info className="w-4 h-4" />
+              <span>Présentation Institutionnelle</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#123D2B] font-['Outfit',sans-serif] mb-6 tracking-tight">
+              Qui sommes-nous ?
+            </h2>
+
+            <div className="space-y-5 text-stone-700 text-sm sm:text-base leading-relaxed">
+              <p className="text-base sm:text-lg font-medium text-stone-900 leading-snug">
+                Garden Expo Africa est un salon professionnel international dédié à l’aménagement paysager, aux espaces verts, à l’urbanisme durable et aux technologies innovantes pour les espaces extérieurs.
+              </p>
+
+              <p>
+                Créé en 2022 à Casablanca sous le nom de <strong>Garden Expo Morocco</strong>, le salon est une initiative de <strong>R2H Communication</strong>, avec la volonté de réunir les professionnels, les entreprises, les institutions et les experts qui contribuent au développement des espaces verts et à la transformation des environnements urbains.
+              </p>
+
+              <p>
+                Au fil de ses éditions, Garden Expo a évolué pour devenir une plateforme de rencontres, d'exposition et d'échanges professionnels, favorisant la découverte de nouvelles solutions, le partage d'expertise et la création de partenariats nationaux et internationaux.
+              </p>
+
+              <p>
+                Aujourd'hui, Garden Expo Africa porte une ambition continentale : fédérer les acteurs de l'aménagement paysager et urbain, encourager l'innovation, promouvoir les infrastructures vertes et accompagner le développement de villes plus durables, intelligentes et résilientes.
+              </p>
+
+              <p>
+                À travers ses expositions, ses conférences et ses rencontres B2B, le salon constitue un espace privilégié de connexion entre les fabricants, fournisseurs, architectes paysagistes, urbanistes, promoteurs immobiliers, collectivités territoriales et décideurs.
+              </p>
+
+              {/* Punchline Signature */}
+              <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-emerald-50/80 border-l-4 border-[#367A4D] text-[#123D2B] font-bold text-sm sm:text-base">
+                Garden Expo Africa : une plateforme professionnelle au service de l'avenir des espaces verts et urbains en Afrique.
+              </div>
+            </div>
+
+            {/* Repères Clés */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-8 border-t border-stone-100 text-xs">
+              <div className="flex flex-col">
+                <span className="text-stone-400 font-semibold uppercase text-[11px]">Création</span>
+                <span className="font-bold text-stone-900 text-sm mt-0.5">2022 à Casablanca</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-stone-400 font-semibold uppercase text-[11px]">Organisation</span>
+                <span className="font-bold text-stone-900 text-sm mt-0.5">R2H Communication</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-stone-400 font-semibold uppercase text-[11px]">Envergure</span>
+                <span className="font-bold text-stone-900 text-sm mt-0.5">Internationale & Panafricaine</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-stone-400 font-semibold uppercase text-[11px]">Format</span>
+                <span className="font-bold text-stone-900 text-sm mt-0.5">Expositions, B2B & Forums</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* SECTION 1: MISSION & STRATÉGIE */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
@@ -97,14 +161,14 @@ export const SalonPage: React.FC<SalonPageProps> = ({ onNavigate }) => {
             <div className="mt-8 flex flex-wrap gap-4">
               <button
                 onClick={() => onNavigate('contact')}
-                className="px-6 py-3 bg-[#123D2B] text-white rounded-xl text-xs font-bold hover:bg-[#367A4D] transition-colors shadow-xs flex items-center gap-2"
+                className="px-6 py-3 bg-[#123D2B] text-white rounded-xl text-xs font-bold hover:bg-[#367A4D] transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
               >
                 <span>Réserver un stand pour la prochaine édition</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => onNavigate('directory')}
-                className="px-6 py-3 bg-white text-stone-700 border border-stone-300 rounded-xl text-xs font-bold hover:bg-stone-50 transition-colors"
+                className="px-6 py-3 bg-white text-stone-700 border border-stone-300 rounded-xl text-xs font-bold hover:bg-stone-50 transition-colors cursor-pointer"
               >
                 Consulter les exposants
               </button>

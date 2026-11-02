@@ -34,15 +34,32 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           <div className="lg:col-span-8 flex flex-col gap-8">
             <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[#367A4D] text-xs font-bold uppercase tracking-wider mb-3">
+                <span>Présentation Institutionnelle</span>
+              </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 font-['Outfit',sans-serif] mb-4">
-                Une Genèse Ancrée dans les Défis Territoriaux du Maroc
+                Qui sommes-nous ?
               </h2>
-              <p className="text-stone-700 leading-relaxed mb-4">
-                Inauguré à Casablanca en 2022 sous l’impulsion de <strong>R2H Communication</strong> et en étroite concertation avec les professionnels de l'architecture paysagère, <strong>Garden Expo Africa</strong> (anciennement <em>Garden Expo Morocco</em>) a été fondé pour répondre à un besoin fondamental : doter le Maroc et le continent africain d'une plateforme d'affaires et d'expertise haut de gamme entièrement dédiée au paysage et à l'espace public.
-              </p>
-              <p className="text-stone-700 leading-relaxed mb-4">
-                Face aux impératifs climatiques, à la raréfaction des ressources en eau et à l’urbanisation accélérée, le salon s'est imposé comme le point de ralliement incontournable où se rencontrent les fabricants d'équipements, les pépiniéristes producteurs, les bureaux d'études, les gestionnaires de golfs et les élus des collectivités territoriales.
-              </p>
+              <div className="space-y-4 text-stone-700 leading-relaxed text-sm sm:text-base">
+                <p className="font-medium text-stone-900">
+                  Garden Expo Africa est un salon professionnel international dédié à l’aménagement paysager, aux espaces verts, à l’urbanisme durable et aux technologies innovantes pour les espaces extérieurs.
+                </p>
+                <p>
+                  Créé en 2022 à Casablanca sous le nom de <strong>Garden Expo Morocco</strong>, le salon est une initiative de <strong>R2H Communication</strong>, avec la volonté de réunir les professionnels, les entreprises, les institutions et les experts qui contribuent au développement des espaces verts et à la transformation des environnements urbains.
+                </p>
+                <p>
+                  Au fil de ses éditions, Garden Expo a évolué pour devenir une plateforme de rencontres, d'exposition et d'échanges professionnels, favorisant la découverte de nouvelles solutions, le partage d'expertise et la création de partenariats nationaux et internationaux.
+                </p>
+                <p>
+                  Aujourd'hui, Garden Expo Africa porte une ambition continentale : fédérer les acteurs de l'aménagement paysager et urbain, encourager l'innovation, promouvoir les infrastructures vertes et accompagner le développement de villes plus durables, intelligentes et résilientes.
+                </p>
+                <p>
+                  À travers ses expositions, ses conférences et ses rencontres B2B, le salon constitue un espace privilégié de connexion entre les fabricants, fournisseurs, architectes paysagistes, urbanistes, promoteurs immobiliers, collectivités territoriales et décideurs.
+                </p>
+                <div className="p-4 rounded-xl bg-emerald-50 border-l-4 border-[#367A4D] text-[#123D2B] font-bold text-sm">
+                  Garden Expo Africa : une plateforme professionnelle au service de l'avenir des espaces verts et urbains en Afrique.
+                </div>
+              </div>
             </div>
 
             {/* Strategic Pillars */}
