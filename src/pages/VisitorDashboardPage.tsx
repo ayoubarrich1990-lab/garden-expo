@@ -144,7 +144,7 @@ export const VisitorDashboardPage: React.FC<VisitorDashboardPageProps> = ({ onNa
         `E-BADGE OFFICIEL - ACCÈS PROFESSIONNEL COUPE-FILE\n` +
         `GARDEN EXPO AFRICA - 4ÈME ÉDITION CASABLANCA MAROC\n` +
         `Lieu : OFEC (Office des Foires et Expositions de Casablanca)\n` +
-        `Dates : 22 - 25 Octobre 2026\n` +
+        `Dates : 2027\n` +
         `============================================================\n` +
         `Numéro de Badge : ${badgeNumber}\n` +
         `Titulaire : ${currentUser.fullName}\n` +
@@ -219,7 +219,7 @@ export const VisitorDashboardPage: React.FC<VisitorDashboardPageProps> = ({ onNa
                 <div className="bg-[#123D2B] p-4 text-center relative border-b-4 border-[#A5C96B]">
                   <div className="w-12 h-2.5 bg-white/20 rounded-full mx-auto mb-3" />
                   <div className="text-[11px] font-black uppercase tracking-widest text-[#A5C96B]">
-                    GARDEN EXPO AFRICA 2026
+                    GARDEN EXPO AFRICA 2027
                   </div>
                   <div className="text-xs text-white/80 font-medium">
                     Office des Foires et Expositions de Casablanca (OFEC)
@@ -317,7 +317,7 @@ export const VisitorDashboardPage: React.FC<VisitorDashboardPageProps> = ({ onNa
 
                 {/* Bottom strip */}
                 <div className="bg-stone-100 p-3 text-center border-t border-stone-200 text-[10px] text-stone-600 font-semibold uppercase tracking-wider">
-                  22 au 25 Octobre 2026 · Casablanca
+                  Édition 2027 · Casablanca
                 </div>
               </div>
 

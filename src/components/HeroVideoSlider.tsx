@@ -347,7 +347,7 @@ export const HeroVideoSlider: React.FC<HeroVideoSliderProps> = ({
 
               <div className="flex items-center gap-2 text-xs text-[#A5C96B] font-semibold sm:border-l sm:border-white/15 sm:pl-3 shrink-0">
                 <Calendar className="w-4 h-4 shrink-0 text-[#A5C96B]" />
-                <span>22 – 25 Octobre 2026</span>
+                <span>2027</span>
               </div>
             </div>
 
