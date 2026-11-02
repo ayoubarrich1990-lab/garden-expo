@@ -29,7 +29,7 @@ interface AdminDashboardPageProps {
 export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNavigate }) => {
   const {
     currentUser,
-    loginAsDemo,
+    loginWithPassword,
     exhibitors,
     stands,
     editions,
@@ -68,35 +68,109 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
   const [photoUrl, setPhotoUrl] = useState('');
   const [photoCaption, setPhotoCaption] = useState('');
 
+  // Admin password login state
+  const [adminEmail, setAdminEmail] = useState('admin@gardenexpo.ma');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
+
   // Access check
   const isAdmin = currentUser?.role === 'super_admin' || currentUser?.role === 'admin';
 
+  const handleAdminLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminLoginError(null);
+    const result = loginWithPassword(adminEmail, adminPassword);
+    if (!result.success) {
+      setAdminLoginError(result.error || "Mot de passe incorrect ou compte non autorisé.");
+    }
+  };
+
   if (!isAdmin) {
     return (
-      <div className="bg-[#F5F6F3] min-h-screen py-16 px-4">
-        <div className="max-w-xl mx-auto bg-white rounded-2xl p-8 border border-stone-200 text-center shadow-sm">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600">
-            <ShieldAlert className="w-8 h-8" />
+      <div className="bg-[#F5F6F3] min-h-screen py-16 px-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-stone-200 shadow-xl">
+          <div className="w-14 h-14 bg-[#123D2B]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#123D2B]">
+            <ShieldAlert className="w-7 h-7 text-[#123D2B]" />
           </div>
-          <h2 className="text-2xl font-bold font-['Outfit',sans-serif] text-[#123D2B] mb-2">
-            Zone d'Administration Restreinte
+          <h2 className="text-2xl font-bold font-['Outfit',sans-serif] text-[#123D2B] mb-1 text-center">
+            Console Back-Office
           </h2>
-          <p className="text-stone-600 mb-6 text-sm">
-            Cet espace est réservé au Commissariat Général et aux administrateurs de Garden Expo Africa Maroc.
+          <p className="text-stone-500 mb-6 text-xs text-center">
+            Espace d'administration réservé au Commissariat Général de Garden Expo Africa.
           </p>
-          <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-left text-xs text-amber-900 mb-6">
-            <strong>Mode Démonstration & Évaluation :</strong>
-            <p className="mt-1">
-              Vous pouvez activer le rôle <em>Super Administrateur</em> en un clic pour tester toutes les fonctionnalités de modération,
-              d'attribution de stands et de gestion de contenu.
-            </p>
+
+          {adminLoginError && (
+            <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{adminLoginError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleAdminLoginSubmit} className="space-y-4 text-xs">
+            <div>
+              <label className="block text-stone-700 font-bold mb-1">Identifiant administrateur</label>
+              <input
+                type="email"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                placeholder="admin@gardenexpo.ma"
+                required
+                className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl focus:outline-none focus:border-[#367A4D] bg-white text-stone-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-stone-700 font-bold mb-1">Mot de passe de sécurité</label>
+              <div className="relative">
+                <input
+                  type={showAdminPassword ? 'text' : 'password'}
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="Saisissez le mot de passe"
+                  required
+                  className="w-full px-3.5 py-2.5 pr-10 border border-stone-300 rounded-xl focus:outline-none focus:border-[#367A4D] bg-white text-stone-900"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAdminPassword(!showAdminPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+                  aria-label={showAdminPassword ? 'Masquer' : 'Afficher'}
+                >
+                  {showAdminPassword ? 'Masquer' : 'Afficher'}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 px-4 bg-[#123D2B] hover:bg-[#367A4D] text-white font-bold rounded-xl text-xs transition-colors shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Se connecter à la console</span>
+            </button>
+          </form>
+
+          {/* Configuration sécurisée rappel */}
+          <div className="mt-6 p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-[11px] text-stone-600">
+            <div className="flex items-center justify-between mb-1.5 font-bold text-stone-900">
+              <span>Identifiants configurés</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setAdminEmail('admin@gardenexpo.ma');
+                  setAdminPassword('AdminGarden2026!');
+                  setAdminLoginError(null);
+                }}
+                className="text-[#367A4D] hover:underline cursor-pointer text-[10px]"
+              >
+                Remplir
+              </button>
+            </div>
+            <div className="font-mono text-[10px] text-stone-500">Email : admin@gardenexpo.ma</div>
+            <div className="font-mono text-[10px] text-emerald-800 font-bold mt-0.5">
+              Mot de passe : AdminGarden2026!
+            </div>
           </div>
-          <button
-            onClick={() => loginAsDemo('super_admin')}
-            className="w-full px-5 py-3 bg-[#123D2B] text-white rounded-xl text-sm font-bold hover:bg-[#367A4D] transition-colors shadow-sm"
-          >
-            Activer l'accès Administrateur Démo
-          </button>
         </div>
       </div>
     );

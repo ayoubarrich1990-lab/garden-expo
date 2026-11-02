@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { PageId } from '../types';
 import {
@@ -23,35 +23,123 @@ interface VisitorDashboardPageProps {
 }
 
 export const VisitorDashboardPage: React.FC<VisitorDashboardPageProps> = ({ onNavigate }) => {
-  const { currentUser, visitorAccount, exhibitors, toggleFavoriteExhibitor } = useApp();
+  const { currentUser, visitorAccount, exhibitors, toggleFavoriteExhibitor, loginWithPassword } = useApp();
   const badgeCardRef = useRef<HTMLDivElement>(null);
+
+  // Visitor login state when unauthenticated
+  const [visitorEmail, setVisitorEmail] = useState('visiteur@gardenexpo.ma');
+  const [visitorPassword, setVisitorPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  const handleVisitorLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError(null);
+    const result = loginWithPassword(visitorEmail, visitorPassword);
+    if (!result.success) {
+      setLoginError(result.error || "Identifiants visiteur invalides.");
+    }
+  };
 
   if (!currentUser) {
     return (
-      <div className="bg-[#F5F6F3] min-h-screen py-16 px-4">
-        <div className="max-w-2xl mx-auto bg-white rounded-2xl p-8 border border-stone-200 text-center shadow-sm">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-[#367A4D]">
-            <QrCode className="w-8 h-8" />
+      <div className="bg-[#F5F6F3] min-h-screen py-16 px-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-stone-200 shadow-xl">
+          <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#367A4D]">
+            <QrCode className="w-7 h-7 text-[#123D2B]" />
           </div>
-          <h2 className="text-2xl font-bold font-['Outfit',sans-serif] text-[#123D2B] mb-2">
-            Espace Visiteur Professionnel
+          <h2 className="text-2xl font-bold font-['Outfit',sans-serif] text-[#123D2B] mb-1 text-center">
+            Console Espace Visiteur
           </h2>
-          <p className="text-stone-600 mb-6 text-sm">
-            Connectez-vous pour générer votre E-Badge officiel nominatif, préparer votre parcours de visite
-            et retrouver vos exposants favoris.
+          <p className="text-stone-500 mb-6 text-xs text-center">
+            Connectez-vous pour retrouver votre E-Badge officiel nominatif et votre carnet d'adresses B2B.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+
+          {loginError && (
+            <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{loginError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleVisitorLoginSubmit} className="space-y-4 text-xs">
+            <div>
+              <label className="block text-stone-700 font-bold mb-1">Email professionnel</label>
+              <input
+                type="email"
+                value={visitorEmail}
+                onChange={(e) => setVisitorEmail(e.target.value)}
+                placeholder="visiteur@gardenexpo.ma"
+                required
+                className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl focus:outline-none focus:border-[#367A4D] bg-white text-stone-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-stone-700 font-bold mb-1">Mot de passe</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={visitorPassword}
+                  onChange={(e) => setVisitorPassword(e.target.value)}
+                  placeholder="Saisissez votre mot de passe"
+                  required
+                  className="w-full px-3.5 py-2.5 pr-10 border border-stone-300 rounded-xl focus:outline-none focus:border-[#367A4D] bg-white text-stone-900"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+                >
+                  {showPassword ? 'Masquer' : 'Afficher'}
+                </button>
+              </div>
+            </div>
+
             <button
+              type="submit"
+              className="w-full py-3 px-4 bg-[#123D2B] hover:bg-[#367A4D] text-white font-bold rounded-xl text-xs transition-colors shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Se connecter à mon espace visiteur</span>
+            </button>
+          </form>
+
+          {/* Configuration sécurisée rappel */}
+          <div className="mt-6 p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-[11px] text-stone-600">
+            <div className="flex items-center justify-between mb-1.5 font-bold text-stone-900">
+              <span>Identifiants configurés</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setVisitorEmail('visiteur@gardenexpo.ma');
+                  setVisitorPassword('Visiteur2026!');
+                  setLoginError(null);
+                }}
+                className="text-[#367A4D] hover:underline cursor-pointer text-[10px]"
+              >
+                Remplir
+              </button>
+            </div>
+            <div className="font-mono text-[10px] text-stone-500">Email : visiteur@gardenexpo.ma</div>
+            <div className="font-mono text-[10px] text-emerald-800 font-bold mt-0.5">
+              Mot de passe : Visiteur2026!
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-xs">
+            <button
+              type="button"
               onClick={() => onNavigate('visitors')}
-              className="px-5 py-2.5 bg-[#123D2B] text-white rounded-lg text-sm font-semibold hover:bg-[#123D2B]/90 transition-colors"
+              className="text-[#367A4D] hover:underline font-bold"
             >
               Demander mon badge gratuit
             </button>
             <button
+              type="button"
               onClick={() => onNavigate('directory')}
-              className="px-5 py-2.5 bg-stone-100 text-stone-700 rounded-lg text-sm font-semibold hover:bg-stone-200 transition-colors"
+              className="text-stone-500 hover:text-stone-800 font-semibold"
             >
-              Explorer les exposants
+              Consulter l'annuaire
             </button>
           </div>
         </div>

@@ -189,7 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenA
                   className="px-3 py-2 text-xs font-bold text-[#123D2B] border border-stone-300 hover:border-[#123D2B] rounded-lg transition-colors flex items-center gap-1.5"
                 >
                   <User className="w-3.5 h-3.5 text-[#367A4D]" />
-                  <span>Connexion / Démo</span>
+                  <span>Connexion</span>
                 </button>
               )}
 
@@ -208,7 +208,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenA
                 onClick={onOpenAuthModal}
                 className="px-2.5 py-1 text-xs font-bold text-[#123D2B] border border-stone-300 rounded-lg"
               >
-                {currentUser ? currentUser.role : 'Démo'}
+                {currentUser ? (currentUser.role === 'super_admin' ? 'Admin' : currentUser.role === 'exhibitor' ? 'Exposant' : 'Visiteur') : 'Connexion'}
               </button>
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

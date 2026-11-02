@@ -52,24 +52,24 @@ export const SalonPage: React.FC<SalonPageProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* Quick Facts Strip */}
+      {/* Quick Facts Strip - Bilan Officiel des 3 Éditions */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-md">
-            <span className="text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">10 000 m²</span>
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Surface d'exposition (Halls A & B)</span>
+            <span className="text-3xl sm:text-4xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">250</span>
+            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants (sur 3 éditions)</span>
           </div>
           <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-md">
-            <span className="text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">140+</span>
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants leaders du secteur</span>
+            <span className="text-3xl sm:text-4xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">30 000</span>
+            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Visiteurs professionnels</span>
           </div>
           <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-md">
-            <span className="text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">8 500+</span>
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Visiteurs professionnels ciblés</span>
+            <span className="text-3xl sm:text-4xl font-black font-['Outfit',sans-serif] text-[#367A4D] block">95 %</span>
+            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants satisfaits</span>
           </div>
           <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-md">
-            <span className="text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">12 Pays</span>
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Délégations & acheteurs internationaux</span>
+            <span className="text-3xl sm:text-4xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">10 000 m²</span>
+            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Surface totale exposée</span>
           </div>
         </div>
       </div>

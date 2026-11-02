@@ -173,6 +173,46 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
               </dl>
             </div>
 
+            {/* Bilan Chiffré des 3 Éditions */}
+            <div className="bg-[#0D2818] text-white rounded-2xl p-6 border border-[#202620]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#A5C96B] block mb-1">
+                Bilan Consolidé
+              </span>
+              <h3 className="text-base font-bold mb-4 font-['Outfit',sans-serif]">
+                Les 3 Éditions en Chiffres
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3 text-left">
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                  <span className="text-2xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
+                    250
+                  </span>
+                  <span className="text-[11px] font-semibold text-stone-200">Exposants</span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                  <span className="text-2xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
+                    30 000
+                  </span>
+                  <span className="text-[11px] font-semibold text-stone-200">Visiteurs B2B</span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                  <span className="text-2xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
+                    95 %
+                  </span>
+                  <span className="text-[11px] font-semibold text-stone-200">Exposants Satisfaits</span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                  <span className="text-2xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
+                    10 000 m²
+                  </span>
+                  <span className="text-[11px] font-semibold text-stone-200">Surface Totale</span>
+                </div>
+              </div>
+            </div>
+
             <div className="bg-stone-900 text-white rounded-2xl p-6 border border-stone-800">
               <h3 className="text-base font-bold mb-2 font-['Outfit',sans-serif]">
                 Participer à la Prochaine Session

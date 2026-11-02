@@ -19,6 +19,12 @@ import {
   INITIAL_INVOICES,
   DEMO_USERS,
 } from '../data/seedData';
+import {
+  getRegisteredAccounts,
+  registerAccount,
+  AuthAccount,
+  OFFICIAL_ACCOUNTS,
+} from '../data/authCredentials';
 
 interface AppContextType {
   currentUser: UserProfile | null;
@@ -31,6 +37,16 @@ interface AppContextType {
   invoices: InvoiceDocument[];
   loginAsDemo: (role: UserRole) => void;
   loginUser: (email: string, role: UserRole, fullName?: string, company?: string) => void;
+  loginWithPassword: (email: string, password: string) => { success: boolean; error?: string; user?: UserProfile };
+  registerNewAccount: (data: {
+    email: string;
+    password: string;
+    role: UserRole;
+    fullName: string;
+    company?: string;
+    phone?: string;
+    city?: string;
+  }) => { success: boolean; error?: string; user?: UserProfile };
   logout: () => void;
   toggleFavoriteExhibitor: (exhibitorId: string) => void;
   updateExhibitor: (exhibitor: Exhibitor) => void;
@@ -181,6 +197,119 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const loginWithPassword = (
+    email: string,
+    password: string
+  ): { success: boolean; error?: string; user?: UserProfile } => {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = password.trim();
+
+    if (!cleanEmail) {
+      return { success: false, error: "Veuillez saisir votre adresse email professionnelle." };
+    }
+    if (!cleanPass) {
+      return { success: false, error: "Veuillez saisir votre mot de passe d'accès." };
+    }
+
+    const accounts = getRegisteredAccounts();
+    const found = accounts.find((a) => a.email.toLowerCase() === cleanEmail);
+
+    if (!found) {
+      return {
+        success: false,
+        error: "Identifiant introuvable. Veuillez vérifier l'adresse email ou créer un compte.",
+      };
+    }
+
+    if (found.password !== cleanPass) {
+      return {
+        success: false,
+        error: "Mot de passe incorrect pour cet espace.",
+      };
+    }
+
+    setCurrentUser(found.profile);
+
+    // Initialize or restore visitor profile state
+    if (found.role === 'visitor') {
+      const badgeId = 'GEA-VIS-26-' + Math.floor(10000 + Math.random() * 90000);
+      setVisitorAccount((prev) => prev || {
+        id: 'vis-' + Date.now(),
+        userId: found.profile.id,
+        badgeNumber: badgeId,
+        registrationDate: new Date().toLocaleDateString('fr-FR'),
+        favoriteExhibitorIds: [],
+        plannedVisits: [],
+        qrPayload: `GARDEN-EXPO-AFRICA-2026|${badgeId}|${found.profile.fullName}|${found.profile.companyName || ''}`,
+      });
+    }
+
+    return { success: true, user: found.profile };
+  };
+
+  const registerNewAccount = (data: {
+    email: string;
+    password: string;
+    role: UserRole;
+    fullName: string;
+    company?: string;
+    phone?: string;
+    city?: string;
+  }): { success: boolean; error?: string; user?: UserProfile } => {
+    const cleanEmail = data.email.trim().toLowerCase();
+    const cleanPass = data.password.trim();
+
+    if (!cleanEmail || !cleanPass) {
+      return { success: false, error: "L'email et le mot de passe sont obligatoires." };
+    }
+
+    if (cleanPass.length < 6) {
+      return { success: false, error: "Le mot de passe doit comporter au moins 6 caractères." };
+    }
+
+    const accounts = getRegisteredAccounts();
+    if (accounts.some((a) => a.email.toLowerCase() === cleanEmail)) {
+      return { success: false, error: "Un compte existe déjà avec cette adresse email." };
+    }
+
+    const newProfile: UserProfile = {
+      id: 'usr-' + Date.now(),
+      email: cleanEmail,
+      role: data.role,
+      fullName: data.fullName.trim() || cleanEmail.split('@')[0],
+      companyName: data.company?.trim() || 'Organisme Professionnel',
+      phone: data.phone?.trim() || '+212 600 000 000',
+      city: data.city?.trim() || 'Casablanca',
+      country: 'Maroc',
+      exhibitorId: data.role === 'exhibitor' ? 'exh-01' : undefined,
+    };
+
+    const newAccount: AuthAccount = {
+      email: cleanEmail,
+      password: cleanPass,
+      role: data.role,
+      profile: newProfile,
+    };
+
+    registerAccount(newAccount);
+    setCurrentUser(newProfile);
+
+    if (data.role === 'visitor') {
+      const badgeId = 'GEA-VIS-26-' + Math.floor(10000 + Math.random() * 90000);
+      setVisitorAccount({
+        id: 'vis-' + Date.now(),
+        userId: newProfile.id,
+        badgeNumber: badgeId,
+        registrationDate: new Date().toLocaleDateString('fr-FR'),
+        favoriteExhibitorIds: [],
+        plannedVisits: [],
+        qrPayload: `GARDEN-EXPO-AFRICA-2026|${badgeId}|${newProfile.fullName}|${newProfile.companyName || ''}`,
+      });
+    }
+
+    return { success: true, user: newProfile };
+  };
+
   const logout = () => {
     setCurrentUser(null);
   };
@@ -279,6 +408,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         invoices,
         loginAsDemo,
         loginUser,
+        loginWithPassword,
+        registerNewAccount,
         logout,
         toggleFavoriteExhibitor,
         updateExhibitor,

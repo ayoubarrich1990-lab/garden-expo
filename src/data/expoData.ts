@@ -15,6 +15,16 @@ export const ORGANIZER_DETAILS = {
   venue: 'Office des Foires et Expositions de Casablanca (OFEC) / Casablanca, Maroc',
 };
 
+export const THREE_EDITIONS_STATS = {
+  exhibitorsCount: '250',
+  visitorsCount: '30 000',
+  satisfactionRate: '95 %',
+  surfaceSqm: '10 000 m²',
+  editionsCount: '3 Éditions',
+  location: 'Casablanca, Maroc',
+  period: '2022 - 2025',
+};
+
 export const EDITIONS_INFO = {
   location: 'Casablanca, Maroc',
   title: 'Garden Expo Africa — Édition Maroc',
@@ -22,10 +32,10 @@ export const EDITIONS_INFO = {
   theme: 'Végétalisation, Résilience Hydrique & Villes Éco-Conçues à l’horizon 2030',
   nextEditionNotice: 'Prochaine session officielle à Casablanca — Dates et programme technique détaillés en cours de publication par le comité d’organisation.',
   kpis: [
-    { label: 'Exposants & Marques', value: '150+' },
-    { label: 'Visiteurs Professionnels', value: '8 500+' },
-    { label: 'Délégations Panafricaines', value: '18+' },
-    { label: 'M² d’Exposition B2B', value: '6 000+' },
+    { label: 'Exposants (3 éditions)', value: '250' },
+    { label: 'Visiteurs Professionnels', value: '30 000' },
+    { label: 'Satisfaction Exposants', value: '95 %' },
+    { label: 'Surface Totale Exposée', value: '10 000 m²' },
   ],
 };
 

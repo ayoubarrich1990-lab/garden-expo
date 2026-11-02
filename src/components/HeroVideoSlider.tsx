@@ -40,49 +40,49 @@ const DEFAULT_SLIDES: VideoSlide[] = [
     id: 'slide-1',
     title: "Le Salon B2B du Paysage & de la Ville Verte en Afrique",
     subtitle: "Rassemblement international des acteurs majeurs de l'aménagement paysager, de l'urbanisme durable et du génie végétal.",
-    badge: "Édition Officielle Maroc · Casablanca (OFEC)",
+    badge: "Bilan Officiel · 3 Éditions à Casablanca",
     videoUrl: "https://www.youtube.com/embed/QoPzVfK6RSg?autoplay=1&mute=1&controls=0&loop=1&playlist=QoPzVfK6RSg",
     posterUrl: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1600&auto=format&fit=crop&q=80",
     videoType: "youtube",
-    location: "OFEC Casablanca · 22 – 25 Octobre 2026",
-    metricLabel: "Surface d'exposition",
-    metricValue: "10 000 m²",
+    location: "OFEC Casablanca · 3 Éditions Réunies",
+    metricLabel: "Exposants Réunis",
+    metricValue: "250 Exposants",
   },
   {
     id: 'slide-2',
     title: "Innovations en Arrosage Intelligent & Eaux Traitées (REUT)",
     subtitle: "Découvrez les technologies de pointe pour la sobriété hydrique, la télégestion des réseaux et les palettes végétales xérophiles.",
-    badge: "Filière Stratégique Eau & Climat",
+    badge: "Affluence & Qualité B2B",
     videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=1&mute=1&controls=0&loop=1&playlist=ScMzIvxBSi4",
     posterUrl: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1600&auto=format&fit=crop&q=80",
     videoType: "youtube",
-    location: "Halls A & B · Démonstrations en direct",
-    metricLabel: "Exposants Leaders",
-    metricValue: "140+ Marques",
+    location: "Casablanca · Audience Professionnelle",
+    metricLabel: "Visiteurs Professionnels",
+    metricValue: "30 000 Visiteurs",
   },
   {
     id: 'slide-3',
     title: "Mobilier Urbain, Éclairage Éco-conçu & Espaces Publics",
     subtitle: "Équipements contemporains pour parcs métropolitains, complexes hôteliers, résidences et grands chantiers 2030 au Maroc.",
-    badge: "Urbanisme & Design Extérieur",
+    badge: "Satisfaction & Plébiscite",
     videoUrl: "https://www.youtube.com/embed/L_LUpnjgPso?autoplay=1&mute=1&controls=0&loop=1&playlist=L_LUpnjgPso",
     posterUrl: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=1600&auto=format&fit=crop&q=80",
     videoType: "youtube",
-    location: "Casablanca · Carrefour Panafricain",
-    metricLabel: "Visiteurs Professionnels",
-    metricValue: "8 500+",
+    location: "Casablanca · Enquête Officielle",
+    metricLabel: "Satisfaction Exposants",
+    metricValue: "95 % Satisfaits",
   },
   {
     id: 'slide-4',
     title: "Rencontres d'Affaires & Délégations Internationales",
-    subtitle: "Networking B2B ciblé entre donneurs d'ordres, architectes paysagistes, promoteurs et investisseurs de 12 pays.",
-    badge: "Plateforme B2B & Conférences",
+    subtitle: "Networking B2B ciblé entre donneurs d'ordres, architectes paysagistes, promoteurs et investisseurs du continent.",
+    badge: "Envergure & Espaces",
     videoUrl: "https://www.youtube.com/embed/EngW7tLk6R8?autoplay=1&mute=1&controls=0&loop=1&playlist=EngW7tLk6R8",
     posterUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=1600&auto=format&fit=crop&q=80",
     videoType: "youtube",
-    location: "Espace B2B & Club VIP",
-    metricLabel: "Délégations Acheteurs",
-    metricValue: "12 Pays",
+    location: "OFEC Casablanca · Halls & Démonstrations",
+    metricLabel: "Surface Totale Exposée",
+    metricValue: "10 000 m²",
   },
 ];
 
@@ -97,7 +97,7 @@ export const HeroVideoSlider: React.FC<HeroVideoSliderProps> = ({
 }) => {
   const [slides, setSlides] = useState<VideoSlide[]>(() => {
     try {
-      const saved = localStorage.getItem('garden_expo_hero_slides');
+      const saved = localStorage.getItem('garden_expo_hero_slides_v3');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;

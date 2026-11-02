@@ -203,24 +203,45 @@ export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            {/* Why Visit Highlights */}
-            <div className="lg:col-span-5 flex flex-col gap-6">
-              <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200">
-                <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider block mb-2">
-                  Pourquoi Visiter ?
-                </span>
-                <h2 className="text-xl font-bold text-stone-900 font-['Outfit',sans-serif] mb-4">
-                  Le Rendez-Vous Annuel des Professionnels du Paysage
-                </h2>
-                <div className="flex flex-col gap-4 text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="text-stone-900 block font-semibold">150+ Marques Réunies</strong>
-                      Découvrez en exclusivité les nouveaux matériels d'espaces verts, systèmes d'irrigation connectés et pépinières spécialisées.
+          <div>
+            {/* Quick Stats Strip */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+              <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
+                <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">250</span>
+                <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants (3 éditions)</span>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
+                <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">30 000</span>
+                <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Visiteurs pros</span>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
+                <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#367A4D] block">95 %</span>
+                <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants satisfaits</span>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
+                <span className="text-2xl sm:text-3xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">10 000 m²</span>
+                <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Surface exposée</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+              {/* Why Visit Highlights */}
+              <div className="lg:col-span-5 flex flex-col gap-6">
+                <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200">
+                  <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider block mb-2">
+                    Pourquoi Visiter ?
+                  </span>
+                  <h2 className="text-xl font-bold text-stone-900 font-['Outfit',sans-serif] mb-4">
+                    Le Rendez-Vous Annuel des Professionnels du Paysage
+                  </h2>
+                  <div className="flex flex-col gap-4 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-stone-900 block font-semibold">250 Marques Réunies sur 3 Éditions</strong>
+                        Découvrez en exclusivité les nouveaux matériels d'espaces verts, systèmes d'irrigation connectés et pépinières spécialisées.
+                      </div>
                     </div>
-                  </div>
 
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -416,6 +437,7 @@ export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
               </form>
             </div>
           </div>
+        </div>
         )}
       </div>
     </div>

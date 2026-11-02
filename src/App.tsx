@@ -86,7 +86,7 @@ function AppContent() {
       {/* Global Footer */}
       <Footer onNavigate={handleNavigate} />
 
-      {/* Auth & Demo Modal */}
+      {/* Authentification & Consoles Sécurisées */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}

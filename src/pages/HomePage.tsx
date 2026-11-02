@@ -46,6 +46,53 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         <LogoTicker onNavigate={onNavigate} />
       </section>
 
+      {/* BILAN CUMULÉ DES 3 ÉDITIONS */}
+      <section className="bg-[#0D2818] text-white py-8 border-b border-[#202620]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center divide-y lg:divide-y-0 lg:divide-x divide-white/10">
+            <div className="pt-2 lg:pt-0 lg:px-4">
+              <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
+                250
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider block mt-1">
+                Exposants
+              </span>
+              <span className="text-[11px] text-stone-300 block">sur les 3 éditions</span>
+            </div>
+
+            <div className="pt-4 lg:pt-0 lg:px-4">
+              <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
+                30 000
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider block mt-1">
+                Visiteurs Pro
+              </span>
+              <span className="text-[11px] text-stone-300 block">décideurs & prescripteurs</span>
+            </div>
+
+            <div className="pt-4 lg:pt-0 lg:px-4">
+              <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
+                95 %
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider block mt-1">
+                Exposants Satisfaits
+              </span>
+              <span className="text-[11px] text-stone-300 block">taux de satisfaction</span>
+            </div>
+
+            <div className="pt-4 lg:pt-0 lg:px-4">
+              <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#A5C96B] font-['Outfit',sans-serif] block">
+                10 000 m²
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider block mt-1">
+                Surface Exposée
+              </span>
+              <span className="text-[11px] text-stone-300 block">surfaces totales déployées</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 2. THREE CORE B2B PORTALS (BENTO DESIGN - CONCISE & FUNCTIONAL) */}
       <section className="py-14 bg-[#F8F9FA]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -155,7 +202,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 Best Of de la 3ème Édition à Casablanca
               </h2>
               <p className="text-stone-600 text-sm leading-relaxed">
-                Plus de 130 stands d'excellence, des démonstrations d'équipements en direct et des rencontres B2B déterminantes entre acheteurs publics, promoteurs et paysagistes.
+                Avec 250 exposants réunis sur les 3 éditions, 30 000 visiteurs professionnels accueillis, 95 % de satisfaction exposants et plus de 10 000 m² d'exposition, Garden Expo Africa s'affirme comme le carrefour de référence du paysage et des espaces verts.
               </p>
 
               <div className="grid grid-cols-2 gap-3 pt-2 text-xs">

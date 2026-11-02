@@ -36,6 +36,57 @@ export const EditionsPage: React.FC<EditionsPageProps> = ({ onNavigate }) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Consolidated 3-Editions Track Record Strip */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-sm mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-stone-100">
+            <div>
+              <span className="text-xs font-bold text-[#367A4D] uppercase tracking-wider block mb-1">
+                Bilan Consolidé des 3 Éditions (2022 · 2023 · 2025)
+              </span>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#0D2818] font-['Outfit',sans-serif]">
+                Chiffres Clés Officiels à Casablanca
+              </h2>
+            </div>
+            <span className="px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold self-start sm:self-auto">
+              R2H Communication · Bilan Officiel
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="p-5 rounded-2xl bg-[#F8F9FA] border border-stone-200">
+              <span className="text-3xl sm:text-4xl font-black text-[#123D2B] font-['Outfit',sans-serif] block">
+                250
+              </span>
+              <span className="text-xs font-bold text-stone-900 block mt-1">Exposants Réunis</span>
+              <span className="text-[11px] text-stone-500 block mt-0.5">Sur l'ensemble des 3 sessions</span>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#F8F9FA] border border-stone-200">
+              <span className="text-3xl sm:text-4xl font-black text-[#123D2B] font-['Outfit',sans-serif] block">
+                30 000
+              </span>
+              <span className="text-xs font-bold text-stone-900 block mt-1">Visiteurs Professionnels</span>
+              <span className="text-[11px] text-stone-500 block mt-0.5">Architectes, paysagistes et décideurs</span>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#F8F9FA] border border-stone-200">
+              <span className="text-3xl sm:text-4xl font-black text-[#367A4D] font-['Outfit',sans-serif] block">
+                95 %
+              </span>
+              <span className="text-xs font-bold text-stone-900 block mt-1">Exposants Satisfaits</span>
+              <span className="text-[11px] text-stone-500 block mt-0.5">Taux de satisfaction et fidélité</span>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-[#F8F9FA] border border-stone-200">
+              <span className="text-3xl sm:text-4xl font-black text-[#123D2B] font-['Outfit',sans-serif] block">
+                10 000 m²
+              </span>
+              <span className="text-xs font-bold text-stone-900 block mt-1">Surface Déployée</span>
+              <span className="text-[11px] text-stone-500 block mt-0.5">Surfaces d'exposition et stands</span>
+            </div>
+          </div>
+        </div>
+
         {/* Visual Timeline Navigator */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {editions.map((edition) => {
