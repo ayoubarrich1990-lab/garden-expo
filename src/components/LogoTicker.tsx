@@ -56,8 +56,12 @@ export const LogoTicker: React.FC<LogoTickerProps> = ({ onNavigate }) => {
         )}
       </div>
 
-      {/* Infinite Horizontal Carousel */}
+      {/* Infinite Horizontal Carousel with Soft Gradient Masks */}
       <div className="relative w-full overflow-hidden group">
+        {/* Gradient edge fades for seamless entry/exit */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-r from-white via-white/90 to-transparent z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-24 bg-gradient-to-l from-white via-white/90 to-transparent z-10" />
+
         <div className="flex gap-6 w-max animate-ticker group-hover:[animation-play-state:paused] py-2">
           {seamlessList.map((item, index) => (
             <div
@@ -108,7 +112,7 @@ export const LogoTicker: React.FC<LogoTickerProps> = ({ onNavigate }) => {
           }
         }
         .animate-ticker {
-          animation: tickerAnimation 40s linear infinite;
+          animation: tickerAnimation 130s linear infinite;
         }
       `}</style>
     </div>
