@@ -1,1 +1,52 @@
 @import "tailwindcss";
+
+@keyframes partnerMarquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-partner-marquee {
+  display: flex;
+  width: max-content;
+  animation: partnerMarquee 50s linear infinite;
+}
+
+.animate-partner-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (max-width: 768px) {
+  .animate-partner-marquee {
+    animation-duration: 42s;
+  }
+}
+
+@keyframes exhibitorMarquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-exhibitor-marquee {
+  display: flex;
+  width: max-content;
+  animation: exhibitorMarquee 60s linear infinite;
+}
+
+.animate-exhibitor-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (max-width: 768px) {
+  .animate-exhibitor-marquee {
+    animation-duration: 50s;
+  }
+}
+

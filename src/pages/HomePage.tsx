@@ -40,14 +40,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const { heroSlides, language, exhibitors, currentUser } = useApp();
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [activeVideoModal, setActiveVideoModal] = useState<string | null>(null);
-  const exhibitorScrollRef = React.useRef<HTMLDivElement>(null);
-
-  const scrollExhibitors = (direction: 'left' | 'right') => {
-    if (exhibitorScrollRef.current) {
-      const offset = direction === 'left' ? -320 : 320;
-      exhibitorScrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
-    }
-  };
 
   const activeSlides =
     heroSlides && heroSlides.length > 0
@@ -161,157 +153,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     },
   ];
 
-  // Partenaires institutionnels officiels (avec support d'upload direct de logo et lien)
-  interface InstitutionalPartner {
-    id: string;
-    name: string;
-    fullName: string;
-    role: string;
-    badge: string;
-    website?: string;
-    logo?: string;
-    isCustom?: boolean;
-  }
 
-  const defaultPartners: InstitutionalPartner[] = [
-    {
-      id: 'part-aapm',
-      name: 'AAPM',
-      fullName: 'Association des Architectes Paysagistes du Maroc',
-      role: 'Partenaire Fondateur & Scientifique',
-      badge: 'Institutionnel',
-      website: 'https://aapm.ma',
-    },
-    {
-      id: 'part-ifla',
-      name: 'IFLA AFRICA',
-      fullName: 'International Federation of Landscape Architects',
-      role: 'Parrainage Panafricain',
-      badge: 'International',
-      website: 'https://iflaafrica.org',
-    },
-    {
-      id: 'part-imanor',
-      name: 'IMANOR',
-      fullName: 'Institut Marocain de Normalisation',
-      role: 'Normalisation & Qualité REUT',
-      badge: 'Réglementation',
-      website: 'https://imanor.gov.ma',
-    },
-    {
-      id: 'part-bsmart',
-      name: 'buildingSMART Morocco',
-      fullName: 'Chapitre Marocain de la Construction Digitale',
-      role: 'BIM Urbain & Ville Connectée',
-      badge: 'Innovation',
-      website: 'https://buildingsmart.org',
-    },
-    {
-      id: 'part-mgbc',
-      name: 'MGBC',
-      fullName: 'Morocco Green Building Council',
-      role: 'Bâtiments & Quartiers Durables',
-      badge: 'Éco-construction',
-      website: 'https://moroccogbc.org',
-    },
-  ];
-
-  const [partnerList, setPartnerList] = useState<InstitutionalPartner[]>(() => {
-    try {
-      const saved = localStorage.getItem('gea_institutional_partners');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      console.warn('LocalStorage partners read error', e);
-    }
-    return defaultPartners;
-  });
-
-  // États pour la modale d'upload de logo de partenaire
-  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
-  const [newPartnerName, setNewPartnerName] = useState('');
-  const [newPartnerFullName, setNewPartnerFullName] = useState('');
-  const [newPartnerRole, setNewPartnerRole] = useState('Partenaire Scientifique');
-  const [newPartnerBadge, setNewPartnerBadge] = useState('Institutionnel');
-  const [newPartnerWebsite, setNewPartnerWebsite] = useState('');
-  const [newPartnerLogo, setNewPartnerLogo] = useState('');
-  const [partnerUploadSuccess, setPartnerUploadSuccess] = useState(false);
-  const [partnerUploadError, setPartnerUploadError] = useState('');
-
-  // Gestion de l'upload de fichier depuis le disque local (FileReader)
-  const handlePartnerLogoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      setPartnerUploadError('Le fichier dépasse la taille maximale autorisée (5 Mo).');
-      return;
-    }
-
-    setPartnerUploadError('');
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setNewPartnerLogo(event.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleSavePartner = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPartnerName.trim()) {
-      setPartnerUploadError('Veuillez saisir le nom ou l’acronyme du partenaire.');
-      return;
-    }
-
-    const createdPartner: InstitutionalPartner = {
-      id: `partner-custom-${Date.now()}`,
-      name: newPartnerName.trim(),
-      fullName: newPartnerFullName.trim() || newPartnerName.trim(),
-      role: newPartnerRole.trim() || 'Partenaire Institutionnel',
-      badge: newPartnerBadge.trim() || 'Partenaire',
-      website: newPartnerWebsite.trim()
-        ? newPartnerWebsite.startsWith('http')
-          ? newPartnerWebsite
-          : `https://${newPartnerWebsite}`
-        : undefined,
-      logo: newPartnerLogo.trim() || undefined,
-      isCustom: true,
-    };
-
-    const updated = [...partnerList, createdPartner];
-    setPartnerList(updated);
-    try {
-      localStorage.setItem('gea_institutional_partners', JSON.stringify(updated));
-    } catch (err) {
-      console.error('LocalStorage write error:', err);
-    }
-
-    setPartnerUploadSuccess(true);
-    setTimeout(() => {
-      setPartnerUploadSuccess(false);
-      setIsPartnerModalOpen(false);
-      setNewPartnerName('');
-      setNewPartnerFullName('');
-      setNewPartnerWebsite('');
-      setNewPartnerLogo('');
-      setPartnerUploadError('');
-    }, 1000);
-  };
-
-  const handleDeletePartner = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const updated = partnerList.filter((p) => p.id !== id);
-    setPartnerList(updated);
-    try {
-      localStorage.setItem('gea_institutional_partners', JSON.stringify(updated));
-    } catch (err) {
-      console.error('LocalStorage write error:', err);
-    }
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F5F7F5] text-[#151515]">
@@ -914,161 +756,48 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
 
       {/* =========================================================================
-          SECTION 11 : ILS NOUS ONT FAIT CONFIANCE (SLIDE HORIZONTAL DES LOGOS)
-          Carrousel panoramique horizontal des exposants et partenaires avec logos et liens
+          SECTION 11 : ILS NOUS ONT FAIT CONFIANCE
+          Slide panoramique officiel des exposants avec défilement continu fluide et lisible
           ========================================================================= */}
-      <section className="py-20 lg:py-24 bg-white border-y border-stone-200 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* En-tête de section */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[#08752D] text-xs font-extrabold uppercase tracking-wider mb-3">
-                <Sparkles className="w-3.5 h-3.5 text-[#39B54A]" />
-                <span>EXPOSANTS & MARQUES DE RÉFÉRENCE</span>
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#151515] font-['Outfit',sans-serif]">
-                Ils nous ont fait confiance
-              </h2>
-              <p className="text-xs sm:text-sm text-stone-500 max-w-2xl mt-2 leading-relaxed">
-                Pépiniéristes d'élite, industriels des technologies de l'eau, concepteurs d'équipements urbains et marques leaders qui exposent et font rayonner Garden Expo Africa à Casablanca.
-              </p>
-            </div>
+      <section className="py-16 sm:py-20 bg-white border-y border-stone-200 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-10 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[#08752D] text-xs font-extrabold uppercase tracking-wider mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-[#39B54A]" />
+            <span>EXPOSANTS & MARQUES DE RÉFÉRENCE</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#151515] font-['Outfit',sans-serif]">
+            Ils nous ont fait confiance
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-500 max-w-2xl mx-auto mt-2 leading-relaxed">
+            Pépiniéristes d'élite, industriels des technologies de l'eau, concepteurs d'équipements urbains et marques leaders qui exposent et font rayonner Garden Expo Africa à Casablanca.
+          </p>
+        </div>
 
-            {/* Boutons de navigation du slide horizontal */}
-            <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
-              <button
-                type="button"
-                onClick={() => scrollExhibitors('left')}
-                className="w-10 h-10 rounded-full border border-stone-200 bg-white hover:bg-stone-50 hover:border-[#08752D] text-stone-700 hover:text-[#08752D] flex items-center justify-center transition-colors shadow-xs cursor-pointer"
-                aria-label="Faire défiler vers la gauche"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollExhibitors('right')}
-                className="w-10 h-10 rounded-full border border-stone-200 bg-white hover:bg-stone-50 hover:border-[#08752D] text-stone-700 hover:text-[#08752D] flex items-center justify-center transition-colors shadow-xs cursor-pointer"
-                aria-label="Faire défiler vers la droite"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onNavigate('exhibitors')}
-                className="ml-2 px-4 py-2 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
-              >
-                Voir tout ({exhibitors.length})
-              </button>
-            </div>
+        {/* Slide panoramique officiel de l'image exposants avec vitesse raisonnable et lisible */}
+        <div className="relative w-full overflow-hidden bg-white py-6 border-y border-stone-100 group">
+          {/* Dégradés latéraux subtils pour estomper les bords avec élégance */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
+
+          {/* Marquee en défilement infini, fluide et lisible avec pause au survol */}
+          <div className="flex w-max items-center animate-exhibitor-marquee group-hover:[animation-play-state:paused] select-none">
+            <img
+              src="/assets/aistudio/EXPOSANTS_86b035fc.png"
+              alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
+              className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-none object-contain px-8 shrink-0"
+              draggable={false}
+            />
+            <img
+              src="/assets/aistudio/EXPOSANTS_86b035fc.png"
+              alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
+              className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-none object-contain px-8 shrink-0"
+              draggable={false}
+            />
           </div>
 
-          {/* Slide Horizontal interactif */}
-          <div
-            ref={exhibitorScrollRef}
-            className="flex gap-5 overflow-x-auto scroll-smooth pb-4 pt-2 no-scrollbar"
-            style={{ scrollSnapType: 'x mandatory' }}
-          >
-            {exhibitors.map((exh) => (
-              <div
-                key={exh.id}
-                style={{ scrollSnapAlign: 'start' }}
-                className="w-[260px] sm:w-[280px] shrink-0 bg-white rounded-2xl border border-stone-200 hover:border-[#08752D] p-5 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
-              >
-                <div>
-                  {/* Conteneur Logo avec fond propre */}
-                  <div className="relative h-24 w-full rounded-xl bg-stone-50/80 border border-stone-100 p-3 flex items-center justify-center overflow-hidden mb-4 group-hover:bg-emerald-50/40 transition-colors">
-                    {exh.logo ? (
-                      <img
-                        src={exh.logo}
-                        alt={`Logo ${exh.name}`}
-                        className="max-h-16 max-w-full object-contain filter group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-xl bg-[#004421] text-white flex items-center justify-center font-black text-sm">
-                        {exh.name.slice(0, 2).toUpperCase()}
-                      </div>
-                    )}
-
-                    {exh.standNumber && (
-                      <span className="absolute top-2 right-2 bg-white/90 backdrop-blur text-[10px] font-bold text-[#004421] px-2 py-0.5 rounded-md border border-stone-200 shadow-2xs">
-                        Stand {exh.standNumber}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Informations sur l'exposant */}
-                  <h3 className="font-bold text-sm text-[#151515] group-hover:text-[#08752D] transition-colors line-clamp-1 mb-1">
-                    {exh.name}
-                  </h3>
-                  <p className="text-[11px] text-stone-500 font-medium line-clamp-1 mb-2">
-                    {exh.sector}
-                  </p>
-                  <p className="text-[11px] text-stone-600 line-clamp-2 leading-relaxed mb-3">
-                    {exh.description}
-                  </p>
-                </div>
-
-                {/* Pied de carte avec lien cliquable */}
-                <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs">
-                  {exh.website ? (
-                    <a
-                      href={exh.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5 font-bold text-[#08752D] hover:text-[#004421] transition-colors group/link"
-                      title={`Visiter le site de ${exh.name}`}
-                    >
-                      <span className="underline underline-offset-2">Lien officiel</span>
-                      <ExternalLink className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" />
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => onNavigate('exhibitors')}
-                      className="text-stone-400 hover:text-stone-700 text-[11px] font-semibold"
-                    >
-                      Voir la fiche
-                    </button>
-                  )}
-
-                  <span className="text-[10px] text-stone-400 font-medium">
-                    {exh.city || 'Maroc'}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Raccourci vers l'administration pour uploader des logos */}
-          <div className="mt-8 pt-6 border-t border-stone-100 flex flex-wrap items-center justify-between gap-4">
-            <p className="text-xs text-stone-500">
-              Vous êtes une entreprise de l'aménagement paysager ou urbain ? Rejoignez la liste officielle des exposants.
-            </p>
-
-            <div className="flex items-center gap-3">
-              {(currentUser?.role === 'admin' || currentUser?.role === 'super_admin') && (
-                <button
-                  type="button"
-                  onClick={() => onNavigate('admin_portal')}
-                  className="px-4 py-2 rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#08752D] border border-emerald-300 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>+ Uploader un logo exposant (Console Admin)</span>
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => onNavigate('exhibitors')}
-                className="px-6 py-2.5 rounded-full bg-[#004421] hover:bg-[#08752D] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-xs cursor-pointer"
-              >
-                Demander un stand
-              </button>
-            </div>
-          </div>
+          <p className="text-[11px] text-stone-400 text-center mt-4 italic">
+            Survolez la bannière pour mettre le défilement en pause
+          </p>
         </div>
       </section>
 
@@ -1128,337 +857,48 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
       {/* =========================================================================
           SECTION 13 : PARTENAIRES INSTITUTIONNELS & SCIENTIFIQUES
-          Affichage dynamique avec téléversement de logos et liens officiels
+          Slide panoramique officiel avec défilement continu fluide et lisible
           ========================================================================= */}
-      <section className="py-20 bg-white border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <div className="max-w-2xl">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#08752D] mb-2 block">
-                ENSEMBLE, CONSTRUISONS LES VILLES DE DEMAIN
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#151515] font-['Outfit',sans-serif]">
-                Partenaires Institutionnels & Scientifiques
-              </h2>
-              <p className="text-xs sm:text-sm text-stone-500 mt-2">
-                Garden Expo Africa bénéficie de la confiance et du parrainage actif des instances professionnelles, scientifiques et normatives de référence.
-              </p>
-            </div>
+      <section className="py-16 sm:py-20 bg-white border-b border-stone-200 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-10 text-center">
+          <span className="text-xs font-extrabold uppercase tracking-widest text-[#08752D] mb-2 block">
+            ENSEMBLE, CONSTRUISONS LES VILLES DE DEMAIN
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#151515] font-['Outfit',sans-serif]">
+            Partenaires Institutionnels & Scientifiques
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-500 max-w-2xl mx-auto mt-2">
+            Garden Expo Africa bénéficie du parrainage actif des ministères, ordres professionnels, institutions scientifiques et partenaires médias de référence.
+          </p>
+        </div>
 
-            {/* Bouton d'upload direct d'un nouveau logo partenaire */}
-            <div className="flex items-center gap-3 shrink-0">
-              <button
-                type="button"
-                onClick={() => setIsPartnerModalOpen(true)}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#004421] hover:bg-[#08752D] text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Ajouter un logo partenaire</span>
-              </button>
-            </div>
+        {/* Slide panoramique de l'image officielle avec vitesse raisonnable et lisible */}
+        <div className="relative w-full overflow-hidden bg-white py-6 border-y border-stone-100 group">
+          {/* Dégradés latéraux subtils pour estomper les bords avec élégance */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
+
+          {/* Marquee en défilement infini, fluide et lisible avec pause au survol */}
+          <div className="flex w-max items-center animate-partner-marquee group-hover:[animation-play-state:paused] select-none">
+            <img
+              src="/assets/aistudio/Fichier_5_5fc12ab0.png"
+              alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
+              className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-none object-contain px-8 shrink-0"
+              draggable={false}
+            />
+            <img
+              src="/assets/aistudio/Fichier_5_5fc12ab0.png"
+              alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
+              className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-none object-contain px-8 shrink-0"
+              draggable={false}
+            />
           </div>
 
-          {/* Grille des partenaires avec logos ou monogrammes institutionnels */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-stretch">
-            {partnerList.map((partner) => (
-              <div
-                key={partner.id || partner.name}
-                className="group relative p-6 rounded-2xl bg-[#F5F7F5] border border-stone-200 hover:border-[#08752D] hover:shadow-md transition-all flex flex-col items-center text-center justify-between"
-              >
-                {/* Bouton de suppression pour les partenaires ajoutés par l'utilisateur */}
-                {partner.isCustom && (
-                  <button
-                    type="button"
-                    onClick={(e) => handleDeletePartner(partner.id, e)}
-                    className="absolute top-2.5 right-2.5 p-1.5 rounded-full text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
-                    title="Supprimer ce partenaire"
-                    aria-label="Supprimer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                )}
-
-                {/* Logo ou Monogramme */}
-                <div className="w-20 h-16 rounded-xl bg-white p-2 shadow-xs border border-stone-200/80 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform overflow-hidden">
-                  {partner.logo ? (
-                    <img
-                      src={partner.logo}
-                      alt={`Logo ${partner.name}`}
-                      className="max-h-12 max-w-full object-contain"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLElement).style.display = 'none';
-                      }}
-                    />
-                  ) : (
-                    <span className="text-sm font-black text-[#004421] tracking-tighter">
-                      {partner.name}
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-bold text-[#151515] mb-1 group-hover:text-[#08752D] transition-colors">
-                    {partner.name}
-                  </h3>
-                  <p className="text-[11px] text-stone-500 leading-snug line-clamp-2">
-                    {partner.fullName}
-                  </p>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-stone-200/60 w-full flex flex-col items-center gap-2">
-                  <span className="inline-block text-[10px] font-semibold uppercase tracking-wider text-[#08752D] bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    {partner.badge}
-                  </span>
-
-                  {partner.website && (
-                    <a
-                      href={partner.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-stone-500 hover:text-[#08752D] transition-colors group/link"
-                      title={`Visiter le site officiel de ${partner.name}`}
-                    >
-                      <span>Site officiel</span>
-                      <ExternalLink className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {/* Carte raccourci pour ajouter un nouveau partenaire directement dans la grille */}
-            <button
-              type="button"
-              onClick={() => setIsPartnerModalOpen(true)}
-              className="p-6 rounded-2xl border-2 border-dashed border-stone-300 hover:border-[#08752D] bg-white/60 hover:bg-emerald-50/40 transition-all flex flex-col items-center text-center justify-center min-h-[200px] cursor-pointer group"
-            >
-              <div className="w-12 h-12 rounded-full bg-emerald-100 text-[#08752D] group-hover:bg-[#004421] group-hover:text-white flex items-center justify-center mb-3 transition-colors">
-                <Plus className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-bold text-stone-700 group-hover:text-[#004421] transition-colors">
-                Nouveau Partenaire
-              </span>
-              <span className="text-[10px] text-stone-400 mt-1">
-                Uploader un logo & lien
-              </span>
-            </button>
-          </div>
+          <p className="text-[11px] text-stone-400 text-center mt-4 italic">
+            Survolez la bannière pour mettre le défilement en pause
+          </p>
         </div>
       </section>
-
-      {/* =========================================================================
-          MODALE : UPLOAD D'UN NOUVEAU LOGO DE PARTENAIRE
-          Support du fichier image local (disque dur) et du lien web officiel
-          ========================================================================= */}
-      {isPartnerModalOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
-          onClick={() => setIsPartnerModalOpen(false)}
-        >
-          <div
-            className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header de la modale */}
-            <div className="p-6 bg-gradient-to-r from-[#004421] to-[#08752D] text-white flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center text-[#39B54A]">
-                  <Upload className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold font-['Outfit',sans-serif]">
-                    Ajouter un Logo Partenaire
-                  </h3>
-                  <p className="text-xs text-emerald-100/90">
-                    Partenaires Institutionnels & Scientifiques
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsPartnerModalOpen(false)}
-                className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-                aria-label="Fermer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Formulaire */}
-            <form onSubmit={handleSavePartner} className="p-6 space-y-4">
-              {partnerUploadError && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
-                  {partnerUploadError}
-                </div>
-              )}
-
-              {partnerUploadSuccess && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-[#004421] text-xs font-bold flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#08752D]" />
-                  <span>Logo et partenaire ajoutés avec succès !</span>
-                </div>
-              )}
-
-              {/* Nom / Acronyme */}
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  Nom court ou Acronyme du Partenaire *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newPartnerName}
-                  onChange={(e) => setNewPartnerName(e.target.value)}
-                  placeholder="Ex: Fondation Mohammed VI, ONSSA, INRA..."
-                  className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-[#08752D] focus:ring-1 focus:ring-[#08752D] bg-white font-medium"
-                />
-              </div>
-
-              {/* Nom complet / Institution */}
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  Nom complet de l'organisation
-                </label>
-                <input
-                  type="text"
-                  value={newPartnerFullName}
-                  onChange={(e) => setNewPartnerFullName(e.target.value)}
-                  placeholder="Ex: Fondation pour la Protection de l'Environnement"
-                  className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-[#08752D] bg-white"
-                />
-              </div>
-
-              {/* Catégorie / Badge & Rôle */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    Badge de catégorie
-                  </label>
-                  <select
-                    value={newPartnerBadge}
-                    onChange={(e) => setNewPartnerBadge(e.target.value)}
-                    className="w-full px-3 py-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-[#08752D] bg-white"
-                  >
-                    <option value="Institutionnel">Institutionnel</option>
-                    <option value="Scientifique">Scientifique</option>
-                    <option value="International">International</option>
-                    <option value="Réglementation">Réglementation</option>
-                    <option value="Académique">Académique</option>
-                    <option value="Innovation">Innovation</option>
-                    <option value="Éco-construction">Éco-construction</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    Rôle institutionnel
-                  </label>
-                  <input
-                    type="text"
-                    value={newPartnerRole}
-                    onChange={(e) => setNewPartnerRole(e.target.value)}
-                    placeholder="Ex: Comité Scientifique"
-                    className="w-full px-3 py-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-[#08752D] bg-white"
-                  />
-                </div>
-              </div>
-
-              {/* Lien URL du site web */}
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  Lien du site Web officiel
-                </label>
-                <div className="relative">
-                  <input
-                    type="url"
-                    value={newPartnerWebsite}
-                    onChange={(e) => setNewPartnerWebsite(e.target.value)}
-                    placeholder="https://www.nom-organisme.ma"
-                    className="w-full pl-9 pr-3.5 py-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-[#08752D] bg-white"
-                  />
-                  <ExternalLink className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                </div>
-              </div>
-
-              {/* Zone d'Upload du Fichier Logo */}
-              <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
-                <span className="text-xs font-bold text-stone-800 block">
-                  Téléversement du fichier Logo Partenaire
-                </span>
-
-                <div className="flex flex-col sm:flex-row gap-3 items-stretch">
-                  <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#004421] hover:bg-[#08752D] text-white text-xs font-bold transition-colors shadow-xs shrink-0">
-                    <Upload className="w-4 h-4" />
-                    <span>Choisir un fichier image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handlePartnerLogoFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-
-                  <div className="flex-1 flex items-center gap-2">
-                    <span className="text-xs text-stone-400 font-semibold hidden sm:inline">ou</span>
-                    <input
-                      type="text"
-                      value={newPartnerLogo}
-                      onChange={(e) => setNewPartnerLogo(e.target.value)}
-                      placeholder="Coller l'URL d'un logo web..."
-                      className="w-full px-3 py-2 border border-stone-300 rounded-xl text-xs bg-white focus:outline-none focus:border-[#08752D]"
-                    />
-                  </div>
-                </div>
-
-                {/* Aperçu du logo */}
-                {newPartnerLogo && (
-                  <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-emerald-300">
-                    <div className="w-16 h-12 bg-stone-50 rounded-lg border border-stone-200 p-1 flex items-center justify-center overflow-hidden shrink-0">
-                      <img
-                        src={newPartnerLogo}
-                        alt="Aperçu logo partenaire"
-                        className="max-h-full max-w-full object-contain"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs font-bold text-[#004421] block">
-                        Logo prêt pour intégration
-                      </span>
-                      <span className="text-[11px] text-stone-500 truncate block">
-                        {newPartnerName || 'Partenaire'}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setNewPartnerLogo('')}
-                      className="p-1 rounded-full text-stone-400 hover:text-red-500"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Boutons d'action */}
-              <div className="pt-2 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsPartnerModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-100 text-xs font-bold transition-colors cursor-pointer"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#004421] hover:bg-[#08752D] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-md cursor-pointer"
-                >
-                  Enregistrer le Partenaire
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* =========================================================================
           SECTION 15 : PARTENARIAT ET SPONSORING
