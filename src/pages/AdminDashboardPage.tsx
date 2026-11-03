@@ -33,6 +33,7 @@ import {
   Code,
   Sparkles,
   Clock,
+  Upload,
 } from 'lucide-react';
 
 interface AdminDashboardPageProps {
@@ -72,7 +73,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     getSupabaseConfig,
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'exhibitors' | 'stands' | 'editions' | 'gallery' | 'interviews' | 'bookings' | 'videoslides' | 'supabase'>('exhibitors');
+  const [activeTab, setActiveTab] = useState<'exhibitors' | 'stands' | 'editions' | 'gallery' | 'interviews' | 'bookings' | 'videoslides' | 'supabase' | 'logos'>('exhibitors');
   const [searchExhibitor, setSearchExhibitor] = useState('');
   const [isAddExhibitorOpen, setIsAddExhibitorOpen] = useState(false);
   const [editingExhibitor, setEditingExhibitor] = useState<Exhibitor | null>(null);
@@ -91,7 +92,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
   const [slideMetricValue, setSlideMetricValue] = useState('100+ Exposants');
   const [slideIsActive, setSlideIsActive] = useState(true);
 
-  // Form state for adding/editing exhibitor
+  // Form state for adding/editing exhibitor with logo file upload & website link
   const [formName, setFormName] = useState('');
   const [formSector, setFormSector] = useState('Pépinières & Végétaux');
   const [formCity, setFormCity] = useState('Casablanca');
@@ -99,6 +100,39 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
   const [formPhone, setFormPhone] = useState('');
   const [formStandNumber, setFormStandNumber] = useState('A-01');
   const [formSurface, setFormSurface] = useState<number>(36);
+  const [formLogo, setFormLogo] = useState('');
+  const [formWebsite, setFormWebsite] = useState('');
+
+  // Quick Logo Exhibitors Tab State ("Ils nous ont fait confiance")
+  const [quickLogoName, setQuickLogoName] = useState('');
+  const [quickLogoWebsite, setQuickLogoWebsite] = useState('');
+  const [quickLogoSector, setQuickLogoSector] = useState("Pépinières & Végétaux");
+  const [quickLogoStand, setQuickLogoStand] = useState('');
+  const [quickLogoCity, setQuickLogoCity] = useState('Casablanca');
+  const [quickLogoImage, setQuickLogoImage] = useState('');
+  const [quickLogoSuccessMsg, setQuickLogoSuccessMsg] = useState<string | null>(null);
+
+  const handleLogoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target?.result as string;
+      setFormLogo(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleQuickLogoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target?.result as string;
+      setQuickLogoImage(base64);
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Form state for adding photo to gallery
   const [isAddPhotoOpen, setIsAddPhotoOpen] = useState(false);
@@ -248,12 +282,20 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     setFormPhone('+212 5 22 00 00 00');
     setFormStandNumber('A-01');
     setFormSurface(36);
+    setFormLogo('');
+    setFormWebsite('');
     setIsAddExhibitorOpen(true);
   };
 
   const handleSaveExhibitorSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) return;
+
+    const cleanWebsite = formWebsite.trim()
+      ? formWebsite.startsWith('http')
+        ? formWebsite.trim()
+        : 'https://' + formWebsite.trim()
+      : undefined;
 
     if (editingExhibitor) {
       updateExhibitor({
@@ -265,13 +307,16 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
         phone: formPhone,
         standNumber: formStandNumber,
         surface: formSurface,
+        logo: formLogo || editingExhibitor.logo,
+        website: cleanWebsite,
       });
     } else {
       const newExh: Exhibitor = {
         id: 'exh-' + Date.now(),
         name: formName,
         slug: formName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        logo: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80',
+        logo: formLogo || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80',
+        website: cleanWebsite,
         description: `Entreprise marocaine leader dans le domaine : ${formSector}.`,
         sector: formSector,
         category: 'Exposant',
@@ -297,6 +342,54 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
 
     setIsAddExhibitorOpen(false);
     setEditingExhibitor(null);
+  };
+
+  const handleAddQuickLogo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickLogoName.trim()) return;
+
+    const cleanWebsite = quickLogoWebsite.trim()
+      ? quickLogoWebsite.startsWith('http')
+        ? quickLogoWebsite.trim()
+        : 'https://' + quickLogoWebsite.trim()
+      : undefined;
+
+    const newExh: Exhibitor = {
+      id: 'exh-' + Date.now(),
+      name: quickLogoName.trim(),
+      slug: quickLogoName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      logo: quickLogoImage || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80',
+      website: cleanWebsite,
+      description: `Exposant officiel Garden Expo Africa dans la spécialité : ${quickLogoSector}.`,
+      sector: quickLogoSector,
+      category: 'Exposant',
+      country: 'Maroc',
+      city: quickLogoCity || 'Casablanca',
+      email: 'contact@' + (quickLogoName.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'entreprise') + '.ma',
+      phone: '+212 5 22 00 00 00',
+      standNumber: quickLogoStand.trim() || 'A-' + Math.floor(10 + Math.random() * 89),
+      hall: quickLogoStand.startsWith('B') ? 'Hall B - Matériels & Piscines' : 'Hall A - Aménagement & Paysage',
+      surface: 18,
+      featuredProducts: ['Solutions professionnelles', 'Catalogue 2026/2027'],
+      edition: '4ème Édition (2026/2027)',
+      participationStatus: 'confirmed',
+      representative: {
+        name: 'Délégué Commercial',
+        jobTitle: 'Responsable Stand',
+        email: 'contact@entreprise.ma',
+        phone: '+212 600 000 000',
+      },
+    };
+
+    addExhibitor(newExh);
+    setQuickLogoSuccessMsg(`Le logo "${quickLogoName}" a bien été ajouté au slide "Ils nous ont fait confiance" sur la page d'accueil !`);
+    setTimeout(() => setQuickLogoSuccessMsg(null), 5000);
+
+    // Reset inputs
+    setQuickLogoName('');
+    setQuickLogoWebsite('');
+    setQuickLogoImage('');
+    setQuickLogoStand('');
   };
 
   const handleAddPhotoSubmit = (e: React.FormEvent) => {
@@ -598,6 +691,17 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
               <span>Slides Vidéo Accueil ({heroSlides.length})</span>
             </button>
             <button
+              onClick={() => setActiveTab('logos')}
+              className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'logos'
+                  ? 'border-[#39B54A] text-[#39B54A] font-semibold'
+                  : 'border-transparent text-stone-300 hover:text-white'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-[#39B54A]" />
+              <span>Logos Exposants · Ils nous ont fait confiance ({exhibitors.length})</span>
+            </button>
+            <button
               onClick={() => setActiveTab('supabase')}
               className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
                 activeTab === 'supabase'
@@ -759,6 +863,8 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                               setFormPhone(exh.phone);
                               setFormStandNumber(exh.standNumber);
                               setFormSurface(exh.surface);
+                              setFormLogo(exh.logo || '');
+                              setFormWebsite(exh.website || '');
                               setIsAddExhibitorOpen(true);
                             }}
                             className="p-1.5 text-stone-600 hover:text-[#123D2B] hover:bg-stone-100 rounded"
@@ -1403,6 +1509,317 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
           </div>
         )}
 
+        {/* TAB LOGOS EXPOSANTS : "ILS NOUS ONT FAIT CONFIANCE" */}
+        {activeTab === 'logos' && (
+          <div className="space-y-8">
+            {/* Header explicatif & stats */}
+            <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-[#004421] text-xs font-bold uppercase tracking-wider mb-2">
+                  <Sparkles className="w-3.5 h-3.5 text-[#39B54A]" />
+                  <span>SLIDE HORIZONTAL PAGE D'ACCUEIL</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold font-['Outfit',sans-serif] text-[#123D2B]">
+                  Logos Exposants · « Ils nous ont fait confiance »
+                </h2>
+                <p className="text-stone-500 text-xs sm:text-sm mt-1 max-w-2xl">
+                  Gérez les marques, pépiniéristes et entreprises affichées dans le carrousel horizontal d'accueil. Téléversez directement le fichier image depuis votre ordinateur et ajoutez le lien de redirection officiel.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('home')}
+                  className="px-4 py-2.5 rounded-xl border border-stone-300 hover:bg-stone-50 text-stone-700 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Voir le slide sur le site</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Notification de succès */}
+            {quickLogoSuccessMsg && (
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-[#004421] text-xs sm:text-sm font-semibold flex items-center gap-3 shadow-xs">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <span>{quickLogoSuccessMsg}</span>
+              </div>
+            )}
+
+            {/* Formulaire d'ajout rapide de Logo avec fichier et lien */}
+            <div className="bg-white rounded-2xl border-2 border-emerald-500/30 p-6 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-[#004421] flex items-center justify-center font-black text-sm">
+                  <Plus className="w-4 h-4 text-[#08752D]" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-stone-900">
+                    Ajouter un Logo Exposant au Slide d'Accueil
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Uploadez une image (PNG, JPG, SVG) et indiquez le lien officiel de redirection.
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleAddQuickLogo} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Nom Entreprise */}
+                  <div className="lg:col-span-2">
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      Nom de l'Entreprise / Marque *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={quickLogoName}
+                      onChange={(e) => setQuickLogoName(e.target.value)}
+                      placeholder="Ex: Proturf Maroc / Netafim / Atlas Végétal"
+                      className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-[#39B54A] bg-white"
+                    />
+                  </div>
+
+                  {/* Secteur */}
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      Secteur d'activité
+                    </label>
+                    <select
+                      value={quickLogoSector}
+                      onChange={(e) => setQuickLogoSector(e.target.value)}
+                      className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-[#39B54A] bg-white"
+                    >
+                      <option value="Pépinières & Végétaux">Pépinières & Végétaux</option>
+                      <option value="Irrigation & Gestion de l'Eau">Irrigation & Gestion de l'Eau</option>
+                      <option value="Mobilier Urbain & Espaces Publics">Mobilier Urbain</option>
+                      <option value="Matériels & Machines">Matériels & Machines</option>
+                      <option value="Aires de Jeux & Terrains Sportifs">Aires de Jeux & Terrains</option>
+                      <option value="Smart City & Éclairage">Smart City & Éclairage</option>
+                      <option value="Aménagement Paysager">Aménagement Paysager</option>
+                      <option value="Piscines & Bassins Biologiques">Piscines & Bassins</option>
+                    </select>
+                  </div>
+
+                  {/* Stand ou Référence */}
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      Numéro de Stand (optionnel)
+                    </label>
+                    <input
+                      type="text"
+                      value={quickLogoStand}
+                      onChange={(e) => setQuickLogoStand(e.target.value)}
+                      placeholder="Ex: A-01"
+                      className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-[#39B54A] bg-white font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Ligne 2 : Lien URL officiel */}
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    Lien du site Web officiel (Redirection au clic dans le slide)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="url"
+                      value={quickLogoWebsite}
+                      onChange={(e) => setQuickLogoWebsite(e.target.value)}
+                      placeholder="https://www.nom-de-entreprise.ma"
+                      className="w-full pl-9 pr-3.5 py-2.5 border border-stone-300 rounded-xl text-xs focus:outline-none focus:border-[#39B54A] bg-white"
+                    />
+                    <ExternalLink className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  </div>
+                  <span className="text-[11px] text-stone-400 mt-1 block">
+                    Lorsque les visiteurs cliquent sur ce logo dans le slide d'accueil, ils seront automatiquement redirigés vers ce lien.
+                  </span>
+                </div>
+
+                {/* Ligne 3 : Téléversement du Logo (Fichier image depuis l'ordinateur) */}
+                <div className="p-4 bg-emerald-50/40 rounded-2xl border border-emerald-200/80 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-[#004421]">
+                      Téléversement du fichier Logo Exposant
+                    </span>
+                    <span className="text-[11px] text-stone-500">
+                      Formats supportés : PNG transparent (recommandé), JPG, SVG, WebP
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+                    <label className="cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#004421] hover:bg-[#08752D] text-white text-xs font-bold transition-colors shadow-xs shrink-0">
+                      <Upload className="w-4 h-4" />
+                      <span>📁 Choisir un fichier image depuis l'ordinateur</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleQuickLogoFileUpload}
+                        className="hidden"
+                      />
+                    </label>
+
+                    <div className="flex-1 flex items-center gap-2">
+                      <span className="text-xs text-stone-400 font-semibold hidden sm:inline">ou</span>
+                      <input
+                        type="text"
+                        value={quickLogoImage}
+                        onChange={(e) => setQuickLogoImage(e.target.value)}
+                        placeholder="Coller l'URL d'un logo web (si non disponible en fichier local)..."
+                        className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs bg-white focus:outline-none focus:border-[#39B54A]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Aperçu du logo sélectionné */}
+                  {quickLogoImage && (
+                    <div className="flex items-center gap-4 p-3 bg-white rounded-xl border border-emerald-300 shadow-2xs mt-2">
+                      <div className="w-16 h-14 bg-stone-50 rounded-lg border border-stone-200 p-1 flex items-center justify-center overflow-hidden shrink-0">
+                        <img
+                          src={quickLogoImage}
+                          alt="Aperçu logo"
+                          className="max-h-full max-w-full object-contain"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs font-bold text-emerald-800 block">
+                          ✓ Fichier image chargé avec succès
+                        </span>
+                        <span className="text-[11px] text-stone-500 truncate block">
+                          Prêt à être ajouté au slide horizontal
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setQuickLogoImage('')}
+                        className="text-xs font-bold text-rose-600 hover:text-rose-800 hover:underline px-2"
+                      >
+                        Retirer
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bouton de soumission */}
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="submit"
+                    className="px-6 py-3 rounded-xl bg-[#08752D] hover:bg-[#004421] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-md flex items-center gap-2 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Ajouter ce logo au carrousel d'accueil</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Grille de tous les logos actuellement actifs dans le slide */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-base text-stone-900">
+                    Logos actuellement affichés dans le slide ({exhibitors.length})
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Ces entreprises s'affichent en temps réel dans le carrousel horizontal sur la page d'accueil.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {exhibitors.map((exh) => (
+                  <div
+                    key={exh.id}
+                    className="bg-white rounded-2xl border border-stone-200 p-4 shadow-2xs hover:shadow-md hover:border-[#08752D] transition-all flex flex-col justify-between group"
+                  >
+                    <div>
+                      {/* Logo Preview Container */}
+                      <div className="relative h-20 w-full rounded-xl bg-stone-50 border border-stone-100 p-2.5 flex items-center justify-center overflow-hidden mb-3 group-hover:bg-emerald-50/40 transition-colors">
+                        {exh.logo ? (
+                          <img
+                            src={exh.logo}
+                            alt={exh.name}
+                            className="max-h-14 max-w-full object-contain"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-[#004421] text-white flex items-center justify-center font-black text-xs">
+                            {exh.name.slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        {exh.standNumber && (
+                          <span className="absolute top-2 right-2 bg-white/95 text-[10px] font-bold text-[#004421] px-1.5 py-0.5 rounded border border-stone-200">
+                            {exh.standNumber}
+                          </span>
+                        )}
+                      </div>
+
+                      <h4 className="font-bold text-xs sm:text-sm text-stone-900 line-clamp-1 mb-0.5 group-hover:text-[#08752D] transition-colors">
+                        {exh.name}
+                      </h4>
+                      <p className="text-[11px] text-stone-500 line-clamp-1 mb-2">
+                        {exh.sector}
+                      </p>
+
+                      {exh.website ? (
+                        <a
+                          href={exh.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#08752D] hover:underline mb-3 truncate max-w-full"
+                        >
+                          <ExternalLink className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{exh.website.replace(/^https?:\/\//, '')}</span>
+                        </a>
+                      ) : (
+                        <span className="text-[11px] text-stone-400 italic block mb-3">
+                          Aucun lien web renseigné
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Actions de gestion */}
+                    <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingExhibitor(exh);
+                          setFormName(exh.name);
+                          setFormSector(exh.sector);
+                          setFormCity(exh.city);
+                          setFormEmail(exh.email);
+                          setFormPhone(exh.phone);
+                          setFormStandNumber(exh.standNumber);
+                          setFormSurface(exh.surface);
+                          setFormLogo(exh.logo || '');
+                          setFormWebsite(exh.website || '');
+                          setIsAddExhibitorOpen(true);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-[#004421] hover:text-white text-stone-700 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                      >
+                        <Edit3 className="w-3 h-3" />
+                        <span>Modifier</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm(`Supprimer le logo de "${exh.name}" du slide ?`)) {
+                            deleteExhibitor(exh.id);
+                          }
+                        }}
+                        className="p-1 rounded-lg hover:bg-rose-50 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
+                        title="Supprimer du carrousel"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TAB 7: GESTION & ÉTAT SUPABASE POSTGRESQL */}
         {activeTab === 'supabase' && (
           <div className="space-y-8">
@@ -2040,6 +2457,74 @@ CREATE POLICY "invoices_select" ON public.invoices FOR SELECT USING (true);
                     className="w-full px-3 py-2 border rounded-lg"
                   />
                 </div>
+              </div>
+
+              {/* Site Web & Lien officiel */}
+              <div>
+                <label className="block font-semibold text-stone-700 mb-1">
+                  Site Web Officiel / Lien Externe
+                </label>
+                <div className="relative">
+                  <input
+                    type="url"
+                    value={formWebsite}
+                    onChange={(e) => setFormWebsite(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg pl-8"
+                    placeholder="https://www.entreprise.com"
+                  />
+                  <ExternalLink className="w-4 h-4 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                </div>
+                <span className="text-[10px] text-stone-400 mt-0.5 block">
+                  Ce lien sera directement cliquable dans le carrousel "Ils nous ont fait confiance" sur la page d'accueil.
+                </span>
+              </div>
+
+              {/* Logo : Téléversement Fichier & URL */}
+              <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
+                <label className="block font-semibold text-stone-800">
+                  Logo de l'Exposant (Fichier image ou URL)
+                </label>
+
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <label className="cursor-pointer inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-stone-300 hover:border-[#08752D] text-[#004421] text-xs font-bold transition-colors shrink-0 shadow-2xs">
+                    <Upload className="w-3.5 h-3.5 text-[#08752D]" />
+                    <span>Choisir un fichier image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+
+                  <input
+                    type="text"
+                    value={formLogo}
+                    onChange={(e) => setFormLogo(e.target.value)}
+                    placeholder="Ou coller une URL d'image web..."
+                    className="w-full px-3 py-2 border rounded-lg bg-white text-xs"
+                  />
+                </div>
+
+                {/* Prévisualisation du logo */}
+                {formLogo && (
+                  <div className="flex items-center gap-3 pt-1">
+                    <div className="w-12 h-12 bg-white rounded-lg border border-stone-200 p-1 flex items-center justify-center overflow-hidden shrink-0">
+                      <img src={formLogo} alt="Aperçu logo" className="max-h-full max-w-full object-contain" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[11px] font-bold text-emerald-800 block">✓ Logo prêt</span>
+                      <span className="text-[10px] text-stone-500 truncate block">Sera visible dans le slide d'accueil</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormLogo('')}
+                      className="text-[11px] text-rose-600 hover:underline shrink-0"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="pt-4 border-t flex justify-end gap-2">

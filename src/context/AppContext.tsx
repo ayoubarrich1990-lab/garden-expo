@@ -226,12 +226,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Hero Video Slides state
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() => {
     const saved = localStorage.getItem('gea_hero_slides');
-    return saved ? JSON.parse(saved) : INITIAL_HERO_SLIDES;
+    if (saved) {
+      try {
+        const parsed: HeroSlide[] = JSON.parse(saved);
+        const hasLegacyImages = parsed.some(
+          (s) => !s.posterUrl || s.posterUrl.includes('unsplash.com')
+        );
+        if (hasLegacyImages || parsed.length === 0) {
+          localStorage.setItem('gea_hero_slides', JSON.stringify(INITIAL_HERO_SLIDES));
+          return INITIAL_HERO_SLIDES;
+        }
+        return parsed;
+      } catch {
+        return INITIAL_HERO_SLIDES;
+      }
+    }
+    return INITIAL_HERO_SLIDES;
   });
 
   useEffect(() => {
     localStorage.setItem('gea_hero_slides', JSON.stringify(heroSlides));
   }, [heroSlides]);
+
+  useEffect(() => {
+    localStorage.setItem('gea_exhibitors', JSON.stringify(exhibitors));
+  }, [exhibitors]);
 
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [supabaseStatus, setSupabaseStatus] = useState<SupabaseStatusInfo>(() => {
