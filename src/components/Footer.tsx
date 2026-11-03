@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { PageId } from '../types';
 import { GardenExpoLogo } from './GardenExpoLogo';
 import { ORGANIZER_DETAILS } from '../data/expoData';
-import { MapPin, Phone, Mail, Clock, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, ShieldCheck, CheckCircle2, ArrowRight, ArrowUp } from 'lucide-react';
 import { validateEmail } from '../utils/expoLogic';
+import { AnimatedSection } from './AnimatedSection';
 
 interface FooterProps {
   onNavigate: (page: PageId) => void;
@@ -24,26 +25,31 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     setNewsletterSubmitted(true);
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <footer className="bg-[#004421] text-stone-200 border-t border-[#08752D]/40">
-      {/* Top Banner: Regional & Institutional Identity */}
-      <div className="bg-black/25 border-b border-white/10 py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-emerald-100">
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#39B54A]"></span>
-            <span className="font-bold tracking-wide text-white">4ème Édition · Casablanca, Maroc · 2027</span>
-            <span className="text-emerald-300">| Dates à confirmer</span>
-          </div>
-          <div className="text-emerald-200/90 flex items-center gap-3">
-            <span>Organisé par R2H Communication SARL</span>
-            <span>·</span>
-            <span>En partenariat avec AAPM, IFLA Africa & IMANOR</span>
+    <footer className="bg-[#004421] text-stone-200 border-t border-[#08752D]/40 overflow-hidden">
+      <AnimatedSection animation="pop-footer" className="w-full">
+        {/* Top Banner: Regional & Institutional Identity */}
+        <div className="bg-black/25 border-b border-white/10 py-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-emerald-100">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-[#39B54A]"></span>
+              <span className="font-bold tracking-wide text-white">4ème Édition · Casablanca, Maroc · 2027</span>
+              <span className="text-emerald-300">| Dates à confirmer</span>
+            </div>
+            <div className="text-emerald-200/90 flex items-center gap-3">
+              <span>Organisé par R2H Communication SARL</span>
+              <span>·</span>
+              <span>En partenariat avec AAPM, IFLA Africa & IMANOR</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Col 1: Brand & Presentation */}
           <div className="lg:col-span-2 flex flex-col gap-4">
             <GardenExpoLogo variant="white" />
@@ -225,9 +231,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             >
               Contact & Plan d'Accès
             </button>
+            <span>·</span>
+            <button
+              onClick={scrollToTop}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-[#39B54A] text-white hover:text-black transition-all cursor-pointer font-bold text-[11px]"
+              title="Retourner en haut de page"
+            >
+              <span>Haut de page</span>
+              <ArrowUp className="w-3 h-3" />
+            </button>
           </div>
         </div>
       </div>
+      </AnimatedSection>
     </footer>
   );
 };
