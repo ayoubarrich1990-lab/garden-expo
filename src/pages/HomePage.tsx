@@ -952,13 +952,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             } group-hover:[animation-play-state:paused] select-none`}
           >
             <img
-              src="/assets/aistudio/Fichier_5_5fc12ab0.png"
+              src="/assets/aistudio/upscalemedia-transformed__13__3492f28a.png"
               alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
               className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-none object-contain px-8 shrink-0"
               draggable={false}
             />
             <img
-              src="/assets/aistudio/Fichier_5_5fc12ab0.png"
+              src="/assets/aistudio/upscalemedia-transformed__13__3492f28a.png"
               alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
               className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-none object-contain px-8 shrink-0"
               draggable={false}
