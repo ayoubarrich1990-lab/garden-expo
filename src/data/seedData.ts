@@ -7,7 +7,67 @@ import {
   MediaPartner,
   InvoiceDocument,
   UserProfile,
+  HeroSlide,
 } from '../types';
+
+export const INITIAL_HERO_SLIDES: HeroSlide[] = [
+  {
+    id: 'slide-1',
+    title: 'Le Salon B2B du Paysage & de la Ville Verte en Afrique',
+    subtitle: "Rassemblement international des acteurs majeurs de l'aménagement paysager, de l'urbanisme durable et du génie végétal.",
+    badge: '4ème Édition · 2027 à Casablanca',
+    videoUrl: 'https://www.youtube.com/embed/QoPzVfK6RSg?autoplay=1&mute=1&controls=0&loop=1&playlist=QoPzVfK6RSg',
+    posterUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=1600&auto=format&fit=crop&q=80',
+    videoType: 'youtube',
+    location: 'OFEC Casablanca · Maroc',
+    metricLabel: 'Exposants Réunis',
+    metricValue: '210 Exposants',
+    orderIndex: 1,
+    isActive: true,
+  },
+  {
+    id: 'slide-2',
+    title: 'Innovations en Arrosage Intelligent & Eaux Traitées (REUT)',
+    subtitle: 'Découvrez les technologies de pointe pour la sobriété hydrique, la télégestion des réseaux et les palettes végétales xérophiles.',
+    badge: 'Affluence & Qualité B2B',
+    videoUrl: 'https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=1&mute=1&controls=0&loop=1&playlist=ScMzIvxBSi4',
+    posterUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1600&auto=format&fit=crop&q=80',
+    videoType: 'youtube',
+    location: 'Casablanca · Audience Professionnelle',
+    metricLabel: 'Visiteurs Professionnels',
+    metricValue: '15 500 Visiteurs',
+    orderIndex: 2,
+    isActive: true,
+  },
+  {
+    id: 'slide-3',
+    title: 'Mobilier Urbain, Éclairage Éco-conçu & Espaces Publics',
+    subtitle: 'Équipements contemporains pour parcs métropolitains, complexes hôteliers, résidences et grands chantiers 2030 au Maroc.',
+    badge: 'Satisfaction & Plébiscite',
+    videoUrl: 'https://www.youtube.com/embed/L_LUpnjgPso?autoplay=1&mute=1&controls=0&loop=1&playlist=L_LUpnjgPso',
+    posterUrl: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=1600&auto=format&fit=crop&q=80',
+    videoType: 'youtube',
+    location: 'Casablanca · Enquête Officielle',
+    metricLabel: 'Satisfaction Exposants',
+    metricValue: '95 % Satisfaits',
+    orderIndex: 3,
+    isActive: true,
+  },
+  {
+    id: 'slide-4',
+    title: "Rencontres d'Affaires & Délégations Internationales",
+    subtitle: 'Networking B2B ciblé entre donneurs d’ordres, architectes paysagistes, promoteurs et investisseurs du continent.',
+    badge: 'Envergure & Espaces',
+    videoUrl: 'https://www.youtube.com/embed/EngW7tLk6R8?autoplay=1&mute=1&controls=0&loop=1&playlist=EngW7tLk6R8',
+    posterUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=1600&auto=format&fit=crop&q=80',
+    videoType: 'youtube',
+    location: 'OFEC Casablanca · Halls & Démonstrations',
+    metricLabel: 'Surface Totale Exposée',
+    metricValue: '12 000 m²',
+    orderIndex: 4,
+    isActive: true,
+  },
+];
 
 export const INITIAL_EDITIONS: EditionArchive[] = [
   {
@@ -1246,8 +1306,6 @@ export const INITIAL_MEDIA_PARTNERS: MediaPartner[] = [
   { id: 'part-10', name: 'Green Times Magazine (.ma)', category: 'media', logo: '/assets/logo-garden-expo-official.png', website: 'https://greentimes.ma', role: 'Magazine Professionnel de Référence Espaces Verts' },
   { id: 'part-11', name: 'Chantiers du Maroc (.ma)', category: 'media', logo: '/assets/logo-garden-expo-official.png', website: 'https://chantiersdumaroc.ma', role: '1er Magazine BTP & Construction au Maroc' },
   { id: 'part-12', name: 'kerix.net', category: 'media', logo: '/assets/logo-garden-expo-official.png', website: 'https://www.kerix.net', role: 'Annuaire B2B & Portail Professionnel' },
-  { id: 'part-13', name: 'BUXCOM Digital Agency', category: 'media', logo: '/assets/logo-garden-expo-official.png', website: 'https://buxcom.ma', role: 'Partenaire Stratégie Digitale' },
-  { id: 'part-14', name: 'Déc Clic', category: 'media', logo: '/assets/logo-garden-expo-official.png', website: 'https://decclic.ma', role: 'Signalétique Événementielle & Design' },
 ];
 
 export const INITIAL_INVOICES: InvoiceDocument[] = [

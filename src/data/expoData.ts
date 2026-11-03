@@ -323,22 +323,6 @@ export const PARTNERS_DATA: Partner[] = [
     badge: 'Portail B2B',
     website: 'https://www.kerix.net',
   },
-  {
-    id: 'buxcom',
-    name: 'BUXCOM Digital Agency',
-    category: 'media',
-    role: 'Agence Digitale & Communication Événementielle',
-    badge: 'Digital Agency',
-    website: 'https://buxcom.ma',
-  },
-  {
-    id: 'decclic',
-    name: 'Déc Clic',
-    category: 'media',
-    role: 'Design Événementiel & Signalétique Grand Format',
-    badge: 'Design & Signalétique',
-    website: 'https://decclic.ma',
-  },
 ];
 
 export const NEWS_ARTICLES: NewsArticle[] = [

@@ -14,6 +14,7 @@ import {
   NewsArticle,
   Partner,
   Sector,
+  HeroSlide,
 } from '../types';
 import {
   INITIAL_EXHIBITORS,
@@ -22,6 +23,7 @@ import {
   INITIAL_GALLERY,
   INITIAL_INTERVIEWS,
   INITIAL_INVOICES,
+  INITIAL_HERO_SLIDES,
   DEMO_USERS,
 } from '../data/seedData';
 import {
@@ -238,6 +240,41 @@ export function mapInvoiceToRow(inv: InvoiceDocument): any {
     status: inv.status,
     date: inv.date,
     download_url: inv.downloadUrl || null,
+  };
+}
+
+export function mapRowToHeroSlide(row: any): HeroSlide {
+  return {
+    id: row.id,
+    title: row.title,
+    subtitle: row.subtitle || '',
+    badge: row.badge || '',
+    videoUrl: row.video_url,
+    posterUrl: row.poster_url || '',
+    videoType: row.video_type || 'youtube',
+    location: row.location || '',
+    metricLabel: row.metric_label || '',
+    metricValue: row.metric_value || '',
+    orderIndex: row.order_index ?? 0,
+    isActive: row.is_active ?? true,
+  };
+}
+
+export function mapHeroSlideToRow(slide: HeroSlide): any {
+  return {
+    id: slide.id,
+    title: slide.title,
+    subtitle: slide.subtitle,
+    badge: slide.badge,
+    video_url: slide.videoUrl,
+    poster_url: slide.posterUrl,
+    video_type: slide.videoType,
+    location: slide.location,
+    metric_label: slide.metricLabel,
+    metric_value: slide.metricValue,
+    order_index: slide.orderIndex ?? 0,
+    is_active: slide.isActive ?? true,
+    updated_at: new Date().toISOString(),
   };
 }
 
@@ -1048,9 +1085,93 @@ export const SupabaseDataService = {
         });
       }
 
+      // Insérer les slides vidéo du hero
+      for (const sl of INITIAL_HERO_SLIDES) {
+        await client.from('hero_slides').upsert(mapHeroSlideToRow(sl));
+      }
+
       return { seeded: true, message: 'Base de données Supabase initialisée avec succès avec les données Garden Expo.' };
     } catch (err: any) {
       return { seeded: false, message: `Erreur d’initialisation : ${err.message}` };
+    }
+  },
+
+  // --------------------------------------------------------------------------
+  // GESTION DES SLIDES VIDÉO (PAGE D'ACCUEIL)
+  // --------------------------------------------------------------------------
+  async fetchHeroSlides(): Promise<HeroSlide[]> {
+    const client = getSupabaseClient();
+    if (!client) return INITIAL_HERO_SLIDES;
+
+    try {
+      const { data, error } = await client
+        .from('hero_slides')
+        .select('*')
+        .order('order_index', { ascending: true });
+
+      if (error || !data || data.length === 0) {
+        return INITIAL_HERO_SLIDES;
+      }
+
+      return data.map(mapRowToHeroSlide);
+    } catch (err) {
+      console.warn('[Supabase] Erreur fetchHeroSlides:', err);
+      return INITIAL_HERO_SLIDES;
+    }
+  },
+
+  async insertHeroSlide(slide: HeroSlide): Promise<boolean> {
+    const client = getSupabaseClient();
+    if (!client) return true;
+
+    try {
+      const { error } = await client.from('hero_slides').insert(mapHeroSlideToRow(slide));
+      if (error) {
+        console.warn('[Supabase] Erreur insertHeroSlide:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('[Supabase] Exception insertHeroSlide:', err);
+      return false;
+    }
+  },
+
+  async updateHeroSlide(slide: HeroSlide): Promise<boolean> {
+    const client = getSupabaseClient();
+    if (!client) return true;
+
+    try {
+      const { error } = await client
+        .from('hero_slides')
+        .update(mapHeroSlideToRow(slide))
+        .eq('id', slide.id);
+
+      if (error) {
+        console.warn('[Supabase] Erreur updateHeroSlide:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('[Supabase] Exception updateHeroSlide:', err);
+      return false;
+    }
+  },
+
+  async deleteHeroSlide(slideId: string): Promise<boolean> {
+    const client = getSupabaseClient();
+    if (!client) return true;
+
+    try {
+      const { error } = await client.from('hero_slides').delete().eq('id', slideId);
+      if (error) {
+        console.warn('[Supabase] Erreur deleteHeroSlide:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('[Supabase] Exception deleteHeroSlide:', err);
+      return false;
     }
   },
 };

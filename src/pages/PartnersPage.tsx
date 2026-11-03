@@ -27,7 +27,15 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
     let mounted = true;
     SupabaseDataService.fetchPartners().then((data) => {
       if (mounted && data && data.length > 0) {
-        setPartners(data);
+        const filtered = data.filter(
+          (p) =>
+            !p.id.toLowerCase().includes('buxcom') &&
+            !p.name.toLowerCase().includes('buxcom') &&
+            !p.id.toLowerCase().includes('decclic') &&
+            !p.name.toLowerCase().includes('déc clic') &&
+            !p.name.toLowerCase().includes('dec clic')
+        );
+        setPartners(filtered);
       }
     });
     return () => {

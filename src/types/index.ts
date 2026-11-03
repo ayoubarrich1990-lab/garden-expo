@@ -12,6 +12,7 @@ export type PageId =
   | 'sectors'
   | 'exhibitors'
   | 'visitors'
+  | 'conferences'
   | 'partners'
   | 'exhibitor_portal'
   | 'visitor_portal'
@@ -256,4 +257,21 @@ export interface SupabaseStatusInfo {
   tablesFound?: string[];
   tablesPending?: string[];
   lastChecked?: string;
+}
+
+export type Language = 'fr' | 'en' | 'ar';
+
+export interface HeroSlide {
+  id: string;
+  title: string;
+  subtitle: string;
+  badge: string;
+  videoUrl: string;
+  posterUrl: string;
+  videoType: 'youtube' | 'mp4' | 'vimeo';
+  location: string;
+  metricLabel: string;
+  metricValue: string;
+  orderIndex?: number;
+  isActive?: boolean;
 }

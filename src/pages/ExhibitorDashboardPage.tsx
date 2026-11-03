@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { PageId } from '../types';
+import { PageId, InvoiceDocument } from '../types';
 import { InteractiveHallPlan } from '../components/InteractiveHallPlan';
 import {
   Building2,
@@ -425,7 +425,7 @@ export const ExhibitorDashboardPage: React.FC<ExhibitorDashboardPageProps> = ({ 
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-stone-100">
-                      {currentExhibitorInvoices.map((inv) => (
+                      {currentExhibitorInvoices.map((inv: InvoiceDocument) => (
                         <tr key={inv.id} className="hover:bg-stone-50/70 transition-colors">
                           <td className="py-4 px-4 font-semibold text-stone-900 flex items-center gap-2.5">
                             <FileText className="w-4 h-4 text-[#367A4D]" />

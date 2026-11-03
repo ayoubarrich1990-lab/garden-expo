@@ -25,6 +25,7 @@ import { SectorsPage } from './pages/SectorsPage';
 import { ExhibitorsPage } from './pages/ExhibitorsPage';
 import { VisitorsPage } from './pages/VisitorsPage';
 import { PartnersPage } from './pages/PartnersPage';
+import { ConferencesPage } from './pages/ConferencesPage';
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState<PageId>('home');
@@ -37,6 +38,7 @@ function AppContent() {
     const pageParam = params.get('page') as PageId;
     if (pageParam && [
       'home', 'about', 'salon', 'directory', 'editions', 'gallery', 'news', 'contact',
+      'exhibitors', 'visitors', 'partners', 'conferences', 'sectors',
       'exhibitor_portal', 'visitor_portal', 'admin_portal', 'legal'
     ].includes(pageParam)) {
       setCurrentPage(pageParam);
@@ -59,7 +61,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F5F6F3] text-stone-900 font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="min-h-screen flex flex-col bg-[#F5F7F5] text-stone-900 font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Top Navigation */}
       <Navbar
         currentPage={currentPage}
@@ -77,6 +79,11 @@ function AppContent() {
         {currentPage === 'gallery' && <GalleryPage onNavigate={handleNavigate} />}
         {currentPage === 'news' && <NewsPage onNavigate={handleNavigate} />}
         {currentPage === 'contact' && <ContactPage onNavigate={handleNavigate} />}
+        {currentPage === 'sectors' && <SectorsPage onNavigate={handleNavigate} />}
+        {currentPage === 'exhibitors' && <ExhibitorsPage onNavigate={handleNavigate} />}
+        {currentPage === 'visitors' && <VisitorsPage onNavigate={handleNavigate} />}
+        {currentPage === 'partners' && <PartnersPage onNavigate={handleNavigate} />}
+        {currentPage === 'conferences' && <ConferencesPage onNavigate={handleNavigate} />}
         {currentPage === 'legal' && <LegalPage onNavigate={handleNavigate} />}
         {currentPage === 'exhibitor_portal' && <ExhibitorDashboardPage onNavigate={handleNavigate} />}
         {currentPage === 'visitor_portal' && <VisitorDashboardPage onNavigate={handleNavigate} />}

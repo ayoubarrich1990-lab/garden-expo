@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { PageId, Exhibitor, Stand, EditionArchive, GalleryPhoto, ExhibitorInterview } from '../types';
+import { PageId, Exhibitor, Stand, EditionArchive, GalleryPhoto, ExhibitorInterview, HeroSlide } from '../types';
 import { SupabaseDataService } from '../services/supabaseService';
 import {
   ShieldAlert,
@@ -58,6 +58,11 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     deleteGalleryPhoto,
     addInterview,
     deleteInterview,
+    heroSlides,
+    addHeroSlide,
+    updateHeroSlide,
+    deleteHeroSlide,
+    refreshHeroSlides,
     supabaseStatus,
     isSyncing,
     checkSupabaseHealth,
@@ -67,10 +72,24 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     getSupabaseConfig,
   } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'exhibitors' | 'stands' | 'editions' | 'gallery' | 'interviews' | 'bookings' | 'supabase'>('exhibitors');
+  const [activeTab, setActiveTab] = useState<'exhibitors' | 'stands' | 'editions' | 'gallery' | 'interviews' | 'bookings' | 'videoslides' | 'supabase'>('exhibitors');
   const [searchExhibitor, setSearchExhibitor] = useState('');
   const [isAddExhibitorOpen, setIsAddExhibitorOpen] = useState(false);
   const [editingExhibitor, setEditingExhibitor] = useState<Exhibitor | null>(null);
+
+  // Form state for video slide management
+  const [isAddSlideOpen, setIsAddSlideOpen] = useState(false);
+  const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
+  const [slideTitle, setSlideTitle] = useState('');
+  const [slideSubtitle, setSlideSubtitle] = useState('');
+  const [slideBadge, setSlideBadge] = useState('');
+  const [slideVideoUrl, setSlideVideoUrl] = useState('');
+  const [slidePosterUrl, setSlidePosterUrl] = useState('');
+  const [slideVideoType, setSlideVideoType] = useState<'youtube' | 'mp4' | 'vimeo'>('youtube');
+  const [slideLocation, setSlideLocation] = useState('Casablanca, Maroc');
+  const [slideMetricLabel, setSlideMetricLabel] = useState('Exposants Réunis');
+  const [slideMetricValue, setSlideMetricValue] = useState('100+ Exposants');
+  const [slideIsActive, setSlideIsActive] = useState(true);
 
   // Form state for adding/editing exhibitor
   const [formName, setFormName] = useState('');
@@ -299,6 +318,81 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     setPhotoCaption('');
   };
 
+  // Video Slides handlers
+  const handleOpenAddSlide = () => {
+    setEditingSlide(null);
+    setSlideTitle('');
+    setSlideSubtitle('');
+    setSlideBadge('4ème Édition · Casablanca');
+    setSlideVideoUrl('https://www.youtube.com/embed/QoPzVfK6RSg?autoplay=1&mute=1&controls=0&loop=1');
+    setSlidePosterUrl('https://images.unsplash.com/photo-1548013146-72479768bada?w=1600&auto=format&fit=crop&q=80');
+    setSlideVideoType('youtube');
+    setSlideLocation('Casablanca, Maroc');
+    setSlideMetricLabel('Exposants Réunis');
+    setSlideMetricValue('100+');
+    setSlideIsActive(true);
+    setIsAddSlideOpen(true);
+  };
+
+  const handleEditSlide = (s: HeroSlide) => {
+    setEditingSlide(s);
+    setSlideTitle(s.title);
+    setSlideSubtitle(s.subtitle);
+    setSlideBadge(s.badge);
+    setSlideVideoUrl(s.videoUrl);
+    setSlidePosterUrl(s.posterUrl);
+    setSlideVideoType(s.videoType || 'youtube');
+    setSlideLocation(s.location || 'Casablanca, Maroc');
+    setSlideMetricLabel(s.metricLabel || 'Exposants');
+    setSlideMetricValue(s.metricValue || '100+');
+    setSlideIsActive(s.isActive !== false);
+    setIsAddSlideOpen(true);
+  };
+
+  const handleSaveSlideSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!slideTitle.trim()) return;
+
+    if (editingSlide) {
+      await updateHeroSlide({
+        ...editingSlide,
+        title: slideTitle,
+        subtitle: slideSubtitle,
+        badge: slideBadge,
+        videoUrl: slideVideoUrl,
+        posterUrl: slidePosterUrl,
+        videoType: slideVideoType,
+        location: slideLocation,
+        metricLabel: slideMetricLabel,
+        metricValue: slideMetricValue,
+        isActive: slideIsActive,
+      });
+    } else {
+      await addHeroSlide({
+        title: slideTitle,
+        subtitle: slideSubtitle,
+        badge: slideBadge,
+        videoUrl: slideVideoUrl,
+        posterUrl: slidePosterUrl,
+        videoType: slideVideoType,
+        location: slideLocation,
+        metricLabel: slideMetricLabel,
+        metricValue: slideMetricValue,
+        isActive: slideIsActive,
+        orderIndex: heroSlides.length + 1,
+      });
+    }
+
+    setIsAddSlideOpen(false);
+    setEditingSlide(null);
+  };
+
+  const handleDeleteSlide = async (id: string) => {
+    if (window.confirm('Voulez-vous vraiment supprimer ce slide vidéo de la base Supabase ?')) {
+      await deleteHeroSlide(id);
+    }
+  };
+
   // Supabase handlers
   const handleTestSupabaseConnection = async () => {
     setIsTestingSupabase(true);
@@ -491,6 +585,17 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                   : 'En direct'}
                 )
               </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('videoslides')}
+              className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'videoslides'
+                  ? 'border-[#39B54A] text-[#39B54A] font-semibold'
+                  : 'border-transparent text-stone-300 hover:text-white'
+              }`}
+            >
+              <Video className="w-4 h-4 text-[#39B54A]" />
+              <span>Slides Vidéo Accueil ({heroSlides.length})</span>
             </button>
             <button
               onClick={() => setActiveTab('supabase')}
@@ -1150,6 +1255,150 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: GESTION DES SLIDES VIDÉO DE LA PAGE D'ACCUEIL (Supabase public.hero_slides) */}
+        {activeTab === 'videoslides' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#08752D] mb-1">
+                  <Video className="w-4 h-4" />
+                  <span>Table Supabase : public.hero_slides</span>
+                </div>
+                <h3 className="text-xl font-bold text-[#151515] font-['Outfit',sans-serif]">
+                  Gestion des Slides Vidéo (Page d'Accueil)
+                </h3>
+                <p className="text-xs text-stone-500 mt-1 max-w-2xl">
+                  Modifiez les bannières vidéo immersives de la page d'accueil de Garden Expo Africa 2027.
+                  Toutes les modifications sont enregistrées en direct dans la base de données PostgreSQL Supabase.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={refreshHeroSlides}
+                  className="px-4 py-2.5 rounded-xl border border-stone-300 hover:bg-stone-50 text-stone-700 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                  title="Rafraîchir depuis la base PostgreSQL"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Actualiser Supabase</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleOpenAddSlide}
+                  className="px-5 py-2.5 rounded-xl bg-[#004421] hover:bg-[#08752D] text-white text-xs font-bold transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Nouveau Slide Vidéo</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Liste des slides vidéo */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {heroSlides.map((s, idx) => (
+                <div
+                  key={s.id}
+                  className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Poster + Badge */}
+                    <div className="relative h-48 bg-stone-900 overflow-hidden">
+                      <img
+                        src={s.posterUrl}
+                        alt={s.title}
+                        className="w-full h-full object-cover opacity-80"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-[#004421]/90 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur">
+                        Slide #{idx + 1}
+                      </span>
+
+                      <span
+                        className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                          s.isActive !== false
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            : 'bg-stone-200 text-stone-600'
+                        }`}
+                      >
+                        {s.isActive !== false ? 'Actif sur l’Accueil' : 'Inactif'}
+                      </span>
+
+                      <div className="absolute bottom-3 left-4 right-4 text-white">
+                        <span className="text-[10px] font-bold text-[#39B54A] tracking-wider uppercase block mb-0.5">
+                          {s.badge}
+                        </span>
+                        <h4 className="text-base font-extrabold line-clamp-1">{s.title}</h4>
+                      </div>
+                    </div>
+
+                    {/* Détails du slide */}
+                    <div className="p-5 space-y-3">
+                      <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
+                        {s.subtitle}
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-stone-100">
+                        <div>
+                          <span className="text-[10px] text-stone-400 font-semibold block uppercase">Indicateur</span>
+                          <span className="font-bold text-[#004421]">{s.metricValue}</span>
+                          <span className="text-[10px] text-stone-500 block">{s.metricLabel}</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-stone-400 font-semibold block uppercase">Source Vidéo</span>
+                          <span className="font-mono text-[11px] text-stone-700 uppercase bg-stone-100 px-1.5 py-0.5 rounded">
+                            {s.videoType || 'youtube'}
+                          </span>
+                          <span className="text-[10px] text-stone-500 block truncate">{s.location}</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-stone-50 p-2.5 rounded-xl border border-stone-100 text-[11px] font-mono text-stone-600 truncate">
+                        URL: {s.videoUrl}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="px-5 py-3 bg-stone-50/80 border-t border-stone-100 flex items-center justify-between">
+                    <a
+                      href={s.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-semibold text-stone-600 hover:text-[#08752D] flex items-center gap-1"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Tester URL</span>
+                    </a>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleEditSlide(s)}
+                        className="px-3 py-1.5 rounded-lg bg-white border border-stone-200 text-stone-700 hover:text-[#08752D] hover:border-[#08752D] text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Modifier</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSlide(s.id)}
+                        className="p-1.5 rounded-lg hover:bg-rose-50 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
+                        title="Supprimer ce slide de Supabase"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -1892,6 +2141,167 @@ CREATE POLICY "invoices_select" ON public.invoices FOR SELECT USING (true);
                   className="px-5 py-2 bg-[#123D2B] text-white rounded-lg font-semibold hover:bg-[#367A4D]"
                 >
                   Ajouter à la galerie
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* MODAL: ADD / EDIT VIDEO SLIDE (Supabase public.hero_slides) */}
+      {isAddSlideOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 my-8">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div>
+                <h3 className="font-bold text-lg text-[#004421]">
+                  {editingSlide ? 'Modifier le Slide Vidéo' : 'Nouveau Slide Vidéo (Accueil)'}
+                </h3>
+                <span className="text-[11px] text-stone-500 font-mono">
+                  Table Supabase : public.hero_slides
+                </span>
+              </div>
+              <button
+                onClick={() => setIsAddSlideOpen(false)}
+                className="text-stone-400 hover:text-stone-700 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSlideSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Titre principal du slide *</label>
+                <input
+                  type="text"
+                  required
+                  value={slideTitle}
+                  onChange={(e) => setSlideTitle(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-xl"
+                  placeholder="Ex: Le Salon B2B du Paysage & de la Ville Verte"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Sous-titre / Description courte *</label>
+                <textarea
+                  required
+                  rows={2}
+                  value={slideSubtitle}
+                  onChange={(e) => setSlideSubtitle(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-xl"
+                  placeholder="Rassemblement international des acteurs majeurs..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">Badge supérieur</label>
+                  <input
+                    type="text"
+                    value={slideBadge}
+                    onChange={(e) => setSlideBadge(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-xl"
+                    placeholder="4ème Édition · Casablanca"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">Type de vidéo</label>
+                  <select
+                    value={slideVideoType}
+                    onChange={(e) => setSlideVideoType(e.target.value as any)}
+                    className="w-full px-3 py-2 border rounded-xl bg-white"
+                  >
+                    <option value="youtube">YouTube Embed</option>
+                    <option value="mp4">Fichier Vidéo MP4</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">URL de la vidéo (Embed YouTube ou MP4) *</label>
+                <input
+                  type="url"
+                  required
+                  value={slideVideoUrl}
+                  onChange={(e) => setSlideVideoUrl(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-xl font-mono text-[11px]"
+                  placeholder="https://www.youtube.com/embed/QoPzVfK6RSg?autoplay=1&mute=1&controls=0&loop=1"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">URL de l'image de couverture (Poster) *</label>
+                <input
+                  type="url"
+                  required
+                  value={slidePosterUrl}
+                  onChange={(e) => setSlidePosterUrl(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-xl font-mono text-[11px]"
+                  placeholder="https://images.unsplash.com/photo-..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">Localisation / Salle</label>
+                  <input
+                    type="text"
+                    value={slideLocation}
+                    onChange={(e) => setSlideLocation(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-xl"
+                    placeholder="Casablanca, Maroc"
+                  />
+                </div>
+                <div className="flex items-center gap-2 pt-6">
+                  <input
+                    type="checkbox"
+                    id="slideActiveCheck"
+                    checked={slideIsActive}
+                    onChange={(e) => setSlideIsActive(e.target.checked)}
+                    className="w-4 h-4 text-[#08752D] rounded"
+                  />
+                  <label htmlFor="slideActiveCheck" className="font-bold text-stone-700 cursor-pointer">
+                    Actif sur l'accueil
+                  </label>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">Intitulé indicateur</label>
+                  <input
+                    type="text"
+                    value={slideMetricLabel}
+                    onChange={(e) => setSlideMetricLabel(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-xl"
+                    placeholder="Ex: Exposants Réunis"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-stone-700 mb-1">Valeur indicateur</label>
+                  <input
+                    type="text"
+                    value={slideMetricValue}
+                    onChange={(e) => setSlideMetricValue(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-xl"
+                    placeholder="Ex: 100+ Exposants"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAddSlideOpen(false)}
+                  className="px-4 py-2 border rounded-xl text-stone-600 hover:bg-stone-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#004421] text-white rounded-xl font-bold hover:bg-[#08752D] transition-colors"
+                >
+                  {editingSlide ? 'Enregistrer les modifications' : 'Créer et publier dans Supabase'}
                 </button>
               </div>
             </form>

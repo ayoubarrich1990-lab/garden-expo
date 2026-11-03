@@ -10,6 +10,8 @@ import {
   InvoiceDocument,
   VisitorAccount,
   SupabaseStatusInfo,
+  HeroSlide,
+  Language,
 } from '../types';
 import {
   INITIAL_EDITIONS,
@@ -18,6 +20,7 @@ import {
   INITIAL_GALLERY,
   INITIAL_INTERVIEWS,
   INITIAL_INVOICES,
+  INITIAL_HERO_SLIDES,
   DEMO_USERS,
 } from '../data/seedData';
 import {
@@ -71,6 +74,15 @@ interface AppContextType {
   currentExhibitorData: Exhibitor | null;
   currentExhibitorStand: Stand | null;
   currentExhibitorInvoices: InvoiceDocument[];
+  // Language & Internationalization
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  // Hero Video Slides
+  heroSlides: HeroSlide[];
+  addHeroSlide: (slide: Omit<HeroSlide, 'id'>) => Promise<boolean>;
+  updateHeroSlide: (slide: HeroSlide) => Promise<boolean>;
+  deleteHeroSlide: (slideId: string) => Promise<boolean>;
+  refreshHeroSlides: () => Promise<void>;
   // Supabase real-time integration
   supabaseStatus: SupabaseStatusInfo;
   isSyncing: boolean;
@@ -189,6 +201,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? JSON.parse(saved) : INITIAL_INVOICES;
   });
 
+  // Language state
+  const [language, setLanguageState] = useState<Language>(() => {
+    const saved = localStorage.getItem('gea_language');
+    return (saved === 'fr' || saved === 'en' || saved === 'ar') ? (saved as Language) : 'fr';
+  });
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('gea_language', lang);
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('lang', lang);
+      document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+    }
+  };
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('lang', language);
+      document.documentElement.setAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
+    }
+  }, [language]);
+
+  // Hero Video Slides state
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() => {
+    const saved = localStorage.getItem('gea_hero_slides');
+    return saved ? JSON.parse(saved) : INITIAL_HERO_SLIDES;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('gea_hero_slides', JSON.stringify(heroSlides));
+  }, [heroSlides]);
+
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [supabaseStatus, setSupabaseStatus] = useState<SupabaseStatusInfo>(() => {
     const configured = isSupabaseConfigured();
@@ -240,7 +284,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsSyncing(true);
 
     try {
-      const [remoteExhibitors, remoteStands, remoteEditions, remoteGallery, remoteInterviews, remoteInvoices] =
+      const [remoteExhibitors, remoteStands, remoteEditions, remoteGallery, remoteInterviews, remoteInvoices, remoteHeroSlides] =
         await Promise.all([
           SupabaseDataService.fetchExhibitors(),
           SupabaseDataService.fetchStands(),
@@ -248,6 +292,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           SupabaseDataService.fetchGallery(),
           SupabaseDataService.fetchInterviews(),
           SupabaseDataService.fetchInvoices(),
+          SupabaseDataService.fetchHeroSlides(),
         ]);
 
       if (remoteExhibitors && remoteExhibitors.length > 0) {
@@ -267,6 +312,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
       if (remoteInvoices && remoteInvoices.length > 0) {
         setInvoices(remoteInvoices);
+      }
+      if (remoteHeroSlides && remoteHeroSlides.length > 0) {
+        setHeroSlides(remoteHeroSlides);
       }
 
       setSupabaseStatus((prev) => ({
@@ -585,6 +633,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return ok;
   };
 
+  // Hero Video Slides CRUD
+  const refreshHeroSlides = useCallback(async () => {
+    try {
+      const slides = await SupabaseDataService.fetchHeroSlides();
+      if (slides && slides.length > 0) {
+        setHeroSlides(slides);
+      }
+    } catch (e) {
+      console.warn('Failed to refresh hero slides', e);
+    }
+  }, []);
+
+  const addHeroSlide = async (slideData: Omit<HeroSlide, 'id'>): Promise<boolean> => {
+    const newSlide: HeroSlide = {
+      ...slideData,
+      id: 'slide-' + Date.now(),
+      orderIndex: slideData.orderIndex ?? (heroSlides.length + 1),
+      isActive: slideData.isActive ?? true,
+    };
+    setHeroSlides((prev) => [...prev, newSlide]);
+    const ok = await SupabaseDataService.insertHeroSlide(newSlide);
+    return ok;
+  };
+
+  const updateHeroSlide = async (slide: HeroSlide): Promise<boolean> => {
+    setHeroSlides((prev) => prev.map((s) => (s.id === slide.id ? slide : s)));
+    const ok = await SupabaseDataService.updateHeroSlide(slide);
+    return ok;
+  };
+
+  const deleteHeroSlide = async (slideId: string): Promise<boolean> => {
+    setHeroSlides((prev) => prev.filter((s) => s.id !== slideId));
+    const ok = await SupabaseDataService.deleteHeroSlide(slideId);
+    return ok;
+  };
+
   // Seed remote Supabase database
   const seedSupabaseDatabase = async (): Promise<{ success: boolean; message: string }> => {
     const res = await SupabaseDataService.seedSupabaseIfEmpty();
@@ -657,6 +741,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentExhibitorData,
         currentExhibitorStand,
         currentExhibitorInvoices,
+        language,
+        setLanguage,
+        heroSlides,
+        addHeroSlide,
+        updateHeroSlide,
+        deleteHeroSlide,
+        refreshHeroSlides,
         supabaseStatus,
         isSyncing,
         checkSupabaseHealth,
