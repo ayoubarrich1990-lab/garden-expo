@@ -1,0 +1,5 @@
+VITE_SUPABASE_URL="https://bkqqwszdiuorbfbntphk.supabase.co"
+VITE_SUPABASE_ANON_KEY="sb_publishable_0F_Cnjz8OMa-qSUJbZ2GkA_N38kDqNv"
+NEXT_PUBLIC_SUPABASE_URL="https://bkqqwszdiuorbfbntphk.supabase.co"
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="sb_publishable_0F_Cnjz8OMa-qSUJbZ2GkA_N38kDqNv"
+DATABASE_URL="postgresql://postgres:YZ2G1T5x0uaKbpkF@db.bkqqwszdiuorbfbntphk.supabase.co:5432/postgres"
