@@ -831,13 +831,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             } group-hover:[animation-play-state:paused] select-none`}
           >
             <img
-              src="/assets/aistudio/EXPOSANTS_86b035fc.png"
+              src="/assets/aistudio/exposa_6c0a8861.jpg"
               alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
               className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
               draggable={false}
             />
             <img
-              src="/assets/aistudio/EXPOSANTS_86b035fc.png"
+              src="/assets/aistudio/exposa_6c0a8861.jpg"
               alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
               className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
               draggable={false}
@@ -952,13 +952,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             } group-hover:[animation-play-state:paused] select-none`}
           >
             <img
-              src="/assets/aistudio/upscalemedia-transformed__13__3492f28a.png"
+              src="/assets/aistudio/parte_dbcec3f7.jpg"
               alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
               className="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
               draggable={false}
             />
             <img
-              src="/assets/aistudio/upscalemedia-transformed__13__3492f28a.png"
+              src="/assets/aistudio/parte_dbcec3f7.jpg"
               alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
               className="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
               draggable={false}
