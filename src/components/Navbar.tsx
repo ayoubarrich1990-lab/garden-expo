@@ -61,12 +61,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenA
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const topBarLeft = {
-    fr: "Le plus grand salon de l'aménagement paysager et urbain en Afrique",
-    en: "The premier landscape and urban design exhibition in Africa",
-    ar: "المعرض الدولي الأكبر للتهيئة الحضرية والمساحات الخضراء في إفريقيا",
-  };
-
   const topBarRight = {
     fr: 'Casablanca, Maroc | 2027 — Dates à confirmer',
     en: 'Casablanca, Morocco | 2027 — Dates to be confirmed',
@@ -83,15 +77,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenA
     <>
       {/* SECTION 1 — BARRE SUPÉRIEURE (Dark Green #004421) */}
       <div className="bg-[#004421] text-white text-[11px] sm:text-xs py-2 px-4 sm:px-6 lg:px-8 border-b border-[#08752D]/40">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5">
-          {/* À gauche */}
-          <div className="text-emerald-100 font-medium text-center sm:text-left tracking-wide">
-            {topBarLeft[language]}
-          </div>
-
-          {/* À droite : Lieu | Dates | Switcher FR / EN / AR */}
-          <div className="flex items-center gap-3 font-semibold text-emerald-200">
-            <span>{topBarRight[language]}</span>
+        <div className="max-w-7xl mx-auto flex items-center justify-center sm:justify-end gap-3 font-semibold text-emerald-200">
+          <span>{topBarRight[language]}</span>
             <span className="text-emerald-500">|</span>
             {/* Langue active interactive */}
             <div className="inline-flex items-center gap-1.5 bg-black/20 rounded-md px-1.5 py-0.5 border border-emerald-700/50">
@@ -134,7 +121,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenA
             </div>
           </div>
         </div>
-      </div>
 
       {/* SECTION 2 — HEADER PRINCIPAL (Sticky, Fond Blanc) */}
       <header

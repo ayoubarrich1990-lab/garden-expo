@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { PageId, Partner } from '../types';
-import { PARTNERS_DATA, SPONSORSHIP_PACKAGES, ORGANIZER_DETAILS } from '../data/expoData';
+import { PARTNERS_DATA, ORGANIZER_DETAILS } from '../data/expoData';
 import { CheckCircle2, Award, ArrowRight, ShieldCheck, Mail, Phone, ExternalLink, Loader2 } from 'lucide-react';
 import { validateEmail, validatePhone } from '../utils/expoLogic';
 import { SupabaseDataService } from '../services/supabaseService';
+import { useApp } from '../context/AppContext';
+import { useTranslation } from '../i18n/translations';
 
 interface PartnersPageProps {
   onNavigate: (page: PageId) => void;
 }
 
 export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
-  const [selectedPackage, setSelectedPackage] = useState<string>(SPONSORSHIP_PACKAGES[0].name);
+  const { language } = useApp();
+  const t = useTranslation(language);
+
+  const [selectedPackage, setSelectedPackage] = useState<string>('Partenaire Institutionnel');
   const [inquirySent, setInquirySent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [partners, setPartners] = useState<Partner[]>(PARTNERS_DATA);
@@ -84,16 +89,15 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 tracking-wider uppercase mb-3">
-              <span>Alliances & Visibilité</span>
+              <span>{t.partners.badge}</span>
               <span aria-hidden="true">·</span>
-              <span>Casablanca, Maroc</span>
+              <span>{t.common.datesNotice}</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-['Outfit',sans-serif] text-balance mb-4">
-              Partenaires & Offres de Sponsoring
+              {t.partners.title}
             </h1>
             <p className="text-base sm:text-lg text-stone-300 leading-relaxed font-normal">
-              Associez votre marque au grand rendez-vous panafricain du paysage,
-              soutenu par l'Association des Architectes Paysagistes du Maroc et les institutions de référence.
+              {t.partners.subtitle}
             </p>
           </div>
         </div>
@@ -117,7 +121,7 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
           </div>
           <div className="p-3 bg-stone-50 rounded-xl border border-stone-200/60 overflow-hidden">
             <img
-              src="/assets/aistudio/Capture_d_e_cran_2026-11-02_a__10.12.55_bf4c0644.png"
+              src="/assets/aistudio/les-exposants-_28989909.png"
               alt="Mosaïque des exposants et partenaires de la 3ème édition"
               className="w-full h-auto object-contain max-h-[220px] mx-auto"
             />
@@ -174,77 +178,17 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Section 2: Sponsorship Packages */}
-        <div className="mb-16">
-          <div className="mb-8">
-            <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider block mb-1">
-              Offres Commerciales
-            </span>
-            <h2 className="text-2xl font-bold text-stone-900 font-['Outfit',sans-serif]">
-              Formules de Sponsoring & Visibilité
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-600 mt-1">
-              Profitez d'une exposition prépondérante auprès des décideurs publics et des maîtres d'ouvrage.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {SPONSORSHIP_PACKAGES.map((pkg) => (
-              <div
-                key={pkg.id}
-                className={`bg-white rounded-xl border p-6 flex flex-col justify-between shadow-xs ${
-                  pkg.id === 'platinum'
-                    ? 'border-emerald-600 ring-2 ring-emerald-600/20'
-                    : 'border-stone-200'
-                }`}
-              >
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1">
-                    {pkg.name}
-                  </div>
-                  <div className="text-2xl font-extrabold text-stone-900 font-mono mb-4">
-                    {pkg.priceMAD}
-                  </div>
-                  <ul className="flex flex-col gap-2.5 text-xs text-stone-600 mb-6">
-                    {pkg.highlights.map((h, hIdx) => (
-                      <li key={hIdx} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>{h}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <button
-                  onClick={() => {
-                    setSelectedPackage(pkg.name);
-                    const el = document.getElementById('sponsor-form');
-                    el?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className={`w-full py-2.5 text-xs font-semibold rounded-md transition-colors ${
-                    pkg.id === 'platinum'
-                      ? 'bg-emerald-700 hover:bg-emerald-800 text-white'
-                      : 'bg-stone-100 hover:bg-stone-200 text-stone-800'
-                  }`}
-                >
-                  Choisir cette formule
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Section 3: Sponsorship Application Form */}
+        {/* Section 2: Sponsorship & Partnership Application Form */}
         <div id="sponsor-form" className="bg-white rounded-2xl p-8 sm:p-10 border border-stone-200 shadow-xs max-w-3xl mx-auto">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 uppercase tracking-wider mb-2">
             <Award className="w-4 h-4" />
             <span>Direction Partenariats</span>
           </div>
           <h2 className="text-xl font-bold text-stone-900 font-['Outfit',sans-serif] mb-2">
-            Demande de Dossier de Sponsoring Officiel
+            Demande de Partenariat Officiel
           </h2>
           <p className="text-xs text-stone-600 mb-6">
-            L'équipe de R2H Communication vous recontactera sous 24h avec le détail contractuel et le plan des emplacements VIP.
+            L'équipe de R2H Communication vous recontactera sous 24h avec le dossier de partenariat et les modalités de collaboration.
           </p>
 
           {inquirySent ? (
@@ -254,7 +198,7 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
                 Demande transmise avec succès !
               </h3>
               <p className="text-xs text-emerald-800 max-w-md mx-auto mb-4">
-                Votre demande concernant la formule <strong>{selectedPackage}</strong> a bien été enregistrée pour l'édition de Casablanca.
+                Votre demande de partenariat (<strong>{selectedPackage}</strong>) a bien été enregistrée pour l'édition de Casablanca.
               </p>
               <button
                 onClick={() => setInquirySent(false)}
@@ -335,18 +279,18 @@ export const PartnersPage: React.FC<PartnersPageProps> = ({ onNavigate }) => {
 
               <div>
                 <label className="block text-xs font-bold text-stone-800 mb-1">
-                  Formule de Sponsoring Visée
+                  Type de Partenariat Souhaité
                 </label>
                 <select
                   value={selectedPackage}
                   onChange={(e) => setSelectedPackage(e.target.value)}
                   className="w-full px-3 py-2 border rounded-md text-stone-900 focus:outline-none focus:border-emerald-600 border-stone-300"
                 >
-                  {SPONSORSHIP_PACKAGES.map((pkg) => (
-                    <option key={pkg.id} value={pkg.name}>
-                      {pkg.name} ({pkg.priceMAD})
-                    </option>
-                  ))}
+                  <option value="Partenaire Institutionnel">Partenaire Institutionnel</option>
+                  <option value="Partenaire Scientifique & Académique">Partenaire Scientifique & Académique</option>
+                  <option value="Partenaire Média & Presse">Partenaire Média & Presse</option>
+                  <option value="Sponsor Officiel de l'Événement">Sponsor Officiel de l'Événement</option>
+                  <option value="Autre Partenariat Spécifique">Autre Partenariat Spécifique</option>
                 </select>
               </div>
 

@@ -51,16 +51,6 @@ export const GardenExpoLogo: React.FC<LogoProps> = ({
             '/assets/aistudio/LOGO-GARDEN-EXPO-PNG_3a4759d4.png';
         }}
       />
-      {showSubtitle && (
-        <div className="hidden sm:flex flex-col border-l border-stone-200 pl-2.5 leading-none">
-          <span className="text-[11px] font-extrabold text-stone-900 tracking-wider uppercase font-['Outfit',sans-serif]">
-            MAROC
-          </span>
-          <span className="text-[9px] text-emerald-800 font-semibold tracking-tight mt-0.5 uppercase">
-            Salon du Paysage & Ville Verte
-          </span>
-        </div>
-      )}
     </div>
   );
 };

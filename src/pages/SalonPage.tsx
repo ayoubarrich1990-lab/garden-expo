@@ -1,5 +1,7 @@
 import React from 'react';
 import { PageId } from '../types';
+import { useApp } from '../context/AppContext';
+import { useTranslation } from '../i18n/translations';
 import {
   Compass,
   CheckCircle2,
@@ -25,6 +27,9 @@ interface SalonPageProps {
 }
 
 export const SalonPage: React.FC<SalonPageProps> = ({ onNavigate }) => {
+  const { language } = useApp();
+  const t = useTranslation(language);
+
   return (
     <div className="bg-[#F5F6F3] min-h-screen pb-20">
       {/* Hero Section */}
@@ -33,15 +38,13 @@ export const SalonPage: React.FC<SalonPageProps> = ({ onNavigate }) => {
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-xs font-semibold text-[#A5C96B] uppercase tracking-wider mb-3">
               <Compass className="w-4 h-4" />
-              <span>Vision & Positionnement International · Maroc</span>
+              <span>{t.salon.badge}</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold font-['Outfit',sans-serif] tracking-tight text-white mb-6 leading-tight">
-              Le Salon Professionnel de Référence pour le Paysage et l'Aménagement Extérieur
+              {t.salon.title}
             </h1>
             <p className="text-stone-200 text-base sm:text-lg leading-relaxed">
-              Implanté au cœur de la métropole économique de Casablanca à l'OFEC, Garden Expo Africa s'impose comme
-              le rendez-vous B2B incontournable dédié à l'aménagement paysager, à la ville durable, à la gestion intelligente
-              de l'eau et aux technologies environnementales sur le continent africain.
+              {t.salon.subtitle}
             </p>
           </div>
         </div>
@@ -56,20 +59,28 @@ export const SalonPage: React.FC<SalonPageProps> = ({ onNavigate }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-md">
-            <span className="text-3xl sm:text-4xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">210</span>
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants (sur 3 éditions)</span>
+            <span className="text-3xl sm:text-4xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">210+</span>
+            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              {language === 'ar' ? 'عارض (خلال 3 دورات)' : language === 'en' ? 'Exhibitors (across 3 editions)' : 'Exposants (sur 3 éditions)'}
+            </span>
           </div>
           <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-md">
-            <span className="text-3xl sm:text-4xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">15 500</span>
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Visiteurs professionnels</span>
+            <span className="text-3xl sm:text-4xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">15 500+</span>
+            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              {t.home.quickStats.visitors.label}
+            </span>
           </div>
           <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-md">
             <span className="text-3xl sm:text-4xl font-black font-['Outfit',sans-serif] text-[#367A4D] block">95 %</span>
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Exposants satisfaits</span>
+            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              {t.home.quickStats.satisfaction.label}
+            </span>
           </div>
           <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-md">
             <span className="text-3xl sm:text-4xl font-black font-['Outfit',sans-serif] text-[#123D2B] block">12 000 m²</span>
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Surface totale exposée</span>
+            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+              {language === 'ar' ? 'مساحة إجمالية للعرض' : language === 'en' ? 'Total Exhibition Area' : 'Surface totale exposée'}
+            </span>
           </div>
         </div>
       </div>

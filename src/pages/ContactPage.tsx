@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { PageId } from '../types';
 import { ORGANIZER_DETAILS, FAQS } from '../data/expoData';
 import { validateEmail, validatePhone } from '../utils/expoLogic';
+import { useApp } from '../context/AppContext';
+import { useTranslation } from '../i18n/translations';
 import {
   MapPin,
   Phone,
@@ -22,6 +24,9 @@ interface ContactPageProps {
 }
 
 export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
+  const { language } = useApp();
+  const t = useTranslation(language);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -76,16 +81,15 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 tracking-wider uppercase mb-3">
-              <span>Coordonnées & Assistance</span>
+              <span>{t.contact.badge}</span>
               <span aria-hidden="true">·</span>
-              <span>Casablanca, Maroc</span>
+              <span>{t.common.datesNotice}</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-['Outfit',sans-serif] text-balance mb-4">
-              Contactez le Comité d'Organisation
+              {t.contact.title}
             </h1>
             <p className="text-base sm:text-lg text-stone-300 leading-relaxed font-normal">
-              L'équipe de R2H Communication est à votre écoute pour vous accompagner dans votre participation,
-              vos démarches exposants ou l'obtention de votre badge visiteur.
+              {t.contact.subtitle}
             </p>
           </div>
         </div>

@@ -22,7 +22,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
             Mentions Légales & Politique de Confidentialité
           </h1>
           <p className="text-sm text-stone-300 mt-2">
-            Informations juridiques officielles relatives à l'événement Garden Expo Africa et au site gardenexpo.ma.
+            Informations juridiques officielles relatives à l'événement Garden Expo Africa et au site gardenexpoafrica.com.
           </p>
         </div>
       </div>
@@ -34,7 +34,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
             1. Éditeur de la Plateforme & Organisateur
           </h2>
           <p className="mb-3">
-            Le site officiel <strong>gardenexpo.ma</strong> et l’événement <strong>Garden Expo Africa</strong> sont conçus et organisés par la société :
+            Le site officiel <strong>gardenexpoafrica.com</strong> et l’événement <strong>Garden Expo Africa</strong> sont conçus et organisés par la société :
           </p>
           <ul className="list-disc pl-5 flex flex-col gap-1.5 mb-3">
             <li><strong>Raison sociale :</strong> {ORGANIZER_DETAILS.legalName}</li>
@@ -68,7 +68,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
             3. Propriété Intellectuelle & Droits Réservés
           </h2>
           <p className="mb-3">
-            L'ensemble des éléments constituant le site gardenexpo.ma (textes, logos, arborescences, visuels, photographies, infographies, mise en page et codes) sont la propriété exclusive de R2H Communication ou font l'objet d'une autorisation légale d'utilisation.
+            L'ensemble des éléments constituant le site gardenexpoafrica.com (textes, logos, arborescences, visuels, photographies, infographies, mise en page et codes) sont la propriété exclusive de R2H Communication ou font l'objet d'une autorisation légale d'utilisation.
           </p>
           <p>
             Toute reproduction totale ou partielle, représentation, adaptation ou modification sans l'autorisation préalable et expresse de l'organisateur est strictement interdite et sanctionnée par les dispositions du Code de la Propriété Industrielle et Intellectuelle au Maroc.
@@ -91,7 +91,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ onNavigate }) => {
             5. Droit Applicable & Juridiction Compétente
           </h2>
           <p>
-            Tout litige en relation avec l'utilisation du site officiel gardenexpo.ma ou la participation à Garden Expo Africa au Maroc est soumis au droit marocain. Attribution expresse de compétence est faite aux tribunaux compétents de Casablanca.
+            Tout litige en relation avec l'utilisation du site officiel gardenexpoafrica.com ou la participation à Garden Expo Africa au Maroc est soumis au droit marocain. Attribution expresse de compétence est faite aux tribunaux compétents de Casablanca.
           </p>
         </section>
       </div>

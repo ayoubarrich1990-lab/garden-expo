@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { PageId, VisitorBadge } from '../types';
 import { generateBadgeId, validateEmail, validatePhone } from '../utils/expoLogic';
 import { ORGANIZER_DETAILS } from '../data/expoData';
+import { useApp } from '../context/AppContext';
+import { useTranslation } from '../i18n/translations';
 import {
   QrCode,
   Printer,
@@ -36,6 +38,9 @@ const VISITOR_PROFILES = [
 ];
 
 export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
+  const { language } = useApp();
+  const t = useTranslation(language);
+
   const [formData, setFormData] = useState({
     fullName: '',
     company: '',
@@ -110,16 +115,15 @@ export const VisitorsPage: React.FC<VisitorsPageProps> = ({ onNavigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 tracking-wider uppercase mb-3">
-              <span>Visiteurs Professionnels B2B</span>
+              <span>{t.visitors.badge}</span>
               <span aria-hidden="true">·</span>
-              <span>Casablanca, Maroc</span>
+              <span>{t.common.datesNotice}</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-['Outfit',sans-serif] text-balance mb-4">
-              Enregistrement & Badge d'Accès Gratuit
+              {t.visitors.title}
             </h1>
             <p className="text-base sm:text-lg text-stone-300 leading-relaxed font-normal">
-              Accédez librement aux halls d'exposition, aux démonstrations de matériels et aux cycles
-              de conférences scientifiques co-organisés avec l'AAPM à Casablanca.
+              {t.visitors.subtitle}
             </p>
           </div>
         </div>

@@ -5,12 +5,16 @@ import { ORGANIZER_DETAILS } from '../data/expoData';
 import { MapPin, Phone, Mail, Clock, ShieldCheck, CheckCircle2, ArrowRight, ArrowUp } from 'lucide-react';
 import { validateEmail } from '../utils/expoLogic';
 import { AnimatedSection } from './AnimatedSection';
+import { useApp } from '../context/AppContext';
+import { useTranslation } from '../i18n/translations';
 
 interface FooterProps {
   onNavigate: (page: PageId) => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+  const { language } = useApp();
+  const t = useTranslation(language);
   const [email, setEmail] = useState('');
   const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
   const [newsletterError, setNewsletterError] = useState('');
@@ -37,13 +41,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-emerald-100">
             <div className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 rounded-full bg-[#39B54A]"></span>
-              <span className="font-bold tracking-wide text-white">4ème Édition · Casablanca, Maroc · 2027</span>
-              <span className="text-emerald-300">| Dates à confirmer</span>
+              <span className="font-bold tracking-wide text-white">{t.common.editionLabel}</span>
+              <span className="text-emerald-300">| {t.common.datesNotice}</span>
             </div>
             <div className="text-emerald-200/90 flex items-center gap-3">
-              <span>Organisé par R2H Communication SARL</span>
+              <span>{language === 'ar' ? 'تنظيم شركة R2H Communication' : 'Organisé par R2H Communication SARL'}</span>
               <span>·</span>
-              <span>En partenariat avec AAPM, IFLA Africa & IMANOR</span>
+              <span>Casablanca, Maroc</span>
             </div>
           </div>
         </div>
@@ -54,20 +58,18 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div className="lg:col-span-2 flex flex-col gap-4">
             <GardenExpoLogo variant="white" />
             <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed pr-4 mt-2">
-              Garden Expo Africa est le Salon International de l'Aménagement Paysager et Urbain en Afrique.
-              Plateforme B2B de référence à Casablanca réunissant décideurs publics, architectes, urbanistes,
-              fournisseurs d'irrigation et paysagistes pour bâtir des territoires plus verts et résilients.
+              {t.home.heroDesc}
             </p>
             <div className="flex items-center gap-2 text-xs text-emerald-300 mt-2">
               <ShieldCheck className="w-4 h-4 text-[#39B54A] shrink-0" />
-              <span>Événement professionnel certifié · Réglementation CNDP Maroc</span>
+              <span>{language === 'ar' ? 'تظاهرة مهنية معتمدة · المملكة المغربية' : 'Événement professionnel certifié · Réglementation CNDP Maroc'}</span>
             </div>
           </div>
 
           {/* Col 2: Navigation rapide */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-4">
-              Navigation Officielle
+              {language === 'ar' ? 'التصفح السريع' : language === 'en' ? 'Quick Links' : 'Navigation Officielle'}
             </h4>
             <ul className="flex flex-col gap-2.5 text-xs text-emerald-100">
               <li>
@@ -75,7 +77,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => { onNavigate('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="hover:text-[#39B54A] transition-colors"
                 >
-                  Accueil
+                  {t.navbar.home}
                 </button>
               </li>
               <li>
@@ -83,7 +85,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => { onNavigate('salon'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="hover:text-[#39B54A] transition-colors"
                 >
-                  Le Salon & Vision 2027
+                  {t.navbar.salon}
                 </button>
               </li>
               <li>
@@ -91,7 +93,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => { onNavigate('exhibitors'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="hover:text-[#39B54A] transition-colors"
                 >
-                  Exposer (Demande de stand)
+                  {t.navbar.exhibitors}
                 </button>
               </li>
               <li>
@@ -99,7 +101,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => { onNavigate('visitors'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="hover:text-[#39B54A] transition-colors"
                 >
-                  Visiter (Préinscription)
+                  {t.navbar.visitors}
                 </button>
               </li>
               <li>
@@ -107,7 +109,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => { onNavigate('conferences'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="hover:text-[#39B54A] transition-colors"
                 >
-                  Conférences & Ateliers
+                  {t.navbar.conferences}
                 </button>
               </li>
               <li>
@@ -115,7 +117,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => { onNavigate('partners'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="hover:text-[#39B54A] transition-colors"
                 >
-                  Partenaires Institutionnels
+                  {t.navbar.partners}
                 </button>
               </li>
               <li>
@@ -123,15 +125,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   onClick={() => { onNavigate('news'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="hover:text-[#39B54A] transition-colors"
                 >
-                  Actualités & Presse
+                  {t.navbar.news}
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => { onNavigate('editions'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  onClick={() => { onNavigate('contact'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="hover:text-[#39B54A] transition-colors"
                 >
-                  Bilan des Éditions Précédentes
+                  {t.navbar.contact}
                 </button>
               </li>
             </ul>

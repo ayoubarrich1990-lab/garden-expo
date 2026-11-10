@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PageId } from '../types';
 import { useApp } from '../context/AppContext';
 import { AnimatedSection } from '../components/AnimatedSection';
+import { useTranslation } from '../i18n/translations';
 import {
   ArrowRight,
   Play,
@@ -40,6 +41,7 @@ interface HomePageProps {
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const { heroSlides, language, exhibitors, currentUser } = useApp();
+  const t = useTranslation(language);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [activeVideoModal, setActiveVideoModal] = useState<string | null>(null);
   // Direction des slides (gauche à droite ou l'inverse)
@@ -74,87 +76,109 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     return () => clearInterval(timer);
   }, [activeSlides.length]);
 
-  // 8 Secteurs d'exposition fidèles au prompt avec photographies immersives et sans icônes flottantes
-  const sectors = [
-    {
-      id: 'sec-1',
-      title: 'Paysagisme et urbanisme',
-      description: 'Conception d’espaces publics, parcs métropolitains, trame verte et architecture du paysage.',
-      image: 'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=800&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 'sec-2',
-      title: 'Horticulture et pépinières',
-      description: 'Palmiers, arbres d’alignement, xérophytes, graminées et pépinières spécialisées climat chaud.',
-      image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 'sec-3',
-      title: 'Irrigation et gestion de l’eau',
-      description: 'Micro-irrigation de précision, réutilisation des eaux usées traitées (REUT) et télégestion.',
-      image: 'https://images.unsplash.com/photo-1563298723-dcfebaa392e3?w=800&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 'sec-4',
-      title: 'Mobilier urbain',
-      description: 'Bancs bioclimatiques, corbeilles de tri, ombrières végétalisées et aménagement des boulevards.',
-      image: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=800&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 'sec-5',
-      title: 'Aires de jeux & équipements sportifs',
-      description: 'Parcours santé, sols amortissants écologiques, skateparks et structures de plein air inclusives.',
-      image: 'https://images.unsplash.com/photo-1575783970733-1aaedde1db74?w=800&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 'sec-6',
-      title: 'Smart City & éclairage urbain',
-      description: 'Luminaires solaires connectés, capteurs sol IoT, vidéosurveillance discrète et gestion intelligente.',
-      image: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32b?w=800&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 'sec-7',
-      title: 'Espaces verts & biodiversité',
-      description: 'Murs végétaux dépolluants, toitures végétalisées, compostage municipal et écologie urbaine.',
-      image: 'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=800&auto=format&fit=crop&q=80',
-    },
-    {
-      id: 'sec-8',
-      title: 'Infrastructures & aménagement urbain',
-      description: 'Bordures drainantes, pavés poreux pour recharge de nappes et génie civil environnemental.',
-      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80',
-    },
+  // 9 Secteurs d'activité d'exposition traduits dynamiquement
+  const sectorImages = [
+    '/assets/sectors/mobilier_urbain_jeux.jpg',
+    '/assets/sectors/revetement_sol_sport.jpg',
+    '/assets/sectors/arrosage_irrigation.jpg',
+    '/assets/sectors/materiel_jardinage.jpg',
+    '/assets/sectors/horticulture_vegetal.jpg',
+    '/assets/sectors/eclairage_exterieur.jpg',
+    '/assets/sectors/mobilier_jardin.jpg',
+    '/assets/sectors/travaux_publics.jpg',
+    '/assets/sectors/piscine_luxe.jpg',
   ];
 
-  // 7 arguments clés pour les exposants
+  const sectors = (t.home.sectors || []).map((sec, idx) => ({
+    ...sec,
+    image: sectorImages[idx] || '/assets/sectors/mobilier_urbain_jeux.jpg',
+  }));
+
+  // Arguments clés pour les exposants traduits
   const exhibitorReasons = [
     {
-      title: 'Donneurs d’ordres qualifiés',
-      desc: 'Rencontrez directement promoteurs immobiliers, architectes, communes, agences urbaines et ministères.',
+      title:
+        language === 'ar'
+          ? 'أصحاب القرار المؤهلون'
+          : language === 'en'
+          ? 'Qualified Decision-Makers'
+          : 'Donneurs d’ordres qualifiés',
+      desc:
+        language === 'ar'
+          ? 'التقِ مباشرة بالمنعشين العقاريين، المهندسين المعماريين، الجماعات الترابية والوزارات.'
+          : language === 'en'
+          ? 'Meet directly with real estate developers, architects, municipalities, and ministries.'
+          : 'Rencontrez directement promoteurs immobiliers, architectes, communes, agences urbaines et ministères.',
     },
     {
-      title: 'Démonstration en conditions réelles',
-      desc: 'Présentez vos innovations, matériaux durables et technologies sur 4 000 m² d’exposition.',
+      title:
+        language === 'ar'
+          ? 'عروض توضيحية واقعية'
+          : language === 'en'
+          ? 'Live Field Demonstrations'
+          : 'Démonstrations en conditions réelles',
+      desc:
+        language === 'ar'
+          ? 'استعرض ابتكاراتك ومعداتك الذكية على مساحة عرض كبرى بمدينة الدار البيضاء.'
+          : language === 'en'
+          ? 'Showcase your innovations, sustainable materials, and technologies in action.'
+          : 'Présentez vos innovations, matériaux durables et technologies sur l’espace d’exposition.',
     },
     {
-      title: 'Expansion panafricaine',
-      desc: 'Développez votre réseau d’affaires et pénétrez les marchés émergents d’Afrique du Nord et de l’Ouest.',
+      title:
+        language === 'ar'
+          ? 'توسع قاري في إفريقيا'
+          : language === 'en'
+          ? 'Pan-African Expansion'
+          : 'Expansion panafricaine',
+      desc:
+        language === 'ar'
+          ? 'طور شبكة أعمالك وشراكاتك الاستراتيجية في أسواق شمال وغرب إفريقيا الواعدة.'
+          : language === 'en'
+          ? 'Grow your business network and enter emerging North and West African markets.'
+          : 'Développez votre réseau d’affaires et pénétrez les marchés émergents d’Afrique.',
     },
     {
-      title: 'Positionnement de leader',
-      desc: 'Affirmez votre statut de marque pionnière dans la construction de la ville verte et résiliente.',
+      title:
+        language === 'ar'
+          ? 'ريادة وتميز في السوق'
+          : language === 'en'
+          ? 'Market Leadership'
+          : 'Positionnement de leader',
+      desc:
+        language === 'ar'
+          ? 'رسخ مكانة علامتك التجارية كفاعل رائد في بناء المدن الخضراء والمستدامة.'
+          : language === 'en'
+          ? 'Assert your status as a pioneering brand shaping green and resilient cities.'
+          : 'Affirmez votre statut de marque pionnière dans la construction de la ville verte.',
     },
     {
-      title: 'Rendez-vous B2B ciblés',
-      desc: 'Profitez d’un service de matchmaking d’affaires structuré pour maximiser votre retour sur investissement.',
+      title:
+        language === 'ar'
+          ? 'لقاءات عمل B2B نوعية'
+          : language === 'en'
+          ? 'Targeted B2B Matchmaking'
+          : 'Rendez-vous B2B ciblés',
+      desc:
+        language === 'ar'
+          ? 'استفد من جلسات وساطة أعمال منظمة ومسبقة الترتيب لتحقيق أعلى عائد استثماري.'
+          : language === 'en'
+          ? 'Benefit from structured B2B matchmaking to maximize your return on investment.'
+          : 'Profitez d’un service de matchmaking d’affaires structuré pour maximiser votre impact.',
     },
     {
-      title: 'Visibilité médiatique puissante',
-      desc: 'Bénéficiez d’une couverture presse panafricaine avant, pendant et après le salon.',
-    },
-    {
-      title: 'Engagement RSE valorisé',
-      desc: 'Valorisez vos engagements environnementaux auprès d’un public sensible à la durabilité.',
+      title:
+        language === 'ar'
+          ? 'تغطية إعلامية واسعة'
+          : language === 'en'
+          ? 'High-Impact Media Reach'
+          : 'Visibilité médiatique puissante',
+      desc:
+        language === 'ar'
+          ? 'استفد من زخم إعلامي وتغطية صحفية متخصصة وموسعة قبل وأثناء وبعد المعرض.'
+          : language === 'en'
+          ? 'Gain extensive pan-African press and digital coverage before, during, and after the expo.'
+          : 'Bénéficiez d’une couverture presse panafricaine avant, pendant et après le salon.',
     },
   ];
 
@@ -192,7 +216,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             {/* 4ÈME ÉDITION Badge */}
             <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-black tracking-widest uppercase mb-6">
               <span className="w-2 h-2 rounded-full bg-[#39B54A] animate-pulse" />
-              <span>4ÈME ÉDITION — CASABLANCA 2027</span>
+              <span>{t.home.editionBadge}</span>
             </div>
 
             {/* LOGO OFFICIEL GARDEN EXPO AFRICA (Style blanc pur, sans fond de boîte) */}
@@ -210,19 +234,17 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
             {/* Titre : Salon International de L’Aménagement Paysager et Urbain */}
             <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white font-['Outfit',sans-serif] mb-4 drop-shadow-md max-w-3xl">
-              Salon International de L’Aménagement Paysager et Urbain
+              {t.home.heroTitle}
             </h1>
 
             {/* Signature officielle */}
             <p className="text-xl sm:text-2xl lg:text-3xl font-semibold text-[#39B54A] italic mb-5 drop-shadow-sm">
-              « Des territoires plus verts pour demain »
+              {t.home.heroQuote}
             </p>
 
             {/* Texte descriptif */}
             <p className="text-sm sm:text-base text-emerald-100/95 leading-relaxed max-w-2xl mx-auto mb-9 font-light">
-              Le rendez-vous international des professionnels, des décideurs et des institutionnels du paysage,
-              de l'urbanisme et des villes durables. Innovations, solutions et partenariats pour des territoires
-              résilients en Afrique.
+              {t.home.heroDesc}
             </p>
 
             {/* Deux boutons d'action (Vert + Blanc) + Bouton Vidéo */}
@@ -232,14 +254,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 onClick={() => onNavigate('exhibitors')}
                 className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#08752D] hover:bg-[#39B54A] text-white text-xs sm:text-sm font-extrabold tracking-wider uppercase transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer text-center"
               >
-                DEMANDER UN STAND
+                {t.home.ctaBookStand}
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate('visitors')}
                 className="w-full sm:w-auto px-8 py-4 rounded-full bg-white hover:bg-stone-100 text-[#004421] text-xs sm:text-sm font-extrabold tracking-wider uppercase transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer text-center border border-white"
               >
-                PRÉINSCRIPTION VISITEUR
+                {t.home.ctaGetBadge}
               </button>
 
               {/* Bouton pour déclencher la vidéo modale si souhaité */}
@@ -248,10 +270,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   type="button"
                   onClick={() => setActiveVideoModal(slide.videoUrl)}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold backdrop-blur-md border border-white/20 transition-all cursor-pointer"
-                  title="Regarder la vidéo officielle"
+                  title={t.home.ctaWatchVideo}
                 >
                   <Play className="w-4 h-4 fill-white" />
-                  <span>VOIR LA VIDÉO</span>
+                  <span>{t.home.ctaWatchVideo}</span>
                 </button>
               )}
             </div>
@@ -308,10 +330,20 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <div className="flex flex-col sm:flex-row items-center justify-between pb-4 mb-4 border-b border-stone-100 gap-2">
               <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-[#08752D] flex items-center gap-2">
                 <Award className="w-4 h-4 text-[#39B54A]" />
-                <span>BILAN DE L'ÉDITION 2025 · CHIFFRES CLÉS</span>
+                <span>
+                  {language === 'ar'
+                    ? 'حصيلة الدورات السابقة · أرقام رئيسية'
+                    : language === 'en'
+                    ? 'TRACK RECORD OF PAST EDITIONS · KEY FIGURES'
+                    : "BILAN DES ÉDITIONS PRÉCÉDENTES · CHIFFRES CLÉS"}
+                </span>
               </span>
               <span className="text-[11px] text-stone-500 font-medium">
-                Source : Commissariat Général · OFEC Casablanca (Octobre 2025)
+                {language === 'ar'
+                  ? 'المصدر : المندوبية العامة · مكتب المعارض بالدار البيضاء'
+                  : language === 'en'
+                  ? 'Source: General Commission · OFEC Casablanca'
+                  : 'Source : Commissariat Général · OFEC Casablanca'}
               </span>
             </div>
 
@@ -319,56 +351,66 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               {/* 1. Exposants */}
               <div className="pt-2 md:pt-0 md:px-3">
                 <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#004421] tracking-tight block">
-                  100+
+                  {t.home.quickStats.exhibitors.value}
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-stone-900 uppercase tracking-wider block mt-1">
-                  Exposants
+                  {t.home.quickStats.exhibitors.label}
                 </span>
-                <span className="text-[11px] text-stone-500 block">leaders & pépinières</span>
+                <span className="text-[11px] text-stone-500 block">
+                  {language === 'ar' ? 'رواد ومصنعون' : language === 'en' ? 'industry leaders' : 'leaders & pépinières'}
+                </span>
               </div>
 
               {/* 2. Visiteurs */}
               <div className="pt-4 md:pt-0 md:px-3">
                 <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#004421] tracking-tight block">
-                  5 500+
+                  {t.home.quickStats.visitors.value}
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-stone-900 uppercase tracking-wider block mt-1">
-                  Visiteurs Professionnels
+                  {t.home.quickStats.visitors.label}
                 </span>
-                <span className="text-[11px] text-stone-500 block">décideurs & prescripteurs</span>
+                <span className="text-[11px] text-stone-500 block">
+                  {language === 'ar' ? 'صناع قرار ومختصون' : language === 'en' ? 'buyers & decision-makers' : 'décideurs & prescripteurs'}
+                </span>
               </div>
 
               {/* 3. Pays */}
               <div className="pt-4 md:pt-0 md:px-3">
                 <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#004421] tracking-tight block">
-                  10+
+                  15+
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-stone-900 uppercase tracking-wider block mt-1">
-                  Pays Représentés
+                  {language === 'ar' ? 'دول ممثلة' : language === 'en' ? 'Countries Represented' : 'Pays Représentés'}
                 </span>
-                <span className="text-[11px] text-stone-500 block">délégations africaines & UE</span>
+                <span className="text-[11px] text-stone-500 block">
+                  {language === 'ar' ? 'وفود إفريقية وأوروبية' : language === 'en' ? 'African & EU delegations' : 'délégations africaines & UE'}
+                </span>
               </div>
 
               {/* 4. Conférences */}
               <div className="pt-4 md:pt-0 md:px-3">
                 <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#004421] tracking-tight block">
-                  40+
+                  24+
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-stone-900 uppercase tracking-wider block mt-1">
-                  Conférences & Ateliers
+                  {language === 'ar' ? 'ندوات وورشات' : language === 'en' ? 'Conferences & Panels' : 'Conférences & Ateliers'}
                 </span>
-                <span className="text-[11px] text-stone-500 block">sessions scientifiques</span>
+                <span className="text-[11px] text-stone-500 block">
+                  {language === 'ar' ? 'جلسات علمية متخصصة' : language === 'en' ? 'scientific keynotes' : 'sessions scientifiques'}
+                </span>
               </div>
 
               {/* 5. Surface */}
               <div className="pt-4 md:pt-0 md:px-3 col-span-2 md:col-span-1">
                 <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#004421] tracking-tight block">
-                  4 000 m²
+                  12 000 m²
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-stone-900 uppercase tracking-wider block mt-1">
-                  Surface d'Exposition
+                  {language === 'ar' ? 'مساحة العرض' : language === 'en' ? 'Exhibition Space' : "Surface d'Exposition"}
                 </span>
-                <span className="text-[11px] text-stone-500 block">surface brute déployée</span>
+                <span className="text-[11px] text-stone-500 block">
+                  {language === 'ar' ? 'بمكتب المعارض بالدار البيضاء' : language === 'en' ? 'at OFEC Casablanca' : 'à l’OFEC Casablanca'}
+                </span>
               </div>
             </div>
           </div>
@@ -387,7 +429,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               <AnimatedSection animation="slide-left">
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-stone-200 aspect-[4/3] group">
                   <img
-                    src="/assets/aistudio/DSC08463_1b9046e6.JPG"
+                    src="/assets/aistudio/envato-labs-image-edit__11__e5a9931d.png"
                     alt="Hall d'exposition officiel Garden Expo Africa Casablanca"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
@@ -397,7 +439,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white text-xs font-semibold bg-black/50 backdrop-blur-md px-4 py-3 rounded-xl border border-white/20">
                     <span className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[#39B54A]" />
-                      <span>Plateforme d'Affaires Panafricaine</span>
+                      <span>
+                        {language === 'ar'
+                          ? 'منصة أعمال قارية'
+                          : language === 'en'
+                          ? 'Pan-African Trade Platform'
+                          : "Plateforme d'Affaires Panafricaine"}
+                      </span>
                     </span>
                     <span className="text-emerald-200">Casablanca · Maroc</span>
                   </div>
@@ -409,30 +457,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <div className="lg:col-span-6">
               <AnimatedSection animation="slide-right">
                 <span className="inline-block text-xs font-extrabold uppercase tracking-widest text-[#08752D] mb-3">
-                  À PROPOS DU SALON
+                  {t.home.aboutBadge}
                 </span>
 
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-[#151515] leading-tight mb-3 font-['Outfit',sans-serif]">
-                  Une vision africaine. Une ambition internationale. Un avenir plus vert.
+                  {t.home.aboutTitle}
                 </h2>
 
                 <div className="space-y-4 text-stone-600 text-sm sm:text-base leading-relaxed mt-6">
-                  <p>
-                    Implanté à Casablanca, au carrefour stratégique de l'Afrique et du bassin méditerranéen,{' '}
-                    <strong className="text-[#004421] font-bold">Garden Expo Africa</strong> s'impose comme la plus
-                    importante plateforme d'affaires et d'échanges dédiée aux professionnels du paysage, de
-                    l'aménagement urbain, des espaces verts et des infrastructures durables.
-                  </p>
-                  <p>
-                    Dans un continent en pleine expansion urbaine, où les défis climatiques et hydriques exigent des
-                    réponses concrètes et innovantes, le salon réunit l'ensemble des acteurs qui imaginent, conçoivent,
-                    équipent et entretiennent les territoires de demain.
-                  </p>
+                  <p>{t.home.aboutP1}</p>
+                  <p>{t.home.aboutP2}</p>
                 </div>
 
                 {/* Citation en exergue */}
                 <div className="mt-6 p-4 rounded-xl bg-emerald-50 border-l-4 border-[#08752D] text-[#004421] font-semibold italic text-sm sm:text-base">
-                  « Là où les solutions d'aujourd'hui construisent les villes de demain. »
+                  {t.home.heroQuote}
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-stone-200 flex flex-wrap items-center gap-4">
@@ -441,7 +480,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     onClick={() => onNavigate('salon')}
                     className="px-7 py-3.5 rounded-full bg-[#004421] hover:bg-[#08752D] text-white text-xs font-bold uppercase tracking-wider transition-colors duration-200 shadow-md cursor-pointer flex items-center gap-2"
                   >
-                    <span>DÉCOUVRIR LE SALON</span>
+                    <span>{t.home.aboutCtaDiscover}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                   <button
@@ -449,7 +488,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     onClick={() => onNavigate('conferences')}
                     className="px-6 py-3.5 rounded-full bg-white hover:bg-stone-100 text-stone-700 text-xs font-bold uppercase tracking-wider transition-colors duration-200 border border-stone-300 cursor-pointer"
                   >
-                    PROGRAMME DES CONFÉRENCES
+                    {t.navbar.conferences}
                   </button>
                 </div>
               </AnimatedSection>
@@ -611,8 +650,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       </section>
 
       {/* =========================================================================
-          SECTION 8 : SECTEURS D'EXPOSITION
-          Affichage de 4 secteurs clés et bouton "Tous les secteurs →"
+          SECTION 8 : SECTEURS D'ACTIVITÉ D'EXPOSITION
+          Affichage des 9 secteurs clés avec photographies immersives
           ========================================================================= */}
       <section className="py-20 lg:py-28 bg-[#F5F7F5] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -620,60 +659,60 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
               <div>
                 <span className="text-xs font-extrabold uppercase tracking-widest text-[#08752D] mb-2 block">
-                  OFFRE EXPOSANTS & DIVERSITÉ
+                  {t.home.sectorsBadge}
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-[#151515] font-['Outfit',sans-serif]">
-                  Secteurs d'Exposition
+                  {t.home.sectorsTitle}
                 </h2>
               </div>
               <div className="mt-4 md:mt-0 flex items-center gap-4">
                 <p className="text-xs sm:text-sm text-stone-500 max-w-md hidden lg:block">
-                  Découvrez la diversité des compétences réunies au salon, du végétal vivant aux équipements de pointe pour la ville durable.
+                  {t.home.sectorsSubtitle}
                 </p>
                 <button
                   type="button"
                   onClick={() => onNavigate('sectors')}
                   className="text-xs font-bold text-[#08752D] hover:text-[#004421] inline-flex items-center gap-1 cursor-pointer uppercase tracking-wider group"
                 >
-                  <span>Tous les secteurs</span>
+                  <span>{t.common.viewAll}</span>
                   <span className="group-hover:translate-x-1 transition-transform">→</span>
                 </button>
               </div>
             </div>
           </AnimatedSection>
 
-          {/* Grille des 4 premiers secteurs d'exposition (Pop-up) */}
+          {/* Grille complète des 9 secteurs d'exposition (3 colonnes) */}
           <AnimatedSection animation="pop-up" delayMs={100}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {sectors.slice(0, 4).map((sec, idx) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {sectors.map((sec, idx) => (
                 <div
                   key={sec.id}
                   onClick={() => onNavigate('sectors')}
-                  className="group relative bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer"
+                  className="group relative bg-white rounded-2xl overflow-hidden border border-stone-200/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer"
                 >
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-52 sm:h-56 overflow-hidden">
                     <img
                       src={sec.image}
                       alt={sec.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                    <span className="absolute top-3 left-3 bg-[#004421]/90 backdrop-blur text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md">
-                      0{idx + 1}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+                    <span className="absolute top-3.5 left-3.5 bg-[#004421]/90 backdrop-blur text-white text-[11px] font-black px-2.5 py-1 rounded-md shadow-xs">
+                      {idx < 9 ? `0${idx + 1}` : idx + 1}
                     </span>
-                    <div className="absolute bottom-3 left-3 right-3 text-white">
-                      <h3 className="text-sm font-bold leading-tight drop-shadow-md">
+                    <div className="absolute bottom-3.5 left-3.5 right-3.5 text-white">
+                      <h3 className="text-base font-bold leading-snug drop-shadow-md">
                         {sec.title}
                       </h3>
                     </div>
                   </div>
 
                   <div className="p-5 flex-1 flex flex-col justify-between">
-                    <p className="text-xs text-stone-600 leading-relaxed mb-4">
+                    <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed mb-4">
                       {sec.description}
                     </p>
                     <div className="flex items-center gap-1.5 text-xs font-bold text-[#08752D] group-hover:text-[#004421] transition-colors">
-                      <span>Explorer les exposants</span>
+                      <span>{language === 'ar' ? 'استكشاف العارضين' : language === 'en' ? 'Explore Exhibitors' : 'Explorer les exposants'}</span>
                       <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
@@ -681,15 +720,22 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               ))}
             </div>
 
-            {/* Bouton bas : Tous les secteurs → */}
-            <div className="mt-12 text-center">
+            {/* Boutons bas */}
+            <div className="mt-12 text-center flex flex-wrap items-center justify-center gap-4">
               <button
                 type="button"
                 onClick={() => onNavigate('sectors')}
                 className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-[#004421] hover:bg-[#08752D] text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer group"
               >
-                <span>Tous les secteurs</span>
+                <span>{language === 'ar' ? 'اكتشف جميع القطاعات بالتفصيل' : language === 'en' ? 'Discover all sectors in detail' : 'Découvrir tous les secteurs en détail'}</span>
                 <span className="text-base font-normal group-hover:translate-x-1.5 transition-transform">→</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onNavigate('exhibitors')}
+                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white hover:bg-stone-100 text-[#004421] text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 border border-stone-300 cursor-pointer"
+              >
+                <span>{t.home.ctaBookStand}</span>
               </button>
             </div>
           </AnimatedSection>
@@ -707,13 +753,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <div className="lg:col-span-7">
               <AnimatedSection animation="slide-left">
                 <span className="text-xs font-extrabold uppercase tracking-widest text-[#08752D] mb-3 block">
-                  ESPACE EXPOSANTS · DÉVELOPPEZ VOTRE BUSINESS
+                  {language === 'ar' ? 'فضاء العارضين · طور أعمالك وشراكاتك' : language === 'en' ? 'EXHIBITOR SPACE · GROW YOUR BUSINESS' : 'ESPACE EXPOSANTS · DÉVELOPPEZ VOTRE BUSINESS'}
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-[#151515] leading-tight mb-4 font-['Outfit',sans-serif]">
-                  Faites de votre savoir-faire une opportunité commerciale
+                  {language === 'ar' ? 'اجعل من خبرتك وابتكاراتك فرصة تجارية رائدة' : language === 'en' ? 'Turn Your Expertise into a Major Business Opportunity' : 'Faites de votre savoir-faire une opportunité commerciale'}
                 </h2>
                 <p className="text-stone-600 text-sm sm:text-base leading-relaxed mb-8">
-                  Positionnez votre entreprise au cœur des plus grands chantiers d'aménagement paysager, d'urbanisme durable et d'infrastructures d'Afrique.
+                  {language === 'ar' ? 'ضع مقاولتك في قلب كبرى مشاريع تهيئة المساحات الخضراء، التخطيط الحضري المستدام والبنى التحتية في إفريقيا.' : language === 'en' ? 'Position your company at the heart of Africa’s largest landscape, urban sustainability, and infrastructure projects.' : "Positionnez votre entreprise au cœur des plus grands chantiers d'aménagement paysager, d'urbanisme durable et d'infrastructures d'Afrique."}
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
@@ -732,7 +778,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
                 {/* Citation en exergue */}
                 <div className="p-4 rounded-xl bg-emerald-50 border-l-4 border-[#08752D] text-[#004421] font-semibold italic text-sm mb-8">
-                  « Ne soyez pas simplement présent sur le marché. Devenez un acteur qui le façonne. »
+                  {language === 'ar' ? '«لا تكتفِ بالحضور في السوق، بل كن فاعلاً يساهم في رسم ملامحه وتطوره.»' : language === 'en' ? '“Do not simply be present in the market. Become a player who actively shapes it.”' : '« Ne soyez pas simplement présent sur le marché. Devenez un acteur qui le façonne. »'}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
@@ -741,14 +787,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     onClick={() => onNavigate('exhibitors')}
                     className="px-8 py-4 rounded-full bg-[#08752D] hover:bg-[#004421] text-white text-xs font-extrabold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
                   >
-                    RÉSERVER MON STAND
+                    {t.home.ctaBookStand}
                   </button>
                   <button
                     type="button"
                     onClick={() => onNavigate('contact')}
                     className="px-6 py-4 rounded-full bg-white hover:bg-stone-100 text-stone-800 text-xs font-bold uppercase tracking-wider border border-stone-300 transition-colors cursor-pointer"
                   >
-                    CONTACTER LE SERVICE COMMERCIAL
+                    {t.home.aboutCtaContact}
                   </button>
                 </div>
               </AnimatedSection>
@@ -766,13 +812,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6 text-white">
                     <span className="inline-block px-3 py-1 rounded-md bg-[#39B54A] text-white text-[11px] font-black uppercase tracking-wider mb-2">
-                      ÉDITION 2027 · CASABLANCA
+                      {t.common.editionLabel}
                     </span>
                     <h3 className="text-xl font-bold leading-snug drop-shadow-md mb-2">
-                      Plus de 120 exposants attendus pour la 4ème édition
+                      {language === 'ar' ? 'أكثر من 100 عارض رائد مرتقب في النسخة الرابعة' : language === 'en' ? 'Over 100 benchmark exhibitors expected for the 4th edition' : 'Plus de 100 exposants de référence attendus pour la 4ème édition'}
                     </h3>
                     <p className="text-xs text-stone-200">
-                      Formules stands équipés, nus ou sur-mesure avec assistance logistique complète.
+                      {language === 'ar' ? 'أجنحة مجهزة أو عارية مع مواكبة لوجستية متكاملة.' : language === 'en' ? 'Equipped or custom bare stand packages with full logistics support.' : 'Formules stands équipés, nus ou sur-mesure avec assistance logistique complète.'}
                     </p>
                   </div>
                 </div>
@@ -792,13 +838,17 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-10 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[#08752D] text-xs font-extrabold uppercase tracking-wider mb-3">
               <Sparkles className="w-3.5 h-3.5 text-[#39B54A]" />
-              <span>EXPOSANTS & MARQUES DE RÉFÉRENCE</span>
+              <span>{t.home.brandsSubtitle}</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#151515] font-['Outfit',sans-serif]">
-              Ils nous ont fait confiance
+              {t.home.brandsTitle}
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 max-w-2xl mx-auto mt-2 leading-relaxed">
-              Pépiniéristes d'élite, industriels des technologies de l'eau, concepteurs d'équipements urbains et marques leaders qui exposent et font rayonner Garden Expo Africa à Casablanca.
+              {language === 'ar'
+                ? 'مشاتل رائدة، شركات متخصصة في تكنولوجيا المياه، مصنعو التجهيزات الحضرية وعلامات دولية وضعوا ثقتهم في المعرض بالدار البيضاء.'
+                : language === 'en'
+                ? 'Elite nurseries, water tech innovators, urban equipment creators, and leading brands that showcase at Garden Expo Africa Casablanca.'
+                : "Pépiniéristes d'élite, industriels des technologies de l'eau, concepteurs d'équipements urbains et marques leaders qui exposent et font rayonner Garden Expo Africa à Casablanca."}
             </p>
             {/* Contrôleur de sens du slide (gauche/droite ou inverse) */}
             <div className="mt-4 flex items-center justify-center gap-3">
@@ -810,16 +860,20 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               >
                 <ArrowLeftRight className="w-3.5 h-3.5 text-[#08752D]" />
                 <span>
-                  Sens du slide : {exhibitorSlideReverse ? 'Gauche ⟶ Droite' : 'Droite ⟵ Gauche'}
+                  {language === 'ar'
+                    ? `اتجاه الحركة : ${exhibitorSlideReverse ? 'يمين ⟶ يسار' : 'يسار ⟵ يمين'}`
+                    : `Sens du slide : ${exhibitorSlideReverse ? 'Gauche ⟶ Droite' : 'Droite ⟵ Gauche'}`}
                 </span>
-                <span className="text-[10px] text-stone-400 font-normal">(Cliquer pour inverser)</span>
+                <span className="text-[10px] text-stone-400 font-normal">
+                  ({language === 'ar' ? 'انقر لتغيير الاتجاه' : 'Cliquer pour inverser'})
+                </span>
               </button>
             </div>
           </div>
         </AnimatedSection>
 
-        {/* Slide panoramique officiel de l'image exposants avec vitesse raisonnable et lisible */}
-        <div className="relative w-full overflow-hidden bg-white py-6 border-y border-stone-100 group">
+        {/* Slide panoramique officiel de l'image exposants avec vitesse raisonnable et haute résolution */}
+        <div className="relative w-full overflow-hidden bg-white py-8 sm:py-10 border-y border-stone-200 group">
           {/* Dégradés latéraux subtils pour estomper les bords avec élégance */}
           <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
           <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
@@ -831,21 +885,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             } group-hover:[animation-play-state:paused] select-none`}
           >
             <img
-              src="/assets/aistudio/EXPOSANTS_86b035fc.png"
+              src="/assets/aistudio/les-exposants-_28989909.png"
               alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
-              className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-none object-contain px-8 shrink-0"
+              className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
               draggable={false}
             />
             <img
-              src="/assets/aistudio/EXPOSANTS_86b035fc.png"
+              src="/assets/aistudio/les-exposants-_28989909.png"
               alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
-              className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-none object-contain px-8 shrink-0"
+              className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
               draggable={false}
             />
           </div>
 
           <p className="text-[11px] text-stone-400 text-center mt-4 italic">
-            Survolez la bannière pour mettre le défilement en pause
+            {language === 'ar' ? 'مرر الفأرة فوق الشريط لإيقاف الحركة مؤقتاً' : language === 'en' ? 'Hover banner to pause continuous scroll' : 'Survolez la bannière pour mettre le défilement en pause'}
           </p>
         </div>
       </section>
@@ -867,21 +921,24 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         <div className="relative max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8">
           <AnimatedSection animation="slide-left" className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur border border-white/20 text-[#39B54A] text-xs font-extrabold uppercase tracking-wider mb-4">
-              <span>ÉVÉNEMENT PRÉPARATOIRE OFFICIEL</span>
+              <span>{language === 'ar' ? 'حدث تحضيري رسمي' : language === 'en' ? 'OFFICIAL PREPARATORY EVENT' : 'ÉVÉNEMENT PRÉPARATOIRE OFFICIEL'}</span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-3 font-['Outfit',sans-serif]">
-              Séminaire de Lancement Garden Expo Africa 2027
+              {language === 'ar' ? 'الندوة التحضيرية الرسمية لمعرض Garden Expo Africa 2027' : language === 'en' ? 'Garden Expo Africa 2027 Official Launch Seminar' : 'Séminaire de Lancement Garden Expo Africa 2027'}
             </h2>
 
             <div className="flex items-center gap-2 text-emerald-200 text-sm font-semibold mb-4">
               <Calendar className="w-4 h-4 text-[#39B54A]" />
-              <span>Décembre 2026 – Casablanca | Date et lieu à confirmer</span>
+              <span>{t.common.datesNotice}</span>
             </div>
 
             <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-light">
-              Rencontre institutionnelle et médiatique en amont de la 4ème édition réunissant les ministères de tutelle,
-              les architectes paysagistes et les présidents de fédérations pour dévoiler les axes majeurs du salon.
+              {language === 'ar'
+                ? 'لقاء مؤسساتي وإعلامي رفيع المستوى بحضور ممثلي الوزارات، المهندسين المعماريين ورؤساء الهيئات للكشف عن المحاور الكبرى للدورة.'
+                : language === 'en'
+                ? 'High-level institutional and media launch meeting bringing together supervising ministries, landscape architects, and federation presidents.'
+                : 'Rencontre institutionnelle et médiatique en amont de la 4ème édition réunissant les ministères de tutelle, les architectes paysagistes et les présidents de fédérations pour dévoiler les axes majeurs du salon.'}
             </p>
           </AnimatedSection>
 
@@ -891,14 +948,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               onClick={() => onNavigate('conferences')}
               className="px-8 py-4 rounded-full bg-[#39B54A] hover:bg-[#08752D] text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
             >
-              EN SAVOIR PLUS
+              {t.common.readMore}
             </button>
             <button
               type="button"
               onClick={() => onNavigate('contact')}
               className="px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider border border-white/20 transition-all cursor-pointer"
             >
-              CONTACTER LE COMMISSARIAT
+              {t.home.aboutCtaContact}
             </button>
           </AnimatedSection>
         </div>
@@ -913,13 +970,17 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         <AnimatedSection animation="pop-up">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-10 text-center">
             <span className="text-xs font-extrabold uppercase tracking-widest text-[#08752D] mb-2 block">
-              ENSEMBLE, CONSTRUISONS LES VILLES DE DEMAIN
+              {t.home.partnersSubtitle}
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#151515] font-['Outfit',sans-serif]">
-              Partenaires Institutionnels & Scientifiques
+              {t.home.partnersTitle}
             </h2>
             <p className="text-xs sm:text-sm text-stone-500 max-w-2xl mx-auto mt-2">
-              Garden Expo Africa bénéficie du parrainage actif des ministères, ordres professionnels, institutions scientifiques et partenaires médias de référence.
+              {language === 'ar'
+                ? 'يحظى المعرض بدعم ورعاية رسمية من الوزارات والهيئات والجامعات والمؤسسات العلمية والإعلامية الشريكة.'
+                : language === 'en'
+                ? 'Garden Expo Africa benefits from the active patronage of ministries, professional bodies, scientific institutes, and media partners.'
+                : 'Garden Expo Africa bénéficie du parrainage actif des ministères, ordres professionnels, institutions scientifiques et partenaires médias de référence.'}
             </p>
             {/* Contrôleur de sens du slide (gauche/droite ou inverse) */}
             <div className="mt-4 flex items-center justify-center gap-3">
@@ -931,16 +992,20 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               >
                 <ArrowLeftRight className="w-3.5 h-3.5 text-[#08752D]" />
                 <span>
-                  Sens du slide : {partnerSlideReverse ? 'Gauche ⟶ Droite' : 'Droite ⟵ Gauche'}
+                  {language === 'ar'
+                    ? `اتجاه الحركة : ${partnerSlideReverse ? 'يمين ⟶ يسار' : 'يسار ⟵ يمين'}`
+                    : `Sens du slide : ${partnerSlideReverse ? 'Gauche ⟶ Droite' : 'Droite ⟵ Gauche'}`}
                 </span>
-                <span className="text-[10px] text-stone-400 font-normal">(Cliquer pour inverser)</span>
+                <span className="text-[10px] text-stone-400 font-normal">
+                  ({language === 'ar' ? 'انقر لتغيير الاتجاه' : 'Cliquer pour inverser'})
+                </span>
               </button>
             </div>
           </div>
         </AnimatedSection>
 
-        {/* Slide panoramique de l'image officielle avec vitesse raisonnable et lisible */}
-        <div className="relative w-full overflow-hidden bg-white py-6 border-y border-stone-100 group">
+        {/* Slide panoramique de l'image officielle avec vitesse raisonnable et haute résolution */}
+        <div className="relative w-full overflow-hidden bg-white py-8 sm:py-10 border-y border-stone-200 group">
           {/* Dégradés latéraux subtils pour estomper les bords avec élégance */}
           <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
           <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
@@ -952,21 +1017,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             } group-hover:[animation-play-state:paused] select-none`}
           >
             <img
-              src="/assets/aistudio/upscalemedia-transformed__13__3492f28a.png"
+              src="/assets/aistudio/Fichier_5_5fc12ab0.png"
               alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
-              className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-none object-contain px-8 shrink-0"
+              className="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
               draggable={false}
             />
             <img
-              src="/assets/aistudio/upscalemedia-transformed__13__3492f28a.png"
+              src="/assets/aistudio/Fichier_5_5fc12ab0.png"
               alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
-              className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-none object-contain px-8 shrink-0"
+              className="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
               draggable={false}
             />
           </div>
 
           <p className="text-[11px] text-stone-400 text-center mt-4 italic">
-            Survolez la bannière pour mettre le défilement en pause
+            {language === 'ar' ? 'مرر الفأرة فوق الشريط لإيقاف الحركة مؤقتاً' : language === 'en' ? 'Hover banner to pause continuous scroll' : 'Survolez la bannière pour mettre le défilement en pause'}
           </p>
         </div>
       </section>
@@ -981,16 +1046,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <div className="rounded-3xl bg-gradient-to-r from-[#004421] to-[#08752D] p-8 sm:p-12 lg:p-16 text-white relative overflow-hidden shadow-2xl">
               <div className="relative z-10 max-w-3xl">
                 <span className="inline-block px-3 py-1 rounded-full bg-white/10 backdrop-blur text-[#39B54A] text-xs font-black uppercase tracking-wider mb-4 border border-white/20">
-                  OPPORTUNITÉS DE SPONSORING & MÉCÉNAT
+                  {language === 'ar' ? 'فرص الرعاية والشراكة' : language === 'en' ? 'SPONSORSHIP & PARTNERSHIP' : 'OPPORTUNITÉS DE SPONSORING & MÉCÉNAT'}
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-extrabold mb-4 font-['Outfit',sans-serif]">
-                  Devenez Partenaire de la Transformation Verte
+                  {t.partners.becomePartnerTitle}
                 </h2>
                 <p className="text-emerald-100 text-sm sm:text-base leading-relaxed mb-6 font-light">
-                  Associez l'image de votre marque ou de votre institution au premier salon professionnel du paysage et de la ville durable en Afrique. Bénéficiez d'une visibilité de premier rang auprès de milliers de décideurs.
+                  {t.partners.becomePartnerDesc}
                 </p>
                 <div className="p-4 rounded-xl bg-black/20 border-l-4 border-[#39B54A] text-white italic text-xs sm:text-sm mb-8">
-                  « Associez votre institution ou entreprise à l'élan de durabilité qui redéfinit l'Afrique. »
+                  {t.home.heroQuote}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
@@ -999,14 +1064,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     onClick={() => onNavigate('partners')}
                     className="px-8 py-4 rounded-full bg-[#39B54A] hover:bg-white hover:text-[#004421] text-white text-xs font-extrabold uppercase tracking-wider transition-all duration-200 shadow-lg cursor-pointer"
                   >
-                    DEVENIR PARTENAIRE
+                    {t.partners.ctaPartner}
                   </button>
                   <button
                     type="button"
                     onClick={() => onNavigate('contact')}
                     className="px-6 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider border border-white/20 transition-all cursor-pointer"
                   >
-                    CONTACTER LE COMMISSARIAT
+                    {t.home.aboutCtaContact}
                   </button>
                 </div>
               </div>

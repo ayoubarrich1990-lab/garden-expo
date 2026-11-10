@@ -243,7 +243,7 @@ export const EditionsPage: React.FC<EditionsPageProps> = ({ onNavigate }) => {
                     </div>
                     <div className="rounded-xl overflow-hidden border border-stone-200 bg-stone-50 p-2">
                       <img
-                        src="/assets/aistudio/Capture_d_e_cran_2026-11-02_a__10.12.55_bf4c0644.png"
+                        src="/assets/aistudio/les-exposants-_28989909.png"
                         alt="Mosaïque des marques et exposants de la 3ème édition"
                         className="w-full h-auto object-contain"
                       />

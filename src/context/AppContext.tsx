@@ -91,6 +91,8 @@ interface AppContextType {
   refreshFromSupabase: () => Promise<void>;
   configureSupabaseKeys: (url: string, anonKey: string) => Promise<{ success: boolean; message: string }>;
   getSupabaseConfig: () => { url: string; anonKey: string; isCustom: boolean };
+  // Mode Réel - Réinitialisation à 0
+  resetRealModeCounters: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -104,18 +106,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [visitorAccount, setVisitorAccount] = useState<VisitorAccount | null>(() => {
     const saved = localStorage.getItem('gea_visitor_account');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          ...parsed,
+          favoriteExhibitorIds: Array.isArray(parsed.favoriteExhibitorIds) ? parsed.favoriteExhibitorIds : [],
+          plannedVisits: Array.isArray(parsed.plannedVisits) ? parsed.plannedVisits : [],
+        };
+      } catch (e) {}
+    }
     return {
       id: 'vis-acc-01',
       userId: 'usr-visitor',
-      badgeNumber: 'GEA-VIS-26-88412',
-      registrationDate: '24 Octobre 2026',
-      favoriteExhibitorIds: ['exh-01', 'exh-02'],
-      plannedVisits: [
-        { exhibitorId: 'exh-01', notes: 'Voir les palmiers d’alignement et devis pour la corniche' },
-        { exhibitorId: 'exh-02', notes: 'Démonstration micro-irrigation REUT' },
-      ],
-      qrPayload: 'GARDEN-EXPO-AFRICA-2026|GEA-VIS-26-88412|Yasmine El Fassi|Atelier Paysage',
+      badgeNumber: 'GEA-VIS-27-00001',
+      registrationDate: new Date().toLocaleDateString('fr-FR'),
+      favoriteExhibitorIds: [],
+      plannedVisits: [],
+      qrPayload: 'GARDEN-EXPO-AFRICA-2027|GEA-VIS-27-00001',
     };
   });
 
@@ -198,7 +206,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [invoices, setInvoices] = useState<InvoiceDocument[]>(() => {
     const saved = localStorage.getItem('gea_invoices');
-    return saved ? JSON.parse(saved) : INITIAL_INVOICES;
+    return saved ? JSON.parse(saved) : [];
   });
 
   // Language state
@@ -730,6 +738,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     ? invoices.filter((inv) => inv.exhibitorId === currentExhibitorData.id)
     : [];
 
+  const resetRealModeCounters = useCallback(() => {
+    SupabaseDataService.resetAllCountersToZero();
+    setInvoices([]);
+    setVisitorAccount((prev) =>
+      prev
+        ? {
+            ...prev,
+            favoriteExhibitorIds: [],
+            plannedVisits: [],
+          }
+        : null
+    );
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -774,6 +796,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         refreshFromSupabase,
         configureSupabaseKeys,
         getSupabaseConfig,
+        resetRealModeCounters,
       }}
     >
       {children}

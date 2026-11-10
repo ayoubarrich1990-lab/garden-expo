@@ -196,7 +196,7 @@ export const ExhibitorDashboardPage: React.FC<ExhibitorDashboardPageProps> = ({ 
         `Date d'émission : ${new Date().toLocaleDateString('fr-FR')}\n` +
         `Statut : VALIDE ET ENREGISTRÉ\n` +
         `Organisateur : Garden Expo Africa SARL AU - Casablanca, Maroc\n` +
-        `Contact : contact@gardenexpo.ma | +212 5 22 20 40 50\n` +
+        `Contact : contact@gardenexpoafrica.com | +212 5 22 20 40 50\n` +
         `============================================================\n`
       ],
       { type: 'text/plain;charset=utf-8' }
@@ -311,6 +311,55 @@ export const ExhibitorDashboardPage: React.FC<ExhibitorDashboardPageProps> = ({ 
 
       {/* Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Real-time Exhibitor Live KPIs (Mode Réel, départ à 0) */}
+        <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 mb-4 border-b border-stone-100 gap-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-800">
+                Console Exposant en Direct · Mode Réel
+              </span>
+            </div>
+            <span className="text-xs text-stone-500 font-medium">
+              Chiffres synchronisés en temps réel · Départ à 0
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
+              <span className="text-xs text-stone-500 block mb-1 font-medium">Visiteurs Scannés</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black text-[#123D2B] font-['Outfit',sans-serif]">0</span>
+                <span className="text-[11px] text-stone-400">sur le stand</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
+              <span className="text-xs text-stone-500 block mb-1 font-medium">Leads & Contacts</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black text-[#123D2B] font-['Outfit',sans-serif]">0</span>
+                <span className="text-[11px] text-stone-400">qualifiés</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
+              <span className="text-xs text-stone-500 block mb-1 font-medium">Rendez-vous B2B</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black text-[#123D2B] font-['Outfit',sans-serif]">0</span>
+                <span className="text-[11px] text-stone-400">programmés</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
+              <span className="text-xs text-stone-500 block mb-1 font-medium">Badges Équipe</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black text-[#123D2B] font-['Outfit',sans-serif]">0 / 4</span>
+                <span className="text-[11px] text-emerald-600 font-semibold">4 dispos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* TAB 1: STAND & INTERACTIVE PLAN */}
         {activeTab === 'stand' && (
           <div className="space-y-8">
@@ -685,7 +734,7 @@ export const ExhibitorDashboardPage: React.FC<ExhibitorDashboardPageProps> = ({ 
                 </p>
               </div>
               <div className="pt-4 border-t border-stone-100 flex items-center justify-between text-xs">
-                <span className="font-semibold text-emerald-700">Quota 4/4 Actif</span>
+                <span className="font-semibold text-emerald-700">Quota 0 / 4 Utilisé · 4 badges disponibles</span>
                 <span className="text-stone-400">Inclus contrat</span>
               </div>
             </div>

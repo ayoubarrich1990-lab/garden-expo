@@ -27,7 +27,7 @@ test('calculateStandPrice throws if surface under 9m²', () => {
 });
 
 test('validateEmail validates valid and invalid email addresses', () => {
-  assert.equal(validateEmail('contact@gardenexpo.ma'), true);
+  assert.equal(validateEmail('contact@gardenexpoafrica.com'), true);
   assert.equal(validateEmail('architecte.paysage@pro-maroc.ma'), true);
   assert.equal(validateEmail('invalid-email'), false);
   assert.equal(validateEmail('missing@domain'), false);

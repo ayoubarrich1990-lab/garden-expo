@@ -206,7 +206,60 @@ export const VisitorDashboardPage: React.FC<VisitorDashboardPageProps> = ({ onNa
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Real-time Visitor Live KPIs (Mode Réel, départ à 0) */}
+        <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 mb-4 border-b border-stone-100 gap-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-800">
+                Espace Visiteur en Direct · Mode Réel
+              </span>
+            </div>
+            <span className="text-xs text-stone-500 font-medium">
+              Chiffres synchronisés en temps réel · Départ à 0
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
+              <span className="text-xs text-stone-500 block mb-1 font-medium">Exposants Favoris</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black text-[#123D2B] font-['Outfit',sans-serif]">
+                  {favoriteExhibitorList.length}
+                </span>
+                <span className="text-[11px] text-stone-400">enregistrés</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
+              <span className="text-xs text-stone-500 block mb-1 font-medium">Rendez-vous B2B</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black text-[#123D2B] font-['Outfit',sans-serif]">
+                  {visitorAccount?.plannedVisits?.length || 0}
+                </span>
+                <span className="text-[11px] text-stone-400">confirmés</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
+              <span className="text-xs text-stone-500 block mb-1 font-medium">Catalogues Téléchargés</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black text-[#123D2B] font-['Outfit',sans-serif]">0</span>
+                <span className="text-[11px] text-stone-400">PDF archivés</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-100">
+              <span className="text-xs text-stone-500 block mb-1 font-medium">Stands Visités (Scans)</span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl font-black text-[#123D2B] font-['Outfit',sans-serif]">0</span>
+                <span className="text-[11px] text-stone-400">bornes passées</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* LEFT COLUMN: E-BADGE DIGITAL CARD (PRINTABLE) */}
           <div className="lg:col-span-5">

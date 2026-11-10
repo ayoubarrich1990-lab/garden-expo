@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { PageId, Exhibitor, Stand, EditionArchive, GalleryPhoto, ExhibitorInterview, HeroSlide } from '../types';
 import { SupabaseDataService } from '../services/supabaseService';
@@ -71,6 +71,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     refreshFromSupabase,
     configureSupabaseKeys,
     getSupabaseConfig,
+    resetRealModeCounters,
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'exhibitors' | 'stands' | 'editions' | 'gallery' | 'interviews' | 'bookings' | 'videoslides' | 'supabase' | 'logos'>('exhibitors');
@@ -151,28 +152,42 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
   const [supabaseActionMsg, setSupabaseActionMsg] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
   const [copiedSql, setCopiedSql] = useState(false);
 
-  // Demandes & Inscriptions en direct
+  // Demandes & Inscriptions en direct (Mode Réel, départ à 0)
   const [badgesList, setBadgesList] = useState<any[]>([]);
   const [bookingsList, setBookingsList] = useState<any[]>([]);
   const [messagesList, setMessagesList] = useState<any[]>([]);
   const [isLoadingDemands, setIsLoadingDemands] = useState(false);
+  const [resetConfirmMsg, setResetConfirmMsg] = useState<string | null>(null);
 
-  // Load demands when opening bookings or supabase tab
+  const loadRealTimeDemands = useCallback(() => {
+    setIsLoadingDemands(true);
+    Promise.all([
+      SupabaseDataService.fetchVisitorBadges(),
+      SupabaseDataService.fetchStandBookings(),
+      SupabaseDataService.fetchContactMessages(),
+    ]).then(([badges, bookings, messages]) => {
+      setBadgesList(badges);
+      setBookingsList(bookings);
+      setMessagesList(messages);
+      setIsLoadingDemands(false);
+    });
+  }, []);
+
+  // Chargement immédiat dès le chargement de la console
   useEffect(() => {
-    if (activeTab === 'bookings' || activeTab === 'supabase') {
-      setIsLoadingDemands(true);
-      Promise.all([
-        SupabaseDataService.fetchVisitorBadges(),
-        SupabaseDataService.fetchStandBookings(),
-        SupabaseDataService.fetchContactMessages(),
-      ]).then(([badges, bookings, messages]) => {
-        setBadgesList(badges);
-        setBookingsList(bookings);
-        setMessagesList(messages);
-        setIsLoadingDemands(false);
-      });
+    loadRealTimeDemands();
+  }, [loadRealTimeDemands, activeTab]);
+
+  const handleResetCounters = () => {
+    if (window.confirm("Êtes-vous sûr de vouloir réinitialiser tous les compteurs en mode réel à 0 ? Toutes les réservations, badges de test et messages locaux seront remis à zéro.")) {
+      resetRealModeCounters();
+      setBadgesList([]);
+      setBookingsList([]);
+      setMessagesList([]);
+      setResetConfirmMsg("Tous les compteurs ont été réinitialisés à 0 en mode réel avec succès.");
+      setTimeout(() => setResetConfirmMsg(null), 4000);
     }
-  }, [activeTab]);
+  };
 
   // Admin password login state
   const [adminEmail, setAdminEmail] = useState('admin@gardenexpo.ma');
@@ -261,10 +276,16 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     );
   }
 
-  // KPIs
+  // KPIs en Mode Réel (démarrage à 0)
   const totalStands = stands.length;
-  const reservedStands = stands.filter((s) => s.status === 'confirmed' || s.status === 'reserved').length;
-  const occupancyRate = Math.round((reservedStands / totalStands) * 100);
+  const realConfirmedStands = bookingsList.filter((b) => b.status === 'confirmed').length;
+  const occupancyRate = totalStands > 0 ? Math.round((realConfirmedStands / totalStands) * 100) : 0;
+  const realSurfaceReserved = bookingsList
+    .filter((b) => b.status === 'confirmed')
+    .reduce((acc, b) => acc + (Number(b.surface_sq_meters) || 0), 0);
+  const realEstimatedRevenue = bookingsList
+    .filter((b) => b.status === 'confirmed')
+    .reduce((acc, b) => acc + (Number(b.estimated_price_mad) || 0), 0);
 
   // Filtered exhibitors
   const filteredExhibitors = exhibitors.filter((e) =>
@@ -577,6 +598,23 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5">
+              {/* Mode Réel Indicator */}
+              <div className="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Mode Temps Réel (Départ 0)</span>
+              </div>
+
+              {/* Reset to 0 button */}
+              <button
+                type="button"
+                onClick={handleResetCounters}
+                className="text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600 px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
+                title="Remettre tous les compteurs à 0 en mode réel"
+              >
+                <Clock className="w-3.5 h-3.5 text-amber-400" />
+                <span>Réinitialiser à 0</span>
+              </button>
+
               {/* Supabase status indicator pill */}
               <button
                 type="button"
@@ -720,57 +758,81 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* KPI STATS ROW */}
+        {/* Reset Confirmation Banner */}
+        {resetConfirmMsg && (
+          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{resetConfirmMsg}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setResetConfirmMsg(null)}
+              className="text-emerald-700 hover:text-emerald-900 font-bold"
+            >
+              Fermer
+            </button>
+          </div>
+        )}
+
+        {/* KPI STATS ROW (MODE RÉEL - DÉPART À 0) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
             <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider block mb-1">
-              Exposants Confirmés
+              Exposants Inscrits (Mode Réel)
             </span>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-extrabold text-[#123D2B] font-['Outfit',sans-serif]">
-                {exhibitors.length}
+                {bookingsList.length}
               </span>
-              <span className="text-xs text-emerald-600 font-bold">+12% vs Éd. 3</span>
+              <span className="text-xs text-stone-500 font-bold">
+                {bookingsList.filter((b) => b.status === 'confirmed').length} confirmés
+              </span>
             </div>
-            <p className="text-xs text-stone-500 mt-1">Maroc & International</p>
+            <p className="text-xs text-stone-500 mt-1">Inscriptions formulaires (Départ à 0)</p>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
             <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider block mb-1">
-              Stands Réservés
+              Stands Réservés (Mode Réel)
             </span>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-extrabold text-[#367A4D] font-['Outfit',sans-serif]">
-                {reservedStands} / {totalStands}
+                {realConfirmedStands} / {totalStands}
               </span>
               <span className="text-xs text-stone-600 font-semibold">{occupancyRate}%</span>
             </div>
-            <p className="text-xs text-stone-500 mt-1">{totalStands - reservedStands} emplacements libres</p>
+            <p className="text-xs text-stone-500 mt-1">{totalStands - realConfirmedStands} emplacements libres</p>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
             <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider block mb-1">
-              Visiteurs Enregistrés
+              Visiteurs Enregistrés (Mode Réel)
             </span>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-extrabold text-[#123D2B] font-['Outfit',sans-serif]">
-                8 840+
+                {badgesList.length}
               </span>
-              <span className="text-xs text-emerald-600 font-bold">Objectif 10k</span>
+              <span className="text-xs text-emerald-600 font-bold">
+                {badgesList.length === 0 ? 'Départ à 0' : `${badgesList.length} badge(s)`}
+              </span>
             </div>
-            <p className="text-xs text-stone-500 mt-1">Inscriptions professionnelles B2B</p>
+            <p className="text-xs text-stone-500 mt-1">Badges professionnels nominatifs émis</p>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
             <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider block mb-1">
-              Superficie Totale
+              Demandes & Messages Reçus
             </span>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-extrabold text-[#123D2B] font-['Outfit',sans-serif]">
-                10 000 m²
+                {messagesList.length}
+              </span>
+              <span className="text-xs text-stone-500 font-bold">
+                {messagesList.length === 0 ? 'Départ à 0' : `${messagesList.length} reçu(s)`}
               </span>
             </div>
-            <p className="text-xs text-stone-500 mt-1">Halls A & B · OFEC Casablanca</p>
+            <p className="text-xs text-stone-500 mt-1">Formulaires de contact en direct</p>
           </div>
         </div>
 

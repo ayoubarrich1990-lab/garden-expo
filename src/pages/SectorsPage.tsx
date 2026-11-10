@@ -4,12 +4,17 @@ import { SECTORS_DATA } from '../data/expoData';
 import { filterSectors } from '../utils/expoLogic';
 import { Search, CheckCircle2, ArrowRight, Sparkles, Layers } from 'lucide-react';
 import { SupabaseDataService } from '../services/supabaseService';
+import { useApp } from '../context/AppContext';
+import { useTranslation } from '../i18n/translations';
 
 interface SectorsPageProps {
   onNavigate: (page: PageId) => void;
 }
 
 export const SectorsPage: React.FC<SectorsPageProps> = ({ onNavigate }) => {
+  const { language } = useApp();
+  const t = useTranslation(language);
+
   const [sectorsList, setSectorsList] = useState<Sector[]>(SECTORS_DATA);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
@@ -35,16 +40,15 @@ export const SectorsPage: React.FC<SectorsPageProps> = ({ onNavigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 tracking-wider uppercase mb-3">
-              <span>Nomenclature & Filières B2B</span>
+              <span>{t.home.sectorsBadge}</span>
               <span aria-hidden="true">·</span>
-              <span>Casablanca, Maroc</span>
+              <span>{t.common.datesNotice}</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-['Outfit',sans-serif] text-balance mb-4">
-              Secteurs d'Activité d'Exposition
+              {t.home.sectorsTitle}
             </h1>
             <p className="text-base sm:text-lg text-stone-300 leading-relaxed font-normal">
-              8 grands secteurs couvrant l'intégralité de la chaîne de valeur : du végétal aux technologies d'irrigation,
-              du mobilier urbain aux équipements lourds et aux solutions Smart Green City.
+              {t.home.sectorsSubtitle}
             </p>
           </div>
 

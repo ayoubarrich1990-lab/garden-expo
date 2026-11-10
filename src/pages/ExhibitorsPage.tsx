@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { PageId, StandBookingRequest } from '../types';
 import { SECTORS_DATA, ORGANIZER_DETAILS } from '../data/expoData';
 import { validateEmail, validatePhone } from '../utils/expoLogic';
+import { useApp } from '../context/AppContext';
+import { useTranslation } from '../i18n/translations';
 import {
   CheckCircle2,
   ShieldCheck,
@@ -23,6 +25,9 @@ interface ExhibitorsPageProps {
 }
 
 export const ExhibitorsPage: React.FC<ExhibitorsPageProps> = ({ onNavigate }) => {
+  const { language } = useApp();
+  const t = useTranslation(language);
+
   // Form state
   const [formData, setFormData] = useState({
     companyName: '',
@@ -111,14 +116,13 @@ export const ExhibitorsPage: React.FC<ExhibitorsPageProps> = ({ onNavigate }) =>
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur border border-white/20 text-[#39B54A] text-xs font-bold uppercase tracking-wider mb-4">
               <Building2 className="w-3.5 h-3.5" />
-              <span>4ème Édition · Casablanca, Maroc · 2027</span>
+              <span>{t.exhibitors.badge}</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight font-['Outfit',sans-serif] mb-4">
-              Exposer à Garden Expo Africa
+              {t.exhibitors.title}
             </h1>
             <p className="text-base sm:text-lg text-emerald-100/90 leading-relaxed font-light">
-              Positionnez votre marque au cœur du plus grand rassemblement professionnel du paysage,
-              de l’aménagement urbain et de la ville durable en Afrique.
+              {t.exhibitors.subtitle}
             </p>
           </div>
         </div>

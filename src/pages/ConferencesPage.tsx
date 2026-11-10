@@ -18,6 +18,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useTranslation } from '../i18n/translations';
 
 interface ConferencesPageProps {
   onNavigate: (page: PageId) => void;
@@ -25,6 +26,7 @@ interface ConferencesPageProps {
 
 export const ConferencesPage: React.FC<ConferencesPageProps> = ({ onNavigate }) => {
   const { language } = useApp();
+  const t = useTranslation(language);
   const [selectedTrack, setSelectedTrack] = useState<string>('all');
   const [registered, setRegistered] = useState(false);
   const [formData, setFormData] = useState({
@@ -107,26 +109,25 @@ export const ConferencesPage: React.FC<ConferencesPageProps> = ({ onNavigate }) 
         <div className="relative max-w-6xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur border border-white/20 text-emerald-200 text-xs font-semibold tracking-wider uppercase mb-5">
             <Mic className="w-3.5 h-3.5 text-[#39B54A]" />
-            <span>Cycle Scientifique & Institutionnel — 2027</span>
+            <span>{t.conferences.badge}</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-            Conférences & Ateliers Stratégiques
+            {t.conferences.title}
           </h1>
 
           <p className="max-w-3xl mx-auto text-base sm:text-lg text-emerald-100 font-light leading-relaxed">
-            Plus de 40 sessions, keynotes et débats d’experts animés par les grands décideurs de l’urbanisme,
-            des paysagistes de renom et les institutions de l’aménagement durable en Afrique.
+            {t.conferences.subtitle}
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-4 text-xs sm:text-sm text-emerald-100/90 font-medium">
             <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-lg border border-white/10">
               <Calendar className="w-4 h-4 text-[#39B54A]" />
-              <span>4ème Édition 2027 (Dates à confirmer)</span>
+              <span>{t.common.datesNotice}</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-lg border border-white/10">
               <MapPin className="w-4 h-4 text-[#39B54A]" />
-              <span>Casablanca, Maroc</span>
+              <span>{t.common.location}</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-lg border border-white/10">
               <Users className="w-4 h-4 text-[#39B54A]" />
