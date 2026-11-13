@@ -892,7 +892,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     src="/assets/aistudio/les-exposants-_28989909.png"
                     alt={group === 0 && index === 0 ? "Ils nous ont fait confiance - Exposants et marques Garden Expo Africa" : ""}
                     aria-hidden={group !== 0 || index !== 0}
-                    className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
+                    className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto max-w-none object-contain p-0 shrink-0 marquee-hd-image"
                     draggable={false}
                     decoding="async"
                   />
@@ -1027,7 +1027,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     src="/assets/aistudio/Fichier_5_5fc12ab0.png"
                     alt={group === 0 && index === 0 ? "Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa" : ""}
                     aria-hidden={group !== 0 || index !== 0}
-                    className="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
+                    className="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-auto max-w-none object-contain p-0 shrink-0 marquee-hd-image"
                     draggable={false}
                     decoding="async"
                   />
