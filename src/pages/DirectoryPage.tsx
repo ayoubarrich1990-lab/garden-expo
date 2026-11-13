@@ -294,23 +294,46 @@ export const DirectoryPage: React.FC<DirectoryPageProps> = ({ onNavigate }) => {
         {filteredExhibitors.length === 0 && viewMode === 'grid' && (
           <div className="p-12 bg-white rounded-2xl border border-stone-200 text-center">
             <Building2 className="w-10 h-10 text-stone-400 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-stone-900 mb-1">
-              Aucun exposant trouvé pour « {searchQuery} »
-            </h3>
-            <p className="text-xs text-stone-500 mb-4">
-              Essayez un autre mot-clé ou réinitialisez les filtres par secteur.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedSector('all');
-                setSelectedEdition('all');
-              }}
-              className="px-4 py-2 bg-[#123D2B] text-white rounded-lg text-xs font-bold"
-            >
-              Afficher tous les exposants
-            </button>
+            {exhibitors.length === 0 ? (
+              <>
+                <h3 className="text-base font-bold text-stone-900 mb-1">
+                  Aucun exposant enregistré pour le moment (Mode Réel : 0 exposant)
+                </h3>
+                <p className="text-xs text-stone-500 mb-5 max-w-md mx-auto">
+                  Le répertoire officiel des exposants 2027 démarre à zéro. Réservez votre stand dès maintenant pour figurer dans l'annuaire officiel.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('exhibitors')}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#123D2B] hover:bg-[#367A4D] text-white rounded-lg text-xs font-bold transition-colors"
+                >
+                  <span>Devenir exposant / Réserver un stand</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-base font-bold text-stone-900 mb-1">
+                  {searchQuery.trim()
+                    ? `Aucun exposant trouvé pour « ${searchQuery} »`
+                    : 'Aucun exposant ne correspond aux filtres sélectionnés'}
+                </h3>
+                <p className="text-xs text-stone-500 mb-4">
+                  Essayez un autre mot-clé ou réinitialisez les filtres par secteur.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedSector('all');
+                    setSelectedEdition('all');
+                  }}
+                  className="px-4 py-2 bg-[#123D2B] text-white rounded-lg text-xs font-bold"
+                >
+                  Afficher tous les exposants
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>

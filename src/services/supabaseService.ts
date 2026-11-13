@@ -997,6 +997,8 @@ export const SupabaseDataService = {
   // --------------------------------------------------------------------------
   resetAllCountersToZero(): void {
     try {
+      localStorage.setItem('gea_exhibitors', JSON.stringify([]));
+      localStorage.setItem('gea_stands', JSON.stringify(INITIAL_STANDS));
       localStorage.removeItem('gea_visitor_badges');
       localStorage.removeItem('gea_stand_bookings');
       localStorage.removeItem('gea_contact_messages');

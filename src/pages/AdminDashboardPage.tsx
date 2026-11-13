@@ -72,6 +72,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     configureSupabaseKeys,
     getSupabaseConfig,
     resetRealModeCounters,
+    clearAllExhibitors,
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'exhibitors' | 'stands' | 'editions' | 'gallery' | 'interviews' | 'bookings' | 'videoslides' | 'supabase' | 'logos'>('exhibitors');
@@ -179,12 +180,21 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
   }, [loadRealTimeDemands, activeTab]);
 
   const handleResetCounters = () => {
-    if (window.confirm("Êtes-vous sûr de vouloir réinitialiser tous les compteurs en mode réel à 0 ? Toutes les réservations, badges de test et messages locaux seront remis à zéro.")) {
+    if (window.confirm("Êtes-vous sûr de vouloir réinitialiser tous les compteurs en mode réel à 0 ? Le répertoire des exposants, réservations, badges de test et messages locaux seront remis à zéro.")) {
       resetRealModeCounters();
       setBadgesList([]);
       setBookingsList([]);
       setMessagesList([]);
-      setResetConfirmMsg("Tous les compteurs ont été réinitialisés à 0 en mode réel avec succès.");
+      setResetConfirmMsg("Tous les compteurs et le répertoire des exposants ont été réinitialisés à 0 en mode réel avec succès.");
+      setTimeout(() => setResetConfirmMsg(null), 4000);
+    }
+  };
+
+  const handleClearDirectory = async () => {
+    if (window.confirm("Supprimer tous les exposants du répertoire pour démarrer à 0 exposant ?")) {
+      await clearAllExhibitors();
+      setSearchExhibitor('');
+      setResetConfirmMsg("Le répertoire des exposants a été vidé (0 exposant).");
       setTimeout(() => setResetConfirmMsg(null), 4000);
     }
   };
@@ -849,7 +859,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <div className="relative">
                   <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
@@ -860,6 +870,16 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                     className="pl-9 pr-4 py-2 border border-stone-200 rounded-lg text-xs w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-[#367A4D]"
                   />
                 </div>
+                {exhibitors.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearDirectory}
+                    className="px-3.5 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold hover:bg-rose-100 transition-colors flex items-center gap-1.5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Vider le répertoire (0)</span>
+                  </button>
+                )}
                 <button
                   onClick={handleOpenAddExhibitor}
                   className="px-4 py-2 bg-[#123D2B] text-white rounded-lg text-xs font-semibold hover:bg-[#367A4D] transition-colors flex items-center gap-1.5 shadow-2xs"
@@ -949,6 +969,49 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                       </td>
                     </tr>
                   ))}
+                  {filteredExhibitors.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="py-12 px-6 text-center">
+                        <div className="max-w-md mx-auto">
+                          <Building2 className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+                          {exhibitors.length === 0 ? (
+                            <>
+                              <h4 className="text-sm font-bold text-stone-900 mb-1">
+                                Aucun exposant dans le répertoire (Mode Réel : 0 exposant)
+                              </h4>
+                              <p className="text-xs text-stone-500 mb-4">
+                                Le répertoire démarre à zéro. Ajoutez un exposant manuellement ou attendez les nouvelles inscriptions réelles.
+                              </p>
+                              <button
+                                type="button"
+                                onClick={handleOpenAddExhibitor}
+                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#123D2B] text-white rounded-lg text-xs font-semibold hover:bg-[#367A4D] transition-colors"
+                              >
+                                <Plus className="w-4 h-4" />
+                                <span>Ajouter un exposant</span>
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <h4 className="text-sm font-bold text-stone-900 mb-1">
+                                Aucun exposant trouvé pour « {searchExhibitor} »
+                              </h4>
+                              <p className="text-xs text-stone-500 mb-4">
+                                Essayez un autre nom d'entreprise, stand ou secteur.
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => setSearchExhibitor('')}
+                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-stone-100 text-stone-700 rounded-lg text-xs font-semibold hover:bg-stone-200 transition-colors"
+                              >
+                                <span>Réinitialiser le filtre</span>
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -1788,96 +1851,108 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {exhibitors.map((exh) => (
-                  <div
-                    key={exh.id}
-                    className="bg-white rounded-2xl border border-stone-200 p-4 shadow-2xs hover:shadow-md hover:border-[#08752D] transition-all flex flex-col justify-between group"
-                  >
-                    <div>
-                      {/* Logo Preview Container */}
-                      <div className="relative h-20 w-full rounded-xl bg-stone-50 border border-stone-100 p-2.5 flex items-center justify-center overflow-hidden mb-3 group-hover:bg-emerald-50/40 transition-colors">
-                        {exh.logo ? (
-                          <img
-                            src={exh.logo}
-                            alt={exh.name}
-                            className="max-h-14 max-w-full object-contain"
-                          />
+              {exhibitors.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-stone-200 p-10 text-center">
+                  <Sparkles className="w-9 h-9 text-stone-300 mx-auto mb-3" />
+                  <h4 className="text-sm font-bold text-stone-900 mb-1">
+                    Aucun logo d'exposant affiché (Mode Réel : 0 exposant)
+                  </h4>
+                  <p className="text-xs text-stone-500">
+                    Utilisez le formulaire ci-dessus pour ajouter de nouveaux logos d'exposants au carrousel d'accueil.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {exhibitors.map((exh) => (
+                    <div
+                      key={exh.id}
+                      className="bg-white rounded-2xl border border-stone-200 p-4 shadow-2xs hover:shadow-md hover:border-[#08752D] transition-all flex flex-col justify-between group"
+                    >
+                      <div>
+                        {/* Logo Preview Container */}
+                        <div className="relative h-20 w-full rounded-xl bg-stone-50 border border-stone-100 p-2.5 flex items-center justify-center overflow-hidden mb-3 group-hover:bg-emerald-50/40 transition-colors">
+                          {exh.logo ? (
+                            <img
+                              src={exh.logo}
+                              alt={exh.name}
+                              className="max-h-14 max-w-full object-contain"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-lg bg-[#004421] text-white flex items-center justify-center font-black text-xs">
+                              {exh.name.slice(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                          {exh.standNumber && (
+                            <span className="absolute top-2 right-2 bg-white/95 text-[10px] font-bold text-[#004421] px-1.5 py-0.5 rounded border border-stone-200">
+                              {exh.standNumber}
+                            </span>
+                          )}
+                        </div>
+
+                        <h4 className="font-bold text-xs sm:text-sm text-stone-900 line-clamp-1 mb-0.5 group-hover:text-[#08752D] transition-colors">
+                          {exh.name}
+                        </h4>
+                        <p className="text-[11px] text-stone-500 line-clamp-1 mb-2">
+                          {exh.sector}
+                        </p>
+
+                        {exh.website ? (
+                          <a
+                            href={exh.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#08752D] hover:underline mb-3 truncate max-w-full"
+                          >
+                            <ExternalLink className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{exh.website.replace(/^https?:\/\//, '')}</span>
+                          </a>
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-[#004421] text-white flex items-center justify-center font-black text-xs">
-                            {exh.name.slice(0, 2).toUpperCase()}
-                          </div>
-                        )}
-                        {exh.standNumber && (
-                          <span className="absolute top-2 right-2 bg-white/95 text-[10px] font-bold text-[#004421] px-1.5 py-0.5 rounded border border-stone-200">
-                            {exh.standNumber}
+                          <span className="text-[11px] text-stone-400 italic block mb-3">
+                            Aucun lien web renseigné
                           </span>
                         )}
                       </div>
 
-                      <h4 className="font-bold text-xs sm:text-sm text-stone-900 line-clamp-1 mb-0.5 group-hover:text-[#08752D] transition-colors">
-                        {exh.name}
-                      </h4>
-                      <p className="text-[11px] text-stone-500 line-clamp-1 mb-2">
-                        {exh.sector}
-                      </p>
-
-                      {exh.website ? (
-                        <a
-                          href={exh.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#08752D] hover:underline mb-3 truncate max-w-full"
+                      {/* Actions de gestion */}
+                      <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingExhibitor(exh);
+                            setFormName(exh.name);
+                            setFormSector(exh.sector);
+                            setFormCity(exh.city);
+                            setFormEmail(exh.email);
+                            setFormPhone(exh.phone);
+                            setFormStandNumber(exh.standNumber);
+                            setFormSurface(exh.surface);
+                            setFormLogo(exh.logo || '');
+                            setFormWebsite(exh.website || '');
+                            setIsAddExhibitorOpen(true);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-[#004421] hover:text-white text-stone-700 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
                         >
-                          <ExternalLink className="w-3 h-3 shrink-0" />
-                          <span className="truncate">{exh.website.replace(/^https?:\/\//, '')}</span>
-                        </a>
-                      ) : (
-                        <span className="text-[11px] text-stone-400 italic block mb-3">
-                          Aucun lien web renseigné
-                        </span>
-                      )}
-                    </div>
+                          <Edit3 className="w-3 h-3" />
+                          <span>Modifier</span>
+                        </button>
 
-                    {/* Actions de gestion */}
-                    <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingExhibitor(exh);
-                          setFormName(exh.name);
-                          setFormSector(exh.sector);
-                          setFormCity(exh.city);
-                          setFormEmail(exh.email);
-                          setFormPhone(exh.phone);
-                          setFormStandNumber(exh.standNumber);
-                          setFormSurface(exh.surface);
-                          setFormLogo(exh.logo || '');
-                          setFormWebsite(exh.website || '');
-                          setIsAddExhibitorOpen(true);
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-[#004421] hover:text-white text-stone-700 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
-                      >
-                        <Edit3 className="w-3 h-3" />
-                        <span>Modifier</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (window.confirm(`Supprimer le logo de "${exh.name}" du slide ?`)) {
-                            deleteExhibitor(exh.id);
-                          }
-                        }}
-                        className="p-1 rounded-lg hover:bg-rose-50 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
-                        title="Supprimer du carrousel"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Supprimer le logo de "${exh.name}" du slide ?`)) {
+                              deleteExhibitor(exh.id);
+                            }
+                          }}
+                          className="p-1 rounded-lg hover:bg-rose-50 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
+                          title="Supprimer du carrousel"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

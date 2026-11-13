@@ -93,9 +93,24 @@ interface AppContextType {
   getSupabaseConfig: () => { url: string; anonKey: string; isCustom: boolean };
   // Mode Réel - Réinitialisation à 0
   resetRealModeCounters: () => void;
+  clearAllExhibitors: () => Promise<boolean>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+const REAL_MODE_EXHIBITORS_ZERO_KEY = 'gea_real_mode_exhibitors_zero_v1';
+
+function ensureZeroExhibitorsMigration(): void {
+  try {
+    if (!localStorage.getItem(REAL_MODE_EXHIBITORS_ZERO_KEY)) {
+      localStorage.setItem('gea_exhibitors', JSON.stringify(INITIAL_EXHIBITORS));
+      localStorage.setItem('gea_stands', JSON.stringify(INITIAL_STANDS));
+      localStorage.setItem(REAL_MODE_EXHIBITORS_ZERO_KEY, '1');
+    }
+  } catch {
+    // Ignore localStorage unavailability
+  }
+}
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Local state with seed fallback
@@ -128,13 +143,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>(() => {
+    ensureZeroExhibitorsMigration();
     const saved = localStorage.getItem('gea_exhibitors');
-    return saved ? JSON.parse(saved) : INITIAL_EXHIBITORS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed : INITIAL_EXHIBITORS;
+      } catch {
+        return INITIAL_EXHIBITORS;
+      }
+    }
+    return INITIAL_EXHIBITORS;
   });
 
   const [stands, setStands] = useState<Stand[]>(() => {
+    ensureZeroExhibitorsMigration();
     const saved = localStorage.getItem('gea_stands');
-    return saved ? JSON.parse(saved) : INITIAL_STANDS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed : INITIAL_STANDS;
+      } catch {
+        return INITIAL_STANDS;
+      }
+    }
+    return INITIAL_STANDS;
   });
 
   const [editions, setEditions] = useState<EditionArchive[]>(() => {
@@ -725,9 +758,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const getSupabaseConfig = () => getActiveSupabaseCredentials();
 
   // Exhibitor portal active bindings
-  const currentExhibitorData =
+  const currentExhibitorData: Exhibitor | null =
     currentUser?.role === 'exhibitor'
-      ? exhibitors.find((ex) => ex.id === currentUser.exhibitorId) || exhibitors[0]
+      ? exhibitors.find(
+          (ex) =>
+            ex.id === currentUser.exhibitorId ||
+            ex.email.toLowerCase() === currentUser.email.toLowerCase()
+        ) ||
+        exhibitors[0] || {
+          id: currentUser.exhibitorId || currentUser.id,
+          name: currentUser.companyName || currentUser.fullName || 'Espace Exposant',
+          slug: (currentUser.companyName || 'exposant').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          logo: '',
+          description: '',
+          sector: 'Aménagement Paysager & Espaces Verts',
+          category: 'Exposant',
+          country: currentUser.country || 'Maroc',
+          city: currentUser.city || 'Casablanca',
+          email: currentUser.email,
+          phone: currentUser.phone || '+212 600 000 000',
+          standNumber: '--',
+          hall: 'Hall A',
+          surface: 0,
+          featuredProducts: [],
+          edition: '4ème Édition (2027)',
+          participationStatus: 'pending',
+          representative: {
+            name: currentUser.fullName,
+            jobTitle: 'Représentant Exposant',
+            email: currentUser.email,
+            phone: currentUser.phone || '+212 600 000 000',
+          },
+        }
       : null;
 
   const currentExhibitorStand = currentExhibitorData
@@ -738,8 +800,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     ? invoices.filter((inv) => inv.exhibitorId === currentExhibitorData.id)
     : [];
 
+  const clearAllExhibitors = useCallback(async (): Promise<boolean> => {
+    setExhibitors([]);
+    setStands(INITIAL_STANDS);
+    try {
+      localStorage.setItem('gea_exhibitors', JSON.stringify([]));
+      localStorage.setItem('gea_stands', JSON.stringify(INITIAL_STANDS));
+      localStorage.setItem(REAL_MODE_EXHIBITORS_ZERO_KEY, '1');
+    } catch {
+      // Ignore storage errors
+    }
+    return true;
+  }, []);
+
   const resetRealModeCounters = useCallback(() => {
     SupabaseDataService.resetAllCountersToZero();
+    setExhibitors([]);
+    setStands(INITIAL_STANDS);
     setInvoices([]);
     setVisitorAccount((prev) =>
       prev
@@ -797,6 +874,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         configureSupabaseKeys,
         getSupabaseConfig,
         resetRealModeCounters,
+        clearAllExhibitors,
       }}
     >
       {children}
