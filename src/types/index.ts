@@ -17,7 +17,43 @@ export type PageId =
   | 'exhibitor_portal'
   | 'visitor_portal'
   | 'admin_portal'
-  | 'legal';
+  | 'legal'
+  | 'documents';
+
+export type DocumentItemType = 'pdf' | 'video' | 'gallery' | 'website' | 'link';
+
+export type DocumentIconKey =
+  | 'book'
+  | 'calendar'
+  | 'file-fr'
+  | 'file-en'
+  | 'briefcase'
+  | 'video'
+  | 'images'
+  | 'globe'
+  | 'file';
+
+export interface ExpoDocumentItem {
+  id: string;
+  title: string;
+  titleEn?: string;
+  titleAr?: string;
+  subtitle?: string;
+  type: DocumentItemType;
+  iconKey: DocumentIconKey;
+  url: string;
+  fileName?: string;
+  internalPage?: PageId;
+  isVisible: boolean;
+  order: number;
+}
+
+export interface SocialLinkItem {
+  id: 'instagram' | 'facebook' | 'linkedin' | 'youtube';
+  label: string;
+  url: string;
+  isVisible: boolean;
+}
 
 export interface Sector {
   id: string;

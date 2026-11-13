@@ -49,9 +49,15 @@ export const SalonPage: React.FC<SalonPageProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Subtle decorative background graphic */}
-        <div className="absolute right-0 bottom-0 top-0 w-1/3 opacity-10 pointer-events-none flex items-center justify-center">
-          <TreePine className="w-96 h-96 text-white" />
+        {/* Background image with adaptable opacity and gradient overlay */}
+        <div className="absolute inset-0 pointer-events-none">
+          <img
+            src="/assets/aistudio/Capture_d_e_cran_2026-11-13_a__09.49.29_94ae1b4d.png"
+            alt="Entrée officielle Garden Expo Africa Casablanca"
+            className="w-full h-full object-cover object-center opacity-35 transition-opacity duration-500"
+          />
+          <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#123D2B] via-[#123D2B]/80 to-[#123D2B]/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#123D2B]/80 via-transparent to-[#123D2B]/30" />
         </div>
       </div>
 

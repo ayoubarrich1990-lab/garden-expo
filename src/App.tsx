@@ -26,32 +26,53 @@ import { ExhibitorsPage } from './pages/ExhibitorsPage';
 import { VisitorsPage } from './pages/VisitorsPage';
 import { PartnersPage } from './pages/PartnersPage';
 import { ConferencesPage } from './pages/ConferencesPage';
+import { DocumentsPage } from './pages/DocumentsPage';
+
+const VALID_PAGES: PageId[] = [
+  'home', 'about', 'salon', 'directory', 'editions', 'gallery', 'news', 'contact',
+  'exhibitors', 'visitors', 'partners', 'conferences', 'sectors',
+  'exhibitor_portal', 'visitor_portal', 'admin_portal', 'legal', 'documents'
+];
+
+function resolvePageFromLocation(): PageId {
+  const pathname = window.location.pathname.replace(/\/+$/, '');
+  if (pathname === '/documents') {
+    return 'documents';
+  }
+  const params = new URLSearchParams(window.location.search);
+  const pageParam = params.get('page') as PageId;
+  if (pageParam && VALID_PAGES.includes(pageParam)) {
+    return pageParam;
+  }
+  return 'home';
+}
 
 function AppContent() {
-  const [currentPage, setCurrentPage] = useState<PageId>('home');
+  const [currentPage, setCurrentPage] = useState<PageId>(() => resolvePageFromLocation());
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authDefaultRole, setAuthDefaultRole] = useState<UserRole>('visitor');
 
   useEffect(() => {
-    // Read page from query param or hash on load
-    const params = new URLSearchParams(window.location.search);
-    const pageParam = params.get('page') as PageId;
-    if (pageParam && [
-      'home', 'about', 'salon', 'directory', 'editions', 'gallery', 'news', 'contact',
-      'exhibitors', 'visitors', 'partners', 'conferences', 'sectors',
-      'exhibitor_portal', 'visitor_portal', 'admin_portal', 'legal'
-    ].includes(pageParam)) {
-      setCurrentPage(pageParam);
-    }
+    const onPopState = () => {
+      setCurrentPage(resolvePageFromLocation());
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
   const handleNavigate = (page: PageId) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Update query param without reloading
-    const url = new URL(window.location.href);
-    url.searchParams.set('page', page);
+    if (page === 'documents') {
+      window.history.pushState({}, '', '/documents');
+      return;
+    }
+
+    const url = new URL(window.location.origin + '/');
+    if (page !== 'home') {
+      url.searchParams.set('page', page);
+    }
     window.history.pushState({}, '', url.toString());
   };
 
@@ -59,6 +80,31 @@ function AppContent() {
     setAuthDefaultRole(role);
     setAuthModalOpen(true);
   };
+
+  // Standalone Linktree-style page for /documents
+  if (currentPage === 'documents') {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#F4F7F4] text-stone-900 font-['Plus_Jakarta_Sans',sans-serif]">
+        <DocumentsPage
+          onNavigate={handleNavigate}
+          onOpenAuth={(role) => handleOpenAuth(role || 'admin')}
+        />
+        <AuthModal
+          key={`docs-auth-${authDefaultRole}`}
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          defaultRole={authDefaultRole}
+          onNavigate={(page) => {
+            if (page === 'admin_portal') {
+              setCurrentPage('documents');
+              return;
+            }
+            handleNavigate(page);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F7F5] text-stone-900 font-['Plus_Jakarta_Sans',sans-serif]">
