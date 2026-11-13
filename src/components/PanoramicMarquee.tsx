@@ -11,7 +11,11 @@ export interface PanoramicMarqueeProps {
   cropLeftRatio?: number;
   /** Proportional crop from right edge (0..0.05) to trim outer frame and excess margin */
   cropRightRatio?: number;
-  /** Vertical pixels clipped from top and bottom to strip baked-in border lines */
+  /** Proportional crop from top edge (0..0.4) to trim empty headers or top border lines */
+  cropTopRatio?: number;
+  /** Proportional crop from bottom edge (0..0.2) to trim bottom border lines */
+  cropBottomRatio?: number;
+  /** Extra vertical pixels clipped from top and bottom to strip baked-in border lines */
   cropVerticalPx?: number;
 }
 
@@ -23,6 +27,8 @@ export const PanoramicMarquee: React.FC<PanoramicMarqueeProps> = ({
   speedPxPerSec = 80,
   cropLeftRatio = 0.002,
   cropRightRatio = 0.002,
+  cropTopRatio = 0,
+  cropBottomRatio = 0,
   cropVerticalPx = 3,
 }) => {
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -39,7 +45,19 @@ export const PanoramicMarquee: React.FC<PanoramicMarqueeProps> = ({
   const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null);
   const [copiesPerGroup, setCopiesPerGroup] = useState(1);
   const [groupWidth, setGroupWidth] = useState(0);
-  const [cropPx, setCropPx] = useState<{ left: number; right: number }>({ left: 3, right: 3 });
+  const [imgMetrics, setImgMetrics] = useState<{
+    heightPx: number | null;
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  }>({
+    heightPx: null,
+    top: cropVerticalPx,
+    bottom: cropVerticalPx,
+    left: 3,
+    right: 3,
+  });
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return false;
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -94,18 +112,32 @@ export const PanoramicMarquee: React.FC<PanoramicMarqueeProps> = ({
     const tileHeight = tile.getBoundingClientRect().height;
     if (viewportWidth <= 0 || tileHeight <= 0) return;
 
-    const renderedImgHeight = tileHeight + cropVerticalPx * 2;
+    const visibleVFrac = Math.max(0.25, 1 - cropTopRatio - cropBottomRatio);
+    const rawImgHeight = tileHeight / visibleVFrac + cropVerticalPx * 2;
     const aspectRatio = naturalSize.width / naturalSize.height;
-    const rawImgWidth = renderedImgHeight * aspectRatio;
+    const rawImgWidth = rawImgHeight * aspectRatio;
 
-    const nextCropLeft = Math.max(3, Math.round(rawImgWidth * cropLeftRatio));
-    const nextCropRight = Math.max(3, Math.round(rawImgWidth * cropRightRatio));
+    const nextCropTop = Math.round(rawImgHeight * cropTopRatio) + cropVerticalPx;
+    const nextCropBottom = Math.round(rawImgHeight * cropBottomRatio) + cropVerticalPx;
+    const nextCropLeft = cropLeftRatio > 0 ? Math.max(2, Math.round(rawImgWidth * cropLeftRatio)) : 0;
+    const nextCropRight = cropRightRatio > 0 ? Math.max(2, Math.round(rawImgWidth * cropRightRatio)) : 0;
+    const nextHeightPx = Math.round(rawImgHeight * 100) / 100;
     const effectiveTileWidth = Math.max(100, rawImgWidth - nextCropLeft - nextCropRight);
 
-    setCropPx((prev) =>
-      prev.left === nextCropLeft && prev.right === nextCropRight
+    setImgMetrics((prev) =>
+      prev.heightPx === nextHeightPx &&
+      prev.top === nextCropTop &&
+      prev.bottom === nextCropBottom &&
+      prev.left === nextCropLeft &&
+      prev.right === nextCropRight
         ? prev
-        : { left: nextCropLeft, right: nextCropRight }
+        : {
+            heightPx: nextHeightPx,
+            top: nextCropTop,
+            bottom: nextCropBottom,
+            left: nextCropLeft,
+            right: nextCropRight,
+          }
     );
 
     const neededCopies = Math.min(
@@ -120,7 +152,7 @@ export const PanoramicMarquee: React.FC<PanoramicMarqueeProps> = ({
         Math.abs(prev - measuredGroupWidth) < 0.25 ? prev : measuredGroupWidth
       );
     }
-  }, [naturalSize, cropLeftRatio, cropRightRatio, cropVerticalPx]);
+  }, [naturalSize, cropLeftRatio, cropRightRatio, cropTopRatio, cropBottomRatio, cropVerticalPx]);
 
   useEffect(() => {
     if (!isReady) return;
@@ -144,7 +176,7 @@ export const PanoramicMarquee: React.FC<PanoramicMarqueeProps> = ({
     observer.observe(tile);
 
     return () => observer.disconnect();
-  }, [isReady, copiesPerGroup, measureLayout]);
+  }, [isReady, copiesPerGroup, imgMetrics, measureLayout]);
 
   // Run GPU-composited Web Animations API loop with zero-jump direction toggle & resize
   useLayoutEffect(() => {
@@ -231,13 +263,13 @@ export const PanoramicMarquee: React.FC<PanoramicMarqueeProps> = ({
   };
 
   const imgInlineStyle: React.CSSProperties = {
-    height: `calc(100% + ${cropVerticalPx * 2}px)`,
+    height: imgMetrics.heightPx !== null ? `${imgMetrics.heightPx}px` : `calc(100% + ${cropVerticalPx * 2}px)`,
     width: 'auto',
     maxWidth: 'none',
-    marginTop: `-${cropVerticalPx}px`,
-    marginBottom: `-${cropVerticalPx}px`,
-    marginLeft: `-${cropPx.left}px`,
-    marginRight: `-${cropPx.right}px`,
+    marginTop: `-${imgMetrics.top}px`,
+    marginBottom: `-${imgMetrics.bottom}px`,
+    marginLeft: `-${imgMetrics.left}px`,
+    marginRight: `-${imgMetrics.right}px`,
   };
 
   const tileIndices = Array.from({ length: copiesPerGroup }, (_, i) => i);

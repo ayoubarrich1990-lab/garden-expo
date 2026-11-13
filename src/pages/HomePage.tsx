@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { PageId } from '../types';
 import { useApp } from '../context/AppContext';
 import { AnimatedSection } from '../components/AnimatedSection';
-import { PanoramicMarquee } from '../components/PanoramicMarquee';
 import { useTranslation } from '../i18n/translations';
 import {
   ArrowRight,
@@ -33,7 +32,6 @@ import {
   Upload,
   Trash2,
   Image as ImageIcon,
-  ArrowLeftRight,
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -45,9 +43,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const t = useTranslation(language);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [activeVideoModal, setActiveVideoModal] = useState<string | null>(null);
-  // Direction des slides (gauche à droite ou l'inverse)
-  const [exhibitorSlideReverse, setExhibitorSlideReverse] = useState(false);
-  const [partnerSlideReverse, setPartnerSlideReverse] = useState(true);
 
   const activeSlides =
     heroSlides && heroSlides.length > 0
@@ -851,44 +846,32 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 ? 'Elite nurseries, water tech innovators, urban equipment creators, and leading brands that showcase at Garden Expo Africa Casablanca.'
                 : "Pépiniéristes d'élite, industriels des technologies de l'eau, concepteurs d'équipements urbains et marques leaders qui exposent et font rayonner Garden Expo Africa à Casablanca."}
             </p>
-            {/* Contrôleur de sens du slide (gauche/droite ou inverse) */}
-            <div className="mt-4 flex items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => setExhibitorSlideReverse((prev) => !prev)}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-stone-100 hover:bg-emerald-50 hover:text-[#08752D] text-stone-600 text-[11px] font-semibold border border-stone-200 transition-colors cursor-pointer shadow-2xs"
-                title="Inverser le sens de défilement du slide"
-              >
-                <ArrowLeftRight className="w-3.5 h-3.5 text-[#08752D]" />
-                <span>
-                  {language === 'ar'
-                    ? `اتجاه الحركة : ${exhibitorSlideReverse ? 'يمين ⟶ يسار' : 'يسار ⟵ يمين'}`
-                    : `Sens du slide : ${exhibitorSlideReverse ? 'Gauche ⟶ Droite' : 'Droite ⟵ Gauche'}`}
-                </span>
-                <span className="text-[10px] text-stone-400 font-normal">
-                  ({language === 'ar' ? 'انقر لتغيير الاتجاه' : 'Cliquer pour inverser'})
-                </span>
-              </button>
-            </div>
           </div>
         </AnimatedSection>
 
-        {/* Slide panoramique officiel de l'image exposants avec défilement continu sans couture */}
-        <div className="relative w-full overflow-hidden bg-white py-8 sm:py-10 border-y border-stone-200">
-          <PanoramicMarquee
-            src="/assets/aistudio/les-exposants-_28989909.png"
-            alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
-            heightClassName="h-28 sm:h-36 md:h-40 lg:h-48"
-            reverse={exhibitorSlideReverse}
-            speedPxPerSec={85}
-            cropLeftRatio={0.0085}
-            cropRightRatio={0.0015}
-            cropVerticalPx={3}
-          />
-
-          <p className="text-[11px] text-stone-400 text-center mt-4 italic">
-            {language === 'ar' ? 'مرر الفأرة فوق الشريط لإيقاف الحركة مؤقتاً' : language === 'en' ? 'Hover banner to pause continuous scroll' : 'Survolez la bannière pour mettre le défilement en pause'}
-          </p>
+        {/* Slide GIF animé officiel des exposants ("Ils nous ont fait confiance") */}
+        <div className="relative w-full overflow-hidden bg-white py-6 sm:py-10 border-y border-stone-200">
+          <div className="relative max-w-5xl mx-auto px-2 sm:px-6">
+            <div className="relative w-full overflow-hidden flex items-center justify-center">
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
+              <img
+                src="https://gardenexpoafrica.com/assets/aistudio/exposant.gif"
+                alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
+                referrerPolicy="no-referrer"
+                loading="eager"
+                className="w-full max-w-[960px] h-auto object-contain select-none mx-auto"
+                draggable={false}
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  if (!img.dataset.fallbackApplied) {
+                    img.dataset.fallbackApplied = '1';
+                    img.src = '/assets/aistudio/les-exposants-_28989909_c9a6e355.jpg';
+                  }
+                }}
+              />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -970,44 +953,32 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 ? 'Garden Expo Africa benefits from the active patronage of ministries, professional bodies, scientific institutes, and media partners.'
                 : 'Garden Expo Africa bénéficie du parrainage actif des ministères, ordres professionnels, institutions scientifiques et partenaires médias de référence.'}
             </p>
-            {/* Contrôleur de sens du slide (gauche/droite ou inverse) */}
-            <div className="mt-4 flex items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => setPartnerSlideReverse((prev) => !prev)}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-stone-100 hover:bg-emerald-50 hover:text-[#08752D] text-stone-600 text-[11px] font-semibold border border-stone-200 transition-colors cursor-pointer shadow-2xs"
-                title="Inverser le sens de défilement du slide"
-              >
-                <ArrowLeftRight className="w-3.5 h-3.5 text-[#08752D]" />
-                <span>
-                  {language === 'ar'
-                    ? `اتجاه الحركة : ${partnerSlideReverse ? 'يمين ⟶ يسار' : 'يسار ⟵ يمين'}`
-                    : `Sens du slide : ${partnerSlideReverse ? 'Gauche ⟶ Droite' : 'Droite ⟵ Gauche'}`}
-                </span>
-                <span className="text-[10px] text-stone-400 font-normal">
-                  ({language === 'ar' ? 'انقر لتغيير الاتجاه' : 'Cliquer pour inverser'})
-                </span>
-              </button>
-            </div>
           </div>
         </AnimatedSection>
 
-        {/* Slide panoramique de l'image officielle avec défilement continu sans couture */}
-        <div className="relative w-full overflow-hidden bg-white py-8 sm:py-10 border-y border-stone-200">
-          <PanoramicMarquee
-            src="/assets/aistudio/Fichier_5_5fc12ab0.png"
-            alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
-            heightClassName="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64"
-            reverse={partnerSlideReverse}
-            speedPxPerSec={75}
-            cropLeftRatio={0.0015}
-            cropRightRatio={0.005}
-            cropVerticalPx={4}
-          />
-
-          <p className="text-[11px] text-stone-400 text-center mt-4 italic">
-            {language === 'ar' ? 'مرر الفأرة فوق الشريط لإيقاف الحركة مؤقتاً' : language === 'en' ? 'Hover banner to pause continuous scroll' : 'Survolez la bannière pour mettre le défilement en pause'}
-          </p>
+        {/* Slide GIF animé officiel des partenaires institutionnels, scientifiques et médias */}
+        <div className="relative w-full overflow-hidden bg-white py-6 sm:py-10 border-y border-stone-200">
+          <div className="relative max-w-5xl mx-auto px-2 sm:px-6">
+            <div className="relative w-full overflow-hidden flex items-center justify-center">
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
+              <img
+                src="https://gardenexpoafrica.com/assets/aistudio/media_partenaire.gif"
+                alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
+                referrerPolicy="no-referrer"
+                loading="eager"
+                className="w-full max-w-[960px] h-auto object-contain select-none mx-auto"
+                draggable={false}
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  if (!img.dataset.fallbackApplied) {
+                    img.dataset.fallbackApplied = '1';
+                    img.src = '/assets/aistudio/Fichier_5_5fc12ab0.png';
+                  }
+                }}
+              />
+            </div>
+          </div>
         </div>
       </section>
 
