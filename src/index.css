@@ -1,123 +1,8 @@
 @import "tailwindcss";
 
 /* --------------------------------------------------------------------------
-   ANIMATIONS : MARQUEES & SLIDES PANORAMIQUES
+   MARQUEES & SLIDES PANORAMIQUES (RENDU HAUTE FIDÉLITÉ)
    -------------------------------------------------------------------------- */
-
-/* 1. Défilement de droite à gauche */
-@keyframes partnerMarquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-/* 2. Défilement de gauche à droite (inverse) */
-@keyframes partnerMarqueeReverse {
-  0% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
-}
-
-.animate-partner-marquee {
-  display: flex;
-  width: max-content;
-  animation: partnerMarquee 55s linear infinite;
-  will-change: transform;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-.animate-partner-marquee:hover {
-  animation-play-state: paused;
-}
-
-.animate-partner-marquee-reverse {
-  display: flex;
-  width: max-content;
-  animation: partnerMarqueeReverse 55s linear infinite;
-  will-change: transform;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-.animate-partner-marquee-reverse:hover {
-  animation-play-state: paused;
-}
-
-@media (max-width: 768px) {
-  .animate-partner-marquee {
-    animation-duration: 45s;
-  }
-  .animate-partner-marquee-reverse {
-    animation-duration: 45s;
-  }
-}
-
-/* 3. Défilement Exposants */
-@keyframes exhibitorMarquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes exhibitorMarqueeReverse {
-  0% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
-}
-
-.animate-exhibitor-marquee {
-  display: flex;
-  width: max-content;
-  animation: exhibitorMarquee 65s linear infinite;
-  will-change: transform;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-.animate-exhibitor-marquee:hover {
-  animation-play-state: paused;
-}
-
-.animate-exhibitor-marquee-reverse {
-  display: flex;
-  width: max-content;
-  animation: exhibitorMarqueeReverse 65s linear infinite;
-  will-change: transform;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-.animate-exhibitor-marquee-reverse:hover {
-  animation-play-state: paused;
-}
-
-@media (max-width: 768px) {
-  .animate-exhibitor-marquee {
-    animation-duration: 50s;
-  }
-  .animate-exhibitor-marquee-reverse {
-    animation-duration: 50s;
-  }
-}
-
-/* Rendu haute fidélité pour les images panoramiques */
 .marquee-hd-image {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: high-quality;
@@ -178,11 +63,5 @@
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
-  }
-  .animate-partner-marquee,
-  .animate-partner-marquee-reverse,
-  .animate-exhibitor-marquee,
-  .animate-exhibitor-marquee-reverse {
-    animation: none !important;
   }
 }

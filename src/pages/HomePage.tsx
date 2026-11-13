@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PageId } from '../types';
 import { useApp } from '../context/AppContext';
 import { AnimatedSection } from '../components/AnimatedSection';
+import { PanoramicMarquee } from '../components/PanoramicMarquee';
 import { useTranslation } from '../i18n/translations';
 import {
   ArrowRight,
@@ -872,34 +873,18 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           </div>
         </AnimatedSection>
 
-        {/* Slide panoramique officiel de l'image exposants avec vitesse raisonnable et haute résolution */}
-        <div className="relative w-full overflow-hidden bg-white py-8 sm:py-10 border-y border-stone-200 group">
-          {/* Dégradés latéraux subtils pour estomper les bords avec élégance */}
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
-
-          {/* Marquee en défilement infini avec direction commutable et pause au survol */}
-          <div
-            className={`flex w-max items-center ${
-              exhibitorSlideReverse ? 'animate-exhibitor-marquee-reverse' : 'animate-exhibitor-marquee'
-            } group-hover:[animation-play-state:paused] select-none`}
-          >
-            {[0, 1].map((group) => (
-              <div key={group} className="flex w-max shrink-0 items-center" aria-hidden={group === 1}>
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <img
-                    key={index}
-                    src="/assets/aistudio/les-exposants-_28989909.png"
-                    alt={group === 0 && index === 0 ? "Ils nous ont fait confiance - Exposants et marques Garden Expo Africa" : ""}
-                    aria-hidden={group !== 0 || index !== 0}
-                    className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto max-w-none object-contain p-0 shrink-0 marquee-hd-image"
-                    draggable={false}
-                    decoding="async"
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
+        {/* Slide panoramique officiel de l'image exposants avec défilement continu sans couture */}
+        <div className="relative w-full overflow-hidden bg-white py-8 sm:py-10 border-y border-stone-200">
+          <PanoramicMarquee
+            src="/assets/aistudio/les-exposants-_28989909.png"
+            alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
+            heightClassName="h-28 sm:h-36 md:h-40 lg:h-48"
+            reverse={exhibitorSlideReverse}
+            speedPxPerSec={85}
+            cropLeftRatio={0.0085}
+            cropRightRatio={0.0015}
+            cropVerticalPx={3}
+          />
 
           <p className="text-[11px] text-stone-400 text-center mt-4 italic">
             {language === 'ar' ? 'مرر الفأرة فوق الشريط لإيقاف الحركة مؤقتاً' : language === 'en' ? 'Hover banner to pause continuous scroll' : 'Survolez la bannière pour mettre le défilement en pause'}
@@ -1007,34 +992,18 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           </div>
         </AnimatedSection>
 
-        {/* Slide panoramique de l'image officielle avec vitesse raisonnable et haute résolution */}
-        <div className="relative w-full overflow-hidden bg-white py-8 sm:py-10 border-y border-stone-200 group">
-          {/* Dégradés latéraux subtils pour estomper les bords avec élégance */}
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
-
-          {/* Marquee en défilement infini avec direction commutable et pause au survol */}
-          <div
-            className={`flex w-max items-center ${
-              partnerSlideReverse ? 'animate-partner-marquee-reverse' : 'animate-partner-marquee'
-            } group-hover:[animation-play-state:paused] select-none`}
-          >
-            {[0, 1].map((group) => (
-              <div key={group} className="flex w-max shrink-0 items-center" aria-hidden={group === 1}>
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <img
-                    key={index}
-                    src="/assets/aistudio/Fichier_5_5fc12ab0.png"
-                    alt={group === 0 && index === 0 ? "Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa" : ""}
-                    aria-hidden={group !== 0 || index !== 0}
-                    className="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-auto max-w-none object-contain p-0 shrink-0 marquee-hd-image"
-                    draggable={false}
-                    decoding="async"
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
+        {/* Slide panoramique de l'image officielle avec défilement continu sans couture */}
+        <div className="relative w-full overflow-hidden bg-white py-8 sm:py-10 border-y border-stone-200">
+          <PanoramicMarquee
+            src="/assets/aistudio/Fichier_5_5fc12ab0.png"
+            alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
+            heightClassName="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64"
+            reverse={partnerSlideReverse}
+            speedPxPerSec={75}
+            cropLeftRatio={0.0015}
+            cropRightRatio={0.005}
+            cropVerticalPx={4}
+          />
 
           <p className="text-[11px] text-stone-400 text-center mt-4 italic">
             {language === 'ar' ? 'مرر الفأرة فوق الشريط لإيقاف الحركة مؤقتاً' : language === 'en' ? 'Hover banner to pause continuous scroll' : 'Survolez la bannière pour mettre le défilement en pause'}
