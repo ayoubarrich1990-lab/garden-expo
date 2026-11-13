@@ -884,18 +884,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               exhibitorSlideReverse ? 'animate-exhibitor-marquee-reverse' : 'animate-exhibitor-marquee'
             } group-hover:[animation-play-state:paused] select-none`}
           >
-            <img
-              src="/assets/aistudio/les-exposants-_28989909.png"
-              alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
-              className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
-              draggable={false}
-            />
-            <img
-              src="/assets/aistudio/les-exposants-_28989909.png"
-              alt="Ils nous ont fait confiance - Exposants et marques Garden Expo Africa"
-              className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
-              draggable={false}
-            />
+            {[0, 1].map((group) => (
+              <div key={group} className="flex w-max shrink-0 items-center" aria-hidden={group === 1}>
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <img
+                    key={index}
+                    src="/assets/aistudio/les-exposants-_28989909.png"
+                    alt={group === 0 && index === 0 ? "Ils nous ont fait confiance - Exposants et marques Garden Expo Africa" : ""}
+                    aria-hidden={group !== 0 || index !== 0}
+                    className="h-28 sm:h-36 md:h-40 lg:h-48 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
+                    draggable={false}
+                    decoding="async"
+                  />
+                ))}
+              </div>
+            ))}
           </div>
 
           <p className="text-[11px] text-stone-400 text-center mt-4 italic">
@@ -1016,18 +1019,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               partnerSlideReverse ? 'animate-partner-marquee-reverse' : 'animate-partner-marquee'
             } group-hover:[animation-play-state:paused] select-none`}
           >
-            <img
-              src="/assets/aistudio/Fichier_5_5fc12ab0.png"
-              alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
-              className="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
-              draggable={false}
-            />
-            <img
-              src="/assets/aistudio/Fichier_5_5fc12ab0.png"
-              alt="Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa"
-              className="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
-              draggable={false}
-            />
+            {[0, 1].map((group) => (
+              <div key={group} className="flex w-max shrink-0 items-center" aria-hidden={group === 1}>
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <img
+                    key={index}
+                    src="/assets/aistudio/Fichier_5_5fc12ab0.png"
+                    alt={group === 0 && index === 0 ? "Partenaires Institutionnels, Scientifiques et Médias Garden Expo Africa" : ""}
+                    aria-hidden={group !== 0 || index !== 0}
+                    className="h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-auto max-w-none object-contain px-6 sm:px-8 shrink-0 marquee-hd-image"
+                    draggable={false}
+                    decoding="async"
+                  />
+                ))}
+              </div>
+            ))}
           </div>
 
           <p className="text-[11px] text-stone-400 text-center mt-4 italic">
